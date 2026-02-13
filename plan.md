@@ -7,7 +7,43 @@
 
 ---
 
+## 开发进度快照（更新于 2026-02-14）
+
+### 总览
+
+| Phase | 状态 | 完成度（估算） | 备注 |
+|------|------|------|------|
+| Phase 1: 骨架+基础设施 | 进行中 | 85% | 主体完成，`sqlc` 代码尚未生成到 `internal/db/` |
+| Phase 2: 认证模块 | 进行中 | 75% | `register/login/me` 已完成，`refresh` 未实现 |
+| Phase 3: 产品目录 | 进行中 | 80% | 产品与后台 CRUD 已完成，`/products/{id}/plans` 未单独提供 |
+| Phase 4: 订单模块 | 进行中 | 65% | 订单主流程已完成，购物车接口未实现 |
+| Phase 5: 支付模块 | 进行中 | 45% | 路由齐全，但存在多处表字段与迁移不一致风险 |
+| Phase 6: 账单模块 | 进行中 | 70% | 发票列表/详情/管理列表可用，独立 service 层未拆分 |
+| Phase 7: 管理后台 | 进行中 | 55% | 客户/支付/退款/仪表板可用，服务开通与队列状态接口缺失 |
+| Phase 8: React 前端 | 进行中 | 80% | 主要页面已落地，设计系统组件与部分路由仍缺口 |
+| Phase 9: Worker 任务系统 | 进行中 | 55% | Worker/Scheduler 已启动，续费与发票任务仍为半成品 |
+
+### 本次核对结果
+
+- 后端编译检查：`go test ./...` 通过（无测试文件，完成编译级验证）。
+- 前端构建检查：`npm run build` 通过（Vite 生产构建成功）。
+
+### 主要阻塞（需优先修复）
+
+- `internal/payment/handler.go` 中多处 SQL 字段名与迁移不一致（如 `plans.price`、`orders.subtotal_amount`、`payment_events.event_data` 等）。
+- `internal/provisioning/handler.go` 中使用了迁移未定义字段（如 `services.activated_at/suspended_at/terminated_at`、`provisioning_jobs.error_message`、`invoices.amount` 等）。
+- `internal/db/` 尚无 `sqlc` 生成代码，当前仍以手写 SQL 为主。
+
+---
+
 ## Phase 1: 项目骨架 + Go 后端基础设施
+
+### 当前进度
+- [x] Go 项目初始化、目录结构、`cmd/api` 与 `cmd/worker` 已落地。
+- [x] `internal/app` 的配置、DB、Redis、基础 server 与中间件代码已完成。
+- [x] `migrations/` 11 个核心迁移已完成。
+- [x] `queries/` 查询文件与 `sqlc.yaml` 已完成。
+- [ ] `sqlc` 代码生成产物（`internal/db/`）尚未落地。
 
 ### 1.1 Go 项目初始化
 - 创建 `go.mod`（module `github.com/adiecho/echobilling`）
@@ -48,6 +84,12 @@
 
 ## Phase 2: 认证模块 (`internal/auth/`)
 
+### 当前进度
+- [x] `handler/routes/jwt/password` 已实现，注册/登录/`me` 可用。
+- [x] Argon2id 哈希、JWT 生成与校验已接入。
+- [ ] `POST /api/v1/auth/refresh` 尚未实现。
+- [ ] 按计划拆分的 `service.go` 与独立认证 `middleware.go` 尚未单独成型（逻辑位于现有文件/公共中间件）。
+
 ### 2.1 后端
 - `handler.go` - Register/Login HTTP handlers
 - `service.go` - 业务逻辑（密码哈希 Argon2id、JWT 签发/验证）
@@ -63,6 +105,11 @@
 ---
 
 ## Phase 3: 产品目录模块 (`internal/catalog/`)
+
+### 当前进度
+- [x] 公开产品列表、产品详情、后台产品/套餐 CRUD 已实现。
+- [ ] `GET /api/v1/products/{id}/plans` 未作为独立端点提供（当前通过产品详情/列表返回套餐）。
+- [ ] 按计划拆分的 `service.go` 仍未单独实现。
 
 ### 3.1 后端
 - `handler.go` - 产品/套餐 CRUD
@@ -80,6 +127,12 @@
 
 ## Phase 4: 订单模块 (`internal/order/`)
 
+### 当前进度
+- [x] 下单、用户订单列表/详情、管理员订单列表与状态更新已实现。
+- [x] 状态机转换规则（`draft -> pending_payment -> paid -> provisioning -> active`）已在处理逻辑中体现。
+- [ ] 购物车相关接口（`POST /api/v1/cart/items`、`GET /api/v1/cart`）未实现。
+- [ ] 按计划拆分的 `service.go` 尚未独立实现。
+
 ### 4.1 后端
 - `handler.go` - 购物车、下单
 - `service.go` - 订单状态机（draft → pending_payment → paid → provisioning → active）
@@ -96,6 +149,12 @@
 
 ## Phase 5: 支付模块 (`internal/payment/`)
 
+### 当前进度
+- [x] `POST /api/v1/checkout/session`、`POST /api/v1/webhooks/stripe` 已实现。
+- [x] 管理端退款接口已实现（位于 `internal/admin` 的 `POST /api/v1/admin/refunds`）。
+- [ ] `service.go`、`webhook.go` 尚未按计划拆分为独立文件。
+- [ ] 当前支付模块存在多处 SQL 字段与迁移不一致，需修复后才能稳定运行。
+
 ### 5.1 后端
 - `handler.go` - Checkout Session 创建、Webhook 处理
 - `service.go` - Stripe 集成逻辑
@@ -111,6 +170,10 @@
 
 ## Phase 6: 账单模块 (`internal/billing/`)
 
+### 当前进度
+- [x] 用户发票列表/详情与管理端发票列表接口已实现。
+- [ ] 按计划拆分的 `service.go` 尚未独立实现（逻辑集中在 `handler.go`）。
+
 ### 6.1 后端
 - `handler.go` - 发票查看
 - `service.go` - 发票生成、续费逻辑
@@ -124,6 +187,12 @@
 ---
 
 ## Phase 7: 管理后台模块 (`internal/admin/`)
+
+### 当前进度
+- [x] 已实现仪表板、客户列表、支付列表、管理员退款等核心接口。
+- [x] 管理员权限校验中间件已在公共中间件中实现并接入路由。
+- [ ] `POST /api/v1/admin/services/{id}/provision` 与 `GET /api/v1/admin/system/jobs` 尚未实现。
+- [ ] `PATCH /api/v1/admin/orders/{id}` 与实际实现 `PATCH /api/v1/admin/orders/{id}/status` 存在差异。
 
 ### 7.1 后端
 - `handler.go` - 管理端聚合接口
@@ -141,6 +210,13 @@
 ---
 
 ## Phase 8: React 前端
+
+### 当前进度
+- [x] Vite + React + TypeScript + Tailwind v4 + Router + Zustand 基础架构已完成。
+- [x] 公开页、认证页、用户中心、管理后台主要页面均已创建并接入路由。
+- [x] 字体与主题变量（Space Grotesk / DM Sans / JetBrains Mono）已配置。
+- [ ] 设计系统仅完成 `Button/Input/Card/Badge`，`Modal/Table/Skeleton` 缺失。
+- [ ] 路由为 `/portal/services` 列表页，计划中的 `/portal/services/{id}` 详情页未实现。
 
 ### 8.1 项目初始化 (`frontend/`)
 - Vite + React + TypeScript
@@ -189,6 +265,11 @@
 ---
 
 ## Phase 9: Worker 任务系统
+
+- [x] Worker 进程启动、任务类型定义、调度器注册已实现。
+- [x] VPS 开通/暂停/终止、续费提醒、发票生成、过期检查任务处理器已创建。
+- [ ] 续费提醒仍是日志占位（未接入通知系统）。
+- [ ] 发票/服务任务存在字段与迁移不一致问题，需修复后才能上线。
 
 - `cmd/worker/main.go` - Asynq worker 启动
 - `internal/provisioning/` - VPS 开通任务（模拟）
