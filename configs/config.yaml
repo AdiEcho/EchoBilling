@@ -1,0 +1,20 @@
+server:
+  port: 8080
+  environment: development
+
+database:
+  url: postgres://echobilling:echobilling@localhost:5432/echobilling?sslmode=disable
+  max_conns: 25
+  min_conns: 5
+
+redis:
+  addr: localhost:6379
+
+jwt:
+  secret: change-me-in-production
+  expiry: 24h
+
+stripe:
+  secret_key: sk_test_xxx
+  publishable_key: pk_test_xxx
+  webhook_secret: whsec_xxx

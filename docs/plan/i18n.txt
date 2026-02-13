@@ -1,0 +1,126 @@
+i18n 国际化支持实施计划                                                                                                                                         
+                                                                                                                                                                
+Context                                                                                                                                                         
+                                                                                                                                                                
+项目前端已安装 i18next 依赖并有基础配置（src/i18n/index.ts），但翻译文件 src/i18n/locales/ 目录为空，且所有 24+ 个页面的文本都是硬编码的。当前状态：            
+- Portal 页面（6个）：硬编码中文                                                                                                                                
+- Public 页面（9个）+ Auth 页面（2个）：混合硬编码，大部分英文，Login/Register 为中文                                                                           
+- Admin 页面（7个）：硬编码英文                                                                                                                                 
+- Layouts（3个）：硬编码英文                                                                                                                                    
+- LanguageSwitcher 组件已存在但未被任何 Layout 引用                                                                                                             
+                                                                                                                                                                
+目标：所有 UI 文本通过 t() 函数渲染，支持中英文切换，默认中文。                                                                                                 
+                                                                                                                                                                
+---                                                                                                                                                             
+实施步骤                                                                                                                                                        
+                                                                                                                                                                
+Step 1: 创建翻译 JSON 文件                                                                                                                                      
+                                                                                                                                                                
+文件： src/i18n/locales/zh.json 和 src/i18n/locales/en.json                                                                                                     
+                                                                                                                                                                
+翻译 key 按模块组织：                                                                                                                                           
+{                                                                                                                                                               
+  "common": { "loading", "noData", "view", "cancel", "create", "signOut", "signIn", "getStarted", "dashboard", ... },                                           
+  "status": { "draft", "pending", "paid", "active", "cancelled", "overdue", ... },                                                                              
+  "nav": { "home", "pricing", "about", "contact" },                                                                                                             
+  "footer": { "product", "company", "legal", "support", ... },                                                                                                  
+  "home": { "hero.title", "hero.highlight", "hero.description", "hero.cta", "features.title", ... },                                                            
+  "pricing": { ... },                                                                                                                                           
+  "about": { ... },                                                                                                                                             
+  "contact": { ... },                                                                                                                                           
+  "terms": { ... },                                                                                                                                             
+  "privacy": { ... },                                                                                                                                           
+  "refundPolicy": { ... },                                                                                                                                      
+  "cancellationPolicy": { ... },                                                                                                                                
+  "productDetail": { ... },                                                                                                                                     
+  "auth": { "login.title", "login.welcome", "login.email", ... "register.title", ... },                                                                         
+  "portal": { "dashboard.*", "orders.*", "services.*", "invoices.*", "billing.*", "security.*" },                                                               
+  "admin": { "dashboard.*", "products.*", "orders.*", "invoices.*", "payments.*", "customers.*", "system.*" }                                                   
+}                                                                                                                                                               
+                                                                                                                                                                
+Step 2: 为所有页面和 Layout 添加 useTranslation + t() 调用                                                                                                      
+                                                                                                                                                                
+需要修改的文件清单（共 27 个 TSX 文件）：                                                                                                                       
+                                                                                                                                                                
+Layouts（3个）：                                                                                                                                                
+- src/layouts/PublicLayout.tsx — 导航链接、按钮、footer 文本                                                                                                    
+- src/layouts/PortalLayout.tsx — 侧边栏链接、Sign Out                                                                                                           
+- src/layouts/AdminLayout.tsx — 侧边栏链接、Sign Out、Admin 标签                                                                                                
+                                                                                                                                                                
+Auth（2个）：                                                                                                                                                   
+- src/pages/auth/Login.tsx — 标题、表单标签、按钮、链接文本                                                                                                     
+- src/pages/auth/Register.tsx — 标题、表单标签、验证消息、按钮                                                                                                  
+                                                                                                                                                                
+Public（9个）：                                                                                                                                                 
+- src/pages/public/Home.tsx — hero、features、CTA 区域                                                                                                          
+- src/pages/public/Pricing.tsx — 标题、套餐名、特性列表、按钮                                                                                                   
+- src/pages/public/About.tsx — 公司介绍、价值观                                                                                                                 
+- src/pages/public/Contact.tsx — 表单标签、联系信息                                                                                                             
+- src/pages/public/Terms.tsx — 服务条款全文                                                                                                                     
+- src/pages/public/Privacy.tsx — 隐私政策全文                                                                                                                   
+- src/pages/public/RefundPolicy.tsx — 退款政策全文                                                                                                              
+- src/pages/public/CancellationPolicy.tsx — 取消政策全文                                                                                                        
+- src/pages/public/ProductDetail.tsx — 产品详情、套餐选择                                                                                                       
+                                                                                                                                                                
+Portal（6个）：                                                                                                                                                 
+- src/pages/portal/Dashboard.tsx — 欢迎、统计卡片、订单表格                                                                                                     
+- src/pages/portal/Orders.tsx — 标题、表格、分页                                                                                                                
+- src/pages/portal/Services.tsx — 标题、服务卡片                                                                                                                
+- src/pages/portal/Invoices.tsx — 标题、表格                                                                                                                    
+- src/pages/portal/BillingMethods.tsx — 支付方式说明                                                                                                            
+- src/pages/portal/Security.tsx — 密码修改、会话信息、2FA                                                                                                       
+                                                                                                                                                                
+Admin（7个）：                                                                                                                                                  
+- src/pages/admin/AdminDashboard.tsx                                                                                                                            
+- src/pages/admin/AdminProducts.tsx                                                                                                                             
+- src/pages/admin/AdminOrders.tsx                                                                                                                               
+- src/pages/admin/AdminInvoices.tsx                                                                                                                             
+- src/pages/admin/AdminPayments.tsx                                                                                                                             
+- src/pages/admin/AdminCustomers.tsx                                                                                                                            
+- src/pages/admin/AdminSystem.tsx                                                                                                                               
+                                                                                                                                                                
+改造模式示例：                                                                                                                                                  
+// Before                                                                                                                                                       
+<h1>欢迎回来，{user?.name}</h1>                                                                                                                                 
+                                                                                                                                                                
+// After                                                                                                                                                        
+import { useTranslation } from 'react-i18next'                                                                                                                  
+const { t } = useTranslation()                                                                                                                                  
+<h1>{t('portal.dashboard.welcome', { name: user?.name })}</h1>                                                                                                  
+                                                                                                                                                                
+Step 3: 在 Layout 中集成 LanguageSwitcher                                                                                                                       
+                                                                                                                                                                
+- PublicLayout.tsx：header 导航栏右侧（桌面端）+ 移动菜单底部                                                                                                   
+- PortalLayout.tsx：侧边栏底部（Sign Out 上方）                                                                                                                 
+- AdminLayout.tsx：侧边栏底部（Sign Out 上方）                                                                                                                  
+                                                                                                                                                                
+已有组件： src/components/LanguageSwitcher.tsx，无需修改。                                                                                                      
+                                                                                                                                                                
+Step 4: 日期格式本地化                                                                                                                                          
+                                                                                                                                                                
+将硬编码的 toLocaleDateString('zh-CN') 和 toLocaleDateString() 改为根据当前语言动态选择：                                                                       
+                                                                                                                                                                
+const { i18n } = useTranslation()                                                                                                                               
+const locale = i18n.language === 'zh' ? 'zh-CN' : 'en-US'                                                                                                       
+new Date(date).toLocaleDateString(locale)                                                                                                                       
+                                                                                                                                                                
+涉及文件：Dashboard.tsx、Orders.tsx、Invoices.tsx、Security.tsx（portal），以及 admin 页面中所有日期显示。                                                      
+                                                                                                                                                                
+---                                                                                                                                                             
+执行顺序                                                                                                                                                        
+                                                                                                                                                                
+1. 创建 zh.json 和 en.json 翻译文件（最大工作量）                                                                                                               
+2. 修改 3 个 Layout 文件（添加 LanguageSwitcher + t() 调用）                                                                                                    
+3. 修改 2 个 Auth 页面                                                                                                                                          
+4. 修改 9 个 Public 页面                                                                                                                                        
+5. 修改 6 个 Portal 页面                                                                                                                                        
+6. 修改 7 个 Admin 页面                                                                                                                                         
+                                                                                                                                                                
+验证方式                                                                                                                                                        
+                                                                                                                                                                
+1. cd frontend && npm run build — 确保无 TypeScript 编译错误                                                                                                    
+2. npm run dev — 启动开发服务器，手动验证：                                                                                                                     
+  - 默认显示中文                                                                                                                                                
+  - 点击语言切换按钮切换到英文，所有页面文本切换                                                                                                                
+  - 刷新页面后语言偏好保持（localStorage）                                                                                                                      
+  - 检查各页面无遗漏的硬编码文本                                                               

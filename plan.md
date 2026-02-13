@@ -1,0 +1,248 @@
+# EchoBilling 全栈实施方案
+
+## 总体策略
+
+按开发文档的 4 阶段推进，每阶段内按"后端骨架 → 数据库 → API → 前端页面"顺序实施。
+采用模块化单体架构，Go 后端 + React 前端 SPA，通过 API 通信。
+
+---
+
+## Phase 1: 项目骨架 + Go 后端基础设施
+
+### 1.1 Go 项目初始化
+- 创建 `go.mod`（module `github.com/adiecho/echobilling`）
+- 安装核心依赖：gin, pgx, sqlc, asynq, stripe-go, jwt, uuid, argon2
+- 创建目录结构：`cmd/api/`, `cmd/worker/`, `internal/*/`, `migrations/`, `queries/`, `configs/`
+
+### 1.2 基础设施层 (`internal/app/`)
+- `config.go` - 配置加载（从环境变量/.env）
+- `database.go` - PostgreSQL 连接池（pgx）
+- `redis.go` - Redis 连接
+- `server.go` - Gin 引擎初始化、中间件注册、路由挂载
+- `middleware/` - CORS、日志、Recovery、认证中间件、限流
+
+### 1.3 数据库迁移 (`migrations/`)
+按顺序创建所有核心表的 SQL 迁移文件：
+1. `001_users.up.sql` / `001_users.down.sql`
+2. `002_customer_profiles.up.sql`
+3. `003_products.up.sql`
+4. `004_plans.up.sql`
+5. `005_orders_and_items.up.sql`
+6. `006_services.up.sql`
+7. `007_invoices_and_items.up.sql`
+8. `008_payments_and_events.up.sql`
+9. `009_refunds_disputes.up.sql`
+10. `010_provisioning_jobs.up.sql`
+11. `011_audit_logs.up.sql`
+
+### 1.4 sqlc 查询定义 (`queries/`)
+- `sqlc.yaml` 配置
+- 每个模块的 `.sql` 查询文件
+- 生成类型安全的 Go 代码到 `internal/db/`
+
+### 1.5 入口点
+- `cmd/api/main.go` - HTTP 服务启动
+- `cmd/worker/main.go` - Asynq Worker 启动
+
+---
+
+## Phase 2: 认证模块 (`internal/auth/`)
+
+### 2.1 后端
+- `handler.go` - Register/Login HTTP handlers
+- `service.go` - 业务逻辑（密码哈希 Argon2id、JWT 签发/验证）
+- `middleware.go` - JWT 认证中间件
+- `routes.go` - 路由注册
+
+### 2.2 API 端点
+- `POST /api/v1/auth/register` - 注册（email, password, name）
+- `POST /api/v1/auth/login` - 登录（返回 JWT）
+- `POST /api/v1/auth/refresh` - Token 刷新
+- `GET /api/v1/auth/me` - 当前用户信息
+
+---
+
+## Phase 3: 产品目录模块 (`internal/catalog/`)
+
+### 3.1 后端
+- `handler.go` - 产品/套餐 CRUD
+- `service.go` - 业务逻辑
+- `routes.go` - 路由
+
+### 3.2 API 端点
+- `GET /api/v1/products` - 公开产品列表
+- `GET /api/v1/products/{slug}` - 产品详情
+- `GET /api/v1/products/{id}/plans` - 套餐列表
+- Admin: `POST/PUT/DELETE /api/v1/admin/products`
+- Admin: `POST/PUT/DELETE /api/v1/admin/plans`
+
+---
+
+## Phase 4: 订单模块 (`internal/order/`)
+
+### 4.1 后端
+- `handler.go` - 购物车、下单
+- `service.go` - 订单状态机（draft → pending_payment → paid → provisioning → active）
+- `routes.go`
+
+### 4.2 API 端点
+- `POST /api/v1/cart/items` - 添加购物车
+- `GET /api/v1/cart` - 查看购物车
+- `POST /api/v1/orders` - 创建订单
+- `GET /api/v1/portal/orders` - 用户订单列表
+- `GET /api/v1/portal/orders/{id}` - 订单详情
+
+---
+
+## Phase 5: 支付模块 (`internal/payment/`)
+
+### 5.1 后端
+- `handler.go` - Checkout Session 创建、Webhook 处理
+- `service.go` - Stripe 集成逻辑
+- `webhook.go` - Webhook 验签、事件去重、分发处理
+- `routes.go`
+
+### 5.2 API 端点
+- `POST /api/v1/checkout/session` - 创建 Stripe Checkout
+- `POST /api/v1/webhooks/stripe` - Webhook 接收
+- Admin: `POST /api/v1/admin/refunds` - 发起退款
+
+---
+
+## Phase 6: 账单模块 (`internal/billing/`)
+
+### 6.1 后端
+- `handler.go` - 发票查看
+- `service.go` - 发票生成、续费逻辑
+- `routes.go`
+
+### 6.2 API 端点
+- `GET /api/v1/portal/invoices` - 用户发票列表
+- `GET /api/v1/portal/invoices/{id}` - 发票详情
+- Admin: `GET /api/v1/admin/invoices`
+
+---
+
+## Phase 7: 管理后台模块 (`internal/admin/`)
+
+### 7.1 后端
+- `handler.go` - 管理端聚合接口
+- `service.go` - 管理操作（用户管理、订单处理等）
+- `middleware.go` - 管理员权限校验
+- `routes.go`
+
+### 7.2 API 端点
+- `GET /api/v1/admin/customers` - 客户列表
+- `PATCH /api/v1/admin/orders/{id}` - 更新订单
+- `POST /api/v1/admin/services/{id}/provision` - 手动开通
+- `GET /api/v1/admin/payments` - 支付记录
+- `GET /api/v1/admin/system/jobs` - 任务队列状态
+
+---
+
+## Phase 8: React 前端
+
+### 8.1 项目初始化 (`frontend/`)
+- Vite + React + TypeScript
+- TailwindCSS v4 配置（Dark Tech 主题）
+- React Router v7
+- Axios/fetch API 客户端
+- 字体：Space Grotesk + DM Sans + JetBrains Mono
+
+### 8.2 设计系统 (`frontend/src/components/ui/`)
+- Button, Input, Card, Badge, Modal, Table, Skeleton
+- 深色主题色彩系统（Slate 900 背景、Indigo 500 主色、Emerald 500 CTA）
+- Glassmorphism 卡片样式
+- 响应式布局组件
+
+### 8.3 公开页面（Stripe 审核关键）
+- `/` - 首页（Hero + Bento Grid 特性展示 + 信任背书）
+- `/pricing` - 套餐价格页（参数矩阵对比）
+- `/vps/{slug}` - 产品详情页
+- `/about` - 公司信息（LLC 名称）
+- `/contact` - 联系方式
+- `/terms` - 服务条款
+- `/privacy` - 隐私政策
+- `/refund-policy` - 退款政策
+- `/cancellation-policy` - 取消政策
+
+### 8.4 认证页面
+- `/login` - 登录
+- `/register` - 注册
+
+### 8.5 用户中心页面 (`/portal/*`)
+- Dashboard - 服务概览
+- Orders - 订单列表
+- Services/{id} - 服务详情（状态指示器、操作按钮）
+- Invoices - 发票列表
+- Billing Methods - 支付方式管理
+- Security - 密码修改
+
+### 8.6 管理后台页面 (`/admin/*`)
+- Products - 产品管理 CRUD
+- Orders - 订单管理
+- Invoices - 发票管理
+- Payments - 支付记录
+- Customers - 客户管理
+- System/Jobs - 任务队列监控
+
+---
+
+## Phase 9: Worker 任务系统
+
+- `cmd/worker/main.go` - Asynq worker 启动
+- `internal/provisioning/` - VPS 开通任务（模拟）
+- 续费提醒任务
+- 发票生成任务
+- 服务到期处理任务
+
+---
+
+## 实施顺序（按优先级）
+
+由于代码量巨大，按以下顺序分批实施：
+
+### 批次 1: 后端骨架 + 数据库
+- Phase 1 全部（项目初始化、基础设施、迁移、sqlc）
+- Phase 2（认证模块）
+
+### 批次 2: 核心业务后端
+- Phase 3（产品目录）
+- Phase 4（订单）
+- Phase 5（支付/Stripe）
+- Phase 6（账单）
+- Phase 7（管理后台）
+
+### 批次 3: 前端
+- Phase 8.1-8.3（前端初始化 + 设计系统 + 公开页面）
+- Phase 8.4-8.6（认证 + 用户中心 + 管理后台）
+
+### 批次 4: Worker + 收尾
+- Phase 9（任务系统）
+- 集成测试
+- 配置文件和部署脚本
+
+---
+
+## 技术决策
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| 迁移工具 | goose | 更简洁，支持 Go 和 SQL 迁移 |
+| 前端路由 | React Router v7 | 成熟稳定 |
+| 状态管理 | Zustand | 轻量，适合中等规模 |
+| HTTP 客户端 | fetch + 自定义封装 | 减少依赖 |
+| 图标库 | Lucide React | 与设计规范一致 |
+| 表单 | React Hook Form + Zod | 类型安全验证 |
+| 表格 | TanStack Table | 功能强大，headless |
+
+---
+
+## 文件预估
+
+- Go 后端：~50 个文件
+- SQL 迁移：~22 个文件（11 对 up/down）
+- sqlc 查询：~10 个文件
+- React 前端：~60 个文件
+- 配置文件：~10 个文件
+- 总计：~150 个文件
