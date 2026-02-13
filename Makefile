@@ -1,4 +1,4 @@
-.PHONY: help dev build run migrate-up migrate-down sqlc test lint docker-up docker-down
+.PHONY: help dev build run migrate-up migrate-down sqlc test lint docker-up docker-down docker-db-up docker-db-down
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -39,6 +39,12 @@ docker-up: ## Start all services with docker-compose
 
 docker-down: ## Stop all services
 	docker compose down
+
+docker-db-up: ## Start only PostgreSQL service
+	docker compose up -d postgres redis
+
+docker-db-down: ## Stop only PostgreSQL service
+	docker compose stop postgres redis
 
 docker-build: ## Build docker images
 	docker compose build
