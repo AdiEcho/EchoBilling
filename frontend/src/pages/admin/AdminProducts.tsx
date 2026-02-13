@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import Input from '../../components/ui/Input'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
 
 interface Product {
   id: string
@@ -25,6 +26,7 @@ export default function AdminProducts() {
     category: '',
     description: '',
   })
+  const { t } = useTranslation()
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,7 +39,7 @@ export default function AdminProducts() {
         setLoading(false)
       }
     }
-    fetchProducts()
+    void fetchProducts()
   }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,29 +51,29 @@ export default function AdminProducts() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text">Products Management</h1>
+        <h1 className="text-3xl font-bold text-text">{t('admin.products.title')}</h1>
         <Button onClick={() => setShowModal(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Add Product
+          {t('admin.products.addProduct')}
         </Button>
       </div>
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">Loading...</div>
+          <div className="text-text-secondary p-4">{t('common.loading')}</div>
         ) : products.length === 0 ? (
-          <div className="text-text-secondary p-4">No products found</div>
+          <div className="text-text-secondary p-4">{t('admin.products.noProducts')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Name</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Slug</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Category</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Plans</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.name')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.slug')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.category')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.status')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.plans')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,16 +87,16 @@ export default function AdminProducts() {
                     <td className="py-3 px-4 text-text-secondary">{product.category}</td>
                     <td className="py-3 px-4">
                       <Badge variant={product.status === 'active' ? 'success' : 'default'}>
-                        {product.status}
+                        {t(`status.${product.status}`, { defaultValue: product.status })}
                       </Badge>
                     </td>
                     <td className="py-3 px-4 text-text-secondary">{product.plans_count}</td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button className="text-primary hover:text-primary/80">
+                        <button className="text-primary hover:text-primary/80" aria-label={t('common.edit')}>
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="text-red-500 hover:text-red-400">
+                        <button className="text-red-500 hover:text-red-400" aria-label={t('common.delete')}>
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -111,35 +113,35 @@ export default function AdminProducts() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="text-xl font-bold text-text">Add Product</h2>
+              <h2 className="text-xl font-bold text-text">{t('admin.products.modalTitle')}</h2>
               <Input
-                label="Name"
+                label={t('common.name')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
               <Input
-                label="Slug"
+                label={t('admin.products.slug')}
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 required
               />
               <Input
-                label="Category"
+                label={t('common.category')}
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 required
               />
               <Input
-                label="Description"
+                label={t('common.description')}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
-                  Cancel
+                  {t('admin.products.cancel')}
                 </Button>
-                <Button type="submit">Create</Button>
+                <Button type="submit">{t('admin.products.create')}</Button>
               </div>
             </form>
           </Card>

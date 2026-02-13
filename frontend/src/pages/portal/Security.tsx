@@ -6,6 +6,8 @@ import Badge from '../../components/ui/Badge'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { Lock, Shield, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 export default function Security() {
   const token = useAuthStore((state) => state.token)
@@ -15,6 +17,8 @@ export default function Security() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   const handlePasswordChange = async (e: FormEvent) => {
     e.preventDefault()
@@ -22,12 +26,12 @@ export default function Security() {
     setSuccess('')
 
     if (newPassword.length < 8) {
-      setError('新密码至少需要 8 个字符')
+      setError(t('portal.security.passwordMin'))
       return
     }
 
     if (newPassword !== confirmPassword) {
-      setError('两次输入的新密码不一致')
+      setError(t('portal.security.passwordMismatch'))
       return
     }
 
@@ -42,12 +46,12 @@ export default function Security() {
           new_password: newPassword,
         }),
       })
-      setSuccess('密码修改成功')
+      setSuccess(t('portal.security.passwordChanged'))
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : '密码修改失败')
+      setError(err instanceof Error ? err.message : t('portal.security.passwordChangeFailed'))
     } finally {
       setLoading(false)
     }
@@ -56,8 +60,8 @@ export default function Security() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-text">安全设置</h1>
-        <p className="text-text-secondary mt-2">管理您的账户安全</p>
+        <h1 className="text-3xl font-bold text-text">{t('portal.security.title')}</h1>
+        <p className="text-text-secondary mt-2">{t('portal.security.subtitle')}</p>
       </div>
 
       <Card>
@@ -66,8 +70,8 @@ export default function Security() {
             <Lock className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-text mb-1">修改密码</h2>
-            <p className="text-text-secondary text-sm">定期更新密码以保护您的账户安全</p>
+            <h2 className="text-lg font-semibold text-text mb-1">{t('portal.security.changePasswordTitle')}</h2>
+            <p className="text-text-secondary text-sm">{t('portal.security.changePasswordDescription')}</p>
           </div>
         </div>
 
@@ -87,8 +91,8 @@ export default function Security() {
           <Input
             id="currentPassword"
             type="password"
-            label="当前密码"
-            placeholder="输入当前密码"
+            label={t('portal.security.currentPassword')}
+            placeholder={t('portal.security.currentPasswordPlaceholder')}
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
@@ -97,8 +101,8 @@ export default function Security() {
           <Input
             id="newPassword"
             type="password"
-            label="新密码"
-            placeholder="至少 8 个字符"
+            label={t('portal.security.newPassword')}
+            placeholder={t('portal.security.newPasswordPlaceholder')}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
@@ -107,15 +111,15 @@ export default function Security() {
           <Input
             id="confirmPassword"
             type="password"
-            label="确认新密码"
-            placeholder="再次输入新密码"
+            label={t('portal.security.confirmNewPassword')}
+            placeholder={t('portal.security.confirmNewPasswordPlaceholder')}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
 
           <Button type="submit" disabled={loading}>
-            {loading ? '修改中...' : '修改密码'}
+            {loading ? t('portal.security.submitting') : t('portal.security.submit')}
           </Button>
         </form>
       </Card>
@@ -126,19 +130,19 @@ export default function Security() {
             <Clock className="w-6 h-6 text-cta" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-text mb-1">会话信息</h2>
-            <p className="text-text-secondary text-sm">您当前的登录会话</p>
+            <h2 className="text-lg font-semibold text-text mb-1">{t('portal.security.sessionTitle')}</h2>
+            <p className="text-text-secondary text-sm">{t('portal.security.sessionDescription')}</p>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between py-2 border-b border-border/50">
-            <span className="text-sm text-text-secondary">当前设备</span>
-            <Badge variant="success">活跃</Badge>
+            <span className="text-sm text-text-secondary">{t('portal.security.currentDevice')}</span>
+            <Badge variant="success">{t('status.active')}</Badge>
           </div>
           <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-text-secondary">登录时间</span>
-            <span className="text-sm text-text">{new Date().toLocaleString('zh-CN')}</span>
+            <span className="text-sm text-text-secondary">{t('portal.security.loginTime')}</span>
+            <span className="text-sm text-text">{new Date().toLocaleString(locale)}</span>
           </div>
         </div>
       </Card>
@@ -149,11 +153,9 @@ export default function Security() {
             <Shield className="w-6 h-6 text-warning" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-text mb-1">双因素认证</h2>
-            <p className="text-text-secondary text-sm mb-3">
-              增强您的账户安全性，启用双因素认证
-            </p>
-            <Badge variant="warning">即将推出</Badge>
+            <h2 className="text-lg font-semibold text-text mb-1">{t('portal.security.twoFactorTitle')}</h2>
+            <p className="text-text-secondary text-sm mb-3">{t('portal.security.twoFactorDescription')}</p>
+            <Badge variant="warning">{t('portal.security.comingSoon')}</Badge>
           </div>
         </div>
       </Card>

@@ -1,0 +1,323 @@
+{
+  "terms": {
+    "title": "Terms of Service",
+    "sections": [
+      {
+        "title": "1. Acceptance of Terms",
+        "paragraphs": [
+          "By accessing and using EchoBilling's services, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.",
+          "EchoBilling LLC (\"Company\", \"we\", \"us\", or \"our\") reserves the right to modify these terms at any time. Your continued use of the service constitutes acceptance of those changes."
+        ]
+      },
+      {
+        "title": "2. Description of Services",
+        "paragraphs": [
+          "EchoBilling provides cloud infrastructure services including but not limited to Virtual Private Servers (VPS), hosting solutions, and related technical services. We reserve the right to modify, suspend, or discontinue any aspect of our services with reasonable notice.",
+          "Service availability is subject to our Service Level Agreement (SLA). While we strive for maximum uptime, we cannot guarantee uninterrupted service due to maintenance, upgrades, and force majeure events."
+        ]
+      },
+      {
+        "title": "3. Account Registration and Security",
+        "paragraphs": [
+          "You must provide accurate, current, and complete information during registration. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.",
+          "Accounts are non-transferable. You may not share, sell, or transfer your account to another party. We reserve the right to suspend or terminate accounts that violate this provision."
+        ]
+      },
+      {
+        "title": "4. Payment Terms",
+        "paragraphs": [
+          "All fees are stated in United States Dollars (USD) unless otherwise specified. Payment is due in advance for the selected billing cycle (monthly, quarterly, or annually).",
+          "If payment fails, you remain responsible for uncollected amounts and may be charged a reasonable fee for failed payment attempts. Price changes will be communicated at least 30 days in advance."
+        ]
+      },
+      {
+        "title": "5. Acceptable Use Policy",
+        "paragraphs": [
+          "You agree not to use our services for any unlawful purpose or in any way that interrupts, damages, or impairs the service."
+        ],
+        "list": [
+          "Hosting or distributing malware, viruses, or malicious code",
+          "Engaging in spam, phishing, or fraudulent activities",
+          "Violating intellectual property rights",
+          "Conducting illegal activities or hosting illegal content",
+          "Attempting to gain unauthorized access to other systems",
+          "Excessive resource consumption that impacts other users"
+        ],
+        "afterList": "Violation of this policy may result in immediate suspension or termination of services without refund."
+      },
+      {
+        "title": "6. Service Termination",
+        "paragraphs": [
+          "Either party may terminate services with written notice. You may cancel at any time through your account portal.",
+          "Upon termination, you remain responsible for all fees incurred up to the termination date. Data retention after termination is subject to our data retention policy."
+        ]
+      },
+      {
+        "title": "7. Limitation of Liability",
+        "paragraphs": [
+          "To the maximum extent permitted by law, EchoBilling LLC shall not be liable for indirect, incidental, special, consequential, or punitive damages.",
+          "Our total liability shall not exceed the amount you paid us in the twelve months preceding the claim."
+        ]
+      },
+      {
+        "title": "8. Governing Law and Dispute Resolution",
+        "paragraphs": [
+          "These terms are governed by the laws of the State of Delaware, United States, without regard to conflict of law provisions.",
+          "Any disputes arising from these terms or your use of our services shall be resolved through binding arbitration."
+        ]
+      },
+      {
+        "title": "9. Contact Information",
+        "paragraphs": [
+          "For questions about these Terms of Service, please contact us at:"
+        ],
+        "email": "legal@echobilling.com"
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "sections": [
+      {
+        "title": "1. Information We Collect",
+        "paragraphs": [
+          "We collect information you provide directly to us when creating an account, using our services, or communicating with us."
+        ],
+        "list": [
+          "Account information (name, email address, billing address)",
+          "Payment information (processed securely through third-party processors)",
+          "Technical information (IP addresses, server logs, usage data)",
+          "Communications (support tickets, emails, chat messages)"
+        ],
+        "afterList": "We also collect certain information automatically, including device and usage information, to improve service quality and security."
+      },
+      {
+        "title": "2. How We Use Your Information",
+        "paragraphs": [
+          "We use collected data to operate, maintain, and improve our services."
+        ],
+        "list": [
+          "Provide and improve our services",
+          "Process transactions and send related information",
+          "Send technical notices, updates, and security alerts",
+          "Respond to support requests",
+          "Monitor usage trends and detect abuse",
+          "Comply with legal obligations"
+        ],
+        "afterList": "We do not sell personal information to third parties."
+      },
+      {
+        "title": "3. Data Security",
+        "paragraphs": [
+          "We implement technical and organizational measures to protect personal information, including encryption, access controls, and regular security assessments.",
+          "No method of transmission or storage is 100% secure, and we cannot guarantee absolute security."
+        ]
+      },
+      {
+        "title": "4. Cookies and Tracking Technologies",
+        "paragraphs": [
+          "We use cookies and similar technologies for authentication, preferences, security, and analytics.",
+          "You can configure your browser to reject cookies, but some service functionality may be limited."
+        ]
+      },
+      {
+        "title": "5. Third-Party Services",
+        "paragraphs": [
+          "Our services may contain links to third-party websites or integrate with third-party services.",
+          "We encourage you to review the privacy policies of any third-party services you use."
+        ]
+      },
+      {
+        "title": "6. Your Rights and Choices",
+        "paragraphs": [
+          "You may have rights regarding your personal information, subject to applicable law."
+        ],
+        "list": [
+          "Access your personal data",
+          "Correct inaccurate information",
+          "Request deletion",
+          "Request data portability",
+          "Opt out of marketing communications"
+        ],
+        "afterList": "To exercise these rights, contact privacy@echobilling.com."
+      },
+      {
+        "title": "7. Data Retention",
+        "paragraphs": [
+          "We retain data as long as necessary to provide our services and comply with legal requirements.",
+          "When accounts are closed, we delete or anonymize data within a reasonable period, subject to backup and legal retention requirements."
+        ]
+      },
+      {
+        "title": "8. International Data Transfers",
+        "paragraphs": [
+          "Your information may be transferred to and processed in countries other than your residence.",
+          "We use appropriate safeguards to protect personal information in cross-border transfers."
+        ]
+      },
+      {
+        "title": "9. Children's Privacy",
+        "paragraphs": [
+          "Our services are not directed to individuals under 18, and we do not knowingly collect their personal information."
+        ]
+      },
+      {
+        "title": "10. Changes to This Policy",
+        "paragraphs": [
+          "We may update this policy from time to time and will post the latest version on this page."
+        ]
+      },
+      {
+        "title": "11. Contact Us",
+        "paragraphs": [
+          "If you have questions about this Privacy Policy, please contact us at:"
+        ],
+        "email": "privacy@echobilling.com"
+      }
+    ]
+  },
+  "refundPolicy": {
+    "title": "Refund Policy",
+    "highlight": {
+      "title": "7-Day Money-Back Guarantee",
+      "description": "New customers are eligible for a full refund within 7 days of the initial purchase."
+    },
+    "sections": [
+      {
+        "title": "1. Eligibility for Refunds",
+        "paragraphs": [
+          "To be eligible for a refund, one of the following conditions should apply:"
+        ],
+        "list": [
+          "New account requesting within 7 days of the first purchase",
+          "Annual plans cancelled within the first 30 days (pro-rated where applicable)",
+          "Unresolved technical issue preventing normal service usage"
+        ]
+      },
+      {
+        "title": "2. Non-Refundable Items",
+        "paragraphs": [
+          "The following scenarios are generally not eligible for refunds:"
+        ],
+        "list": [
+          "Services used beyond the eligible refund window",
+          "Automatic renewal payments",
+          "Accounts terminated due to Terms/AUP violations",
+          "Provisioned add-on services"
+        ]
+      },
+      {
+        "title": "3. How to Request a Refund",
+        "paragraphs": [
+          "To request a refund, please follow these steps:"
+        ],
+        "orderedList": [
+          "Log in to your account and open the Billing section",
+          "Select the eligible service and click Request Refund",
+          "Provide an optional reason",
+          "Submit and wait for email confirmation"
+        ],
+        "afterList": "You can also contact billing@echobilling.com directly."
+      },
+      {
+        "title": "4. Refund Processing Time",
+        "paragraphs": [
+          "After approval, refunds are processed to the original payment method."
+        ],
+        "list": [
+          "Processing time: 5-7 business days",
+          "Bank/card settlement may require additional time",
+          "A confirmation email is sent once completed"
+        ]
+      },
+      {
+        "title": "5. Dispute Resolution",
+        "paragraphs": [
+          "If a refund request is denied and you believe it is incorrect, contact our billing team with supporting materials.",
+          "A senior team member will review and provide a final response."
+        ]
+      },
+      {
+        "title": "6. Partial Refunds",
+        "paragraphs": [
+          "In certain circumstances, partial refunds may be granted at our discretion, such as service disruption caused by our side.",
+          "Partial refunds are calculated based on the unused portion of service."
+        ]
+      }
+    ],
+    "questions": {
+      "title": "Questions About Refunds?",
+      "description": "If you need help with refund requests, contact us anytime.",
+      "email": "billing@echobilling.com"
+    }
+  },
+  "cancellationPolicy": {
+    "title": "Cancellation Policy",
+    "highlight": {
+      "title": "Cancel Anytime",
+      "description": "You can cancel services at any time from your account portal."
+    },
+    "sections": [
+      {
+        "title": "1. How to Cancel",
+        "paragraphs": [
+          "You can cancel either through the portal or by contacting support."
+        ],
+        "orderedList": [
+          "Log in to your account",
+          "Go to Services or Billing",
+          "Select the service to cancel",
+          "Submit cancellation request"
+        ],
+        "afterList": "You can also email support@echobilling.com with account and service details."
+      },
+      {
+        "title": "2. Cancellation Effective Time",
+        "paragraphs": [
+          "By default, cancellation takes effect at the end of the current billing cycle.",
+          "Immediate cancellation is available on request but may not be eligible for refunds."
+        ]
+      },
+      {
+        "title": "3. Data Retention",
+        "paragraphs": [
+          "After service termination, data is retained for a 30-day grace period.",
+          "After 30 days, data may be permanently deleted and cannot be recovered."
+        ]
+      },
+      {
+        "title": "4. Reactivation",
+        "paragraphs": [
+          "If reactivated within 30 days, data restoration may be available.",
+          "After 30 days, a new service instance is required."
+        ]
+      },
+      {
+        "title": "5. Cancellation Fees",
+        "paragraphs": [
+          "EchoBilling does not charge cancellation fees.",
+          "You are responsible for charges incurred up to the cancellation date."
+        ]
+      },
+      {
+        "title": "6. Involuntary Cancellation",
+        "paragraphs": [
+          "We may suspend or terminate services for non-payment, abuse, fraud, or serious policy violations.",
+          "In these cases, you will receive notice and, where applicable, instructions for appeal."
+        ]
+      },
+      {
+        "title": "7. Feedback",
+        "paragraphs": [
+          "We value feedback and may invite you to complete an exit survey after cancellation."
+        ]
+      }
+    ],
+    "help": {
+      "title": "Need Help Before Cancelling?",
+      "description": "Contact support first. We may resolve your issue or offer alternatives.",
+      "email": "support@echobilling.com",
+      "availability": "Available 24/7"
+    }
+  }
+}

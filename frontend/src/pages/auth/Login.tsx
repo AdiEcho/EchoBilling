@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuthStore } from '../../stores/auth'
 import { LogIn } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -13,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -23,7 +25,7 @@ export default function Login() {
       await login(email, password)
       navigate('/portal/dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : '登录失败')
+      setError(err instanceof Error ? err.message : t('auth.login.failed'))
     } finally {
       setLoading(false)
     }
@@ -36,8 +38,8 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
             <LogIn className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-text">登录</h1>
-          <p className="text-sm text-text-secondary mt-2">欢迎回到 EchoBilling</p>
+          <h1 className="text-2xl font-bold text-text">{t('auth.login.title')}</h1>
+          <p className="text-sm text-text-secondary mt-2">{t('auth.login.welcome')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -50,8 +52,8 @@ export default function Login() {
           <Input
             id="email"
             type="email"
-            label="邮箱"
-            placeholder="your@email.com"
+            label={t('auth.login.email')}
+            placeholder={t('common.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -60,7 +62,7 @@ export default function Login() {
           <Input
             id="password"
             type="password"
-            label="密码"
+            label={t('auth.login.password')}
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -68,14 +70,14 @@ export default function Login() {
           />
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? '登录中...' : '登录'}
+            {loading ? t('auth.login.submitting') : t('auth.login.submit')}
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm text-text-secondary">
-          还没有账号？{' '}
-          <Link to="/auth/register" className="text-primary hover:underline">
-            立即注册
+          {t('auth.login.noAccount')}{' '}
+          <Link to="/register" className="text-primary hover:underline">
+            {t('auth.login.registerNow')}
           </Link>
         </div>
       </Card>

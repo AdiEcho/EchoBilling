@@ -1,0 +1,462 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "view": "查看",
+    "edit": "编辑",
+    "delete": "删除",
+    "cancel": "取消",
+    "create": "创建",
+    "signOut": "退出登录",
+    "signIn": "登录",
+    "getStarted": "立即开始",
+    "dashboard": "仪表盘",
+    "products": "产品",
+    "orders": "订单",
+    "services": "服务",
+    "invoices": "账单",
+    "payments": "支付",
+    "customers": "客户",
+    "system": "系统",
+    "billingMethods": "支付方式",
+    "security": "安全",
+    "status": "状态",
+    "amount": "金额",
+    "date": "日期",
+    "actions": "操作",
+    "name": "名称",
+    "email": "邮箱",
+    "emailPlaceholder": "your@email.com",
+    "category": "分类",
+    "description": "描述",
+    "feature": "项目",
+    "cpu": "CPU",
+    "ram": "内存",
+    "storage": "存储",
+    "bandwidth": "带宽",
+    "month": "/月",
+    "orderNow": "立即下单",
+    "goBack": "返回",
+    "save": "保存",
+    "all": "全部",
+    "pageInfo": "第 {{page}} 页，共 {{total}} 页",
+    "lastUpdated": "最后更新：2026 年 2 月 13 日",
+    "currency": "¥"
+  },
+  "languageSwitcher": {
+    "ariaLabel": "切换语言",
+    "switchToEnglish": "EN",
+    "switchToChinese": "中文"
+  },
+  "nav": {
+    "home": "首页",
+    "pricing": "定价",
+    "about": "关于",
+    "contact": "联系"
+  },
+  "footer": {
+    "product": "产品",
+    "company": "公司",
+    "legal": "法律",
+    "support": "支持",
+    "pricing": "定价",
+    "vpsHosting": "VPS 主机",
+    "about": "关于我们",
+    "contact": "联系我们",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "refund": "退款政策",
+    "cancellation": "取消政策",
+    "helpCenter": "帮助中心",
+    "copyright": "© {{year}} EchoBilling LLC. 保留所有权利。"
+  },
+  "publicLayout": {
+    "toggleMenu": "切换菜单"
+  },
+  "portalLayout": {
+    "toggleSidebar": "切换侧边栏"
+  },
+  "adminLayout": {
+    "admin": "管理员"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "welcome": "欢迎回到 EchoBilling",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "submitting": "登录中...",
+      "failed": "登录失败",
+      "noAccount": "还没有账号？",
+      "registerNow": "立即注册"
+    },
+    "register": {
+      "title": "注册",
+      "subtitle": "创建您的 EchoBilling 账号",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "namePlaceholder": "张三",
+      "passwordPlaceholder": "至少 8 个字符",
+      "confirmPasswordPlaceholder": "再次输入密码",
+      "submit": "注册",
+      "submitting": "注册中...",
+      "failed": "注册失败",
+      "passwordMin": "密码至少需要 8 个字符",
+      "passwordMismatch": "两次输入的密码不一致",
+      "hasAccount": "已有账号？",
+      "loginNow": "立即登录"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "面向",
+      "highlight": "高性能的云基础设施",
+      "description": "基于前沿技术的高品质 VPS 主机服务。在高性能基础设施上自信部署您的应用。",
+      "cta": "立即开始"
+    },
+    "features": {
+      "title": "成功所需的一切",
+      "items": {
+        "storage": {
+          "title": "NVMe SSD 存储",
+          "description": "闪电级 NVMe SSD，带来更高性能与可靠性"
+        },
+        "network": {
+          "title": "10Gbps 网络",
+          "description": "高速网络连接，保障流畅数据传输"
+        },
+        "ddos": {
+          "title": "DDoS 防护",
+          "description": "企业级防护能力，应对分布式攻击"
+        },
+        "uptime": {
+          "title": "99.99% 可用性",
+          "description": "行业领先可用性保障，支撑关键业务"
+        },
+        "global": {
+          "title": "全球节点",
+          "description": "支持在全球多个区域部署服务器"
+        },
+        "support": {
+          "title": "7x24 支持",
+          "description": "专业支持团队全天候在线"
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "description": "选择合适套餐，几分钟内完成部署",
+      "button": "查看定价"
+    },
+    "trust": "深受全球开发者信赖"
+  },
+  "pricing": {
+    "title": "简单透明的定价",
+    "subtitle": "按需选择最适合的套餐，所有套餐均包含核心能力。",
+    "mostPopular": "最受欢迎",
+    "includedFeatures": "包含功能：",
+    "cta": "立即开始",
+    "footnote": "所有价格以美元计费，按月结算，可随时取消。",
+    "plans": {
+      "starter": {
+        "name": "入门版",
+        "specs": {
+          "cpu": "1 vCPU",
+          "ram": "1GB 内存",
+          "storage": "25GB NVMe SSD",
+          "bandwidth": "1TB 流量"
+        }
+      },
+      "pro": {
+        "name": "专业版",
+        "specs": {
+          "cpu": "2 vCPU",
+          "ram": "4GB 内存",
+          "storage": "80GB NVMe SSD",
+          "bandwidth": "4TB 流量"
+        }
+      },
+      "business": {
+        "name": "商业版",
+        "specs": {
+          "cpu": "4 vCPU",
+          "ram": "8GB 内存",
+          "storage": "160GB NVMe SSD",
+          "bandwidth": "5TB 流量"
+        }
+      },
+      "enterprise": {
+        "name": "企业版",
+        "specs": {
+          "cpu": "8 vCPU",
+          "ram": "16GB 内存",
+          "storage": "320GB NVMe SSD",
+          "bandwidth": "10TB 流量"
+        }
+      }
+    },
+    "featureLabels": {
+      "rootAccess": "完整 Root 权限",
+      "ddos": "DDoS 防护",
+      "sla999": "99.9% SLA",
+      "sla9999": "99.99% SLA",
+      "ipv4v6": "IPv4 与 IPv6",
+      "prioritySupport": "优先支持",
+      "freeBackups": "免费备份",
+      "dedicatedIp": "独立 IP",
+      "customSolutions": "定制方案"
+    }
+  },
+  "about": {
+    "title": "关于 EchoBilling",
+    "subtitle": "构建云基础设施的未来",
+    "company": {
+      "title": "EchoBilling LLC",
+      "paragraph1": "EchoBilling 专注高性能 VPS 托管，是领先的云基础设施解决方案提供商。我们以让企业级基础设施更易获得为愿景，服务全球开发者、初创团队和企业客户。",
+      "paragraph2": "我们通过先进数据中心与前沿技术，确保应用稳定、安全、高效运行。我们坚持透明定价、卓越支持，并持续赋能客户打造优秀产品。"
+    },
+    "valuesTitle": "我们的价值观",
+    "values": {
+      "mission": {
+        "title": "我们的使命",
+        "description": "为开发者和企业提供可靠、高性能、可扩展的云基础设施。"
+      },
+      "customer": {
+        "title": "客户优先",
+        "description": "通过 7x24 支持和透明沟通，持续提升客户满意度。"
+      },
+      "quality": {
+        "title": "质量标准",
+        "description": "企业级基础设施，具备行业领先的可用性与安全标准。"
+      }
+    },
+    "companyInfoTitle": "公司信息",
+    "companyInfo": {
+      "legalEntity": "法律实体：",
+      "registration": "注册地：",
+      "founded": "成立时间：",
+      "registrationValue": "美国特拉华州",
+      "foundedValue": "2024",
+      "note": "EchoBilling LLC 是一家依法注册的有限责任公司，遵守适用的联邦和州级法规。"
+    }
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "有任何问题？我们随时提供帮助。",
+    "sendMessage": "发送消息",
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "请输入姓名",
+      "email": "邮箱",
+      "subject": "主题",
+      "subjectPlaceholder": "我们可以如何帮助您？",
+      "message": "内容",
+      "messagePlaceholder": "请描述您的问题...",
+      "send": "发送消息"
+    },
+    "info": {
+      "email": "邮箱",
+      "businessHours": "服务时间",
+      "support247": "7x24 全天候支持",
+      "responseTime": "2 小时内响应",
+      "address": "地址",
+      "addressValue": "美国特拉华州"
+    },
+    "urgent": {
+      "title": "需要紧急帮助？",
+      "description": "如遇紧急技术问题，请直接联系支持团队。",
+      "button": "提交支持工单"
+    }
+  },
+  "terms": {
+    "title": "服务条款"
+  },
+  "privacy": {
+    "title": "隐私政策"
+  },
+  "refundPolicy": {
+    "title": "退款政策"
+  },
+  "cancellationPolicy": {
+    "title": "取消政策"
+  },
+  "productDetail": {
+    "failed": "加载产品失败",
+    "loading": "正在加载产品详情...",
+    "notFound": "未找到产品",
+    "notFoundDescription": "您访问的产品不存在。",
+    "choosePlan": "选择您的套餐",
+    "features": "功能：",
+    "detailedComparison": "详细对比",
+    "monthlyPrice": "月付价格"
+  },
+  "portal": {
+    "dashboard": {
+      "welcome": "欢迎回来，{{name}}",
+      "overview": "这是您的账户概览",
+      "activeServices": "活跃服务",
+      "pendingOrders": "待处理订单",
+      "unpaidInvoices": "未支付账单",
+      "totalSpent": "总消费",
+      "recentOrders": "最近订单",
+      "noOrders": "暂无订单",
+      "orderId": "订单 ID"
+    },
+    "orders": {
+      "title": "我的订单",
+      "subtitle": "查看和管理您的所有订单",
+      "noOrders": "暂无订单",
+      "orderId": "订单 ID",
+      "view": "查看"
+    },
+    "services": {
+      "title": "我的服务",
+      "subtitle": "管理您的所有服务实例",
+      "noServices": "暂无服务",
+      "ipAddress": "IP 地址",
+      "plan": "套餐"
+    },
+    "invoices": {
+      "title": "账单",
+      "subtitle": "查看和管理您的账单",
+      "noInvoices": "暂无账单",
+      "invoiceNumber": "账单号",
+      "view": "查看"
+    },
+    "billing": {
+      "title": "支付方式",
+      "subtitle": "管理您的支付方式",
+      "stripeTitle": "Stripe 支付",
+      "stripeDescription": "我们使用 Stripe 处理所有支付。Stripe 是安全可靠的支付平台，支持多种支付方式。",
+      "manageButton": "管理支付方式",
+      "pciTitle": "PCI 合规",
+      "pciDescription": "您的支付信息由 Stripe 安全存储和处理。我们不会在服务器上保存信用卡信息。",
+      "supportedTitle": "支持的支付方式",
+      "methods": {
+        "creditCard": "信用卡",
+        "debitCard": "借记卡",
+        "alipay": "支付宝",
+        "wechatPay": "微信支付"
+      }
+    },
+    "security": {
+      "title": "安全设置",
+      "subtitle": "管理您的账户安全",
+      "changePasswordTitle": "修改密码",
+      "changePasswordDescription": "定期更新密码以保护您的账户安全",
+      "currentPassword": "当前密码",
+      "currentPasswordPlaceholder": "输入当前密码",
+      "newPassword": "新密码",
+      "newPasswordPlaceholder": "至少 8 个字符",
+      "confirmNewPassword": "确认新密码",
+      "confirmNewPasswordPlaceholder": "再次输入新密码",
+      "passwordMin": "新密码至少需要 8 个字符",
+      "passwordMismatch": "两次输入的新密码不一致",
+      "passwordChanged": "密码修改成功",
+      "passwordChangeFailed": "密码修改失败",
+      "submit": "修改密码",
+      "submitting": "修改中...",
+      "sessionTitle": "会话信息",
+      "sessionDescription": "您当前的登录会话",
+      "currentDevice": "当前设备",
+      "loginTime": "登录时间",
+      "twoFactorTitle": "双因素认证",
+      "twoFactorDescription": "启用双因素认证，提升账户安全",
+      "comingSoon": "即将推出"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "管理后台",
+      "totalCustomers": "客户总数",
+      "totalOrders": "订单总数",
+      "revenue": "收入",
+      "activeServices": "活跃服务"
+    },
+    "products": {
+      "title": "产品管理",
+      "addProduct": "新增产品",
+      "noProducts": "暂无产品",
+      "slug": "Slug",
+      "status": "状态",
+      "plans": "套餐数",
+      "modalTitle": "新增产品",
+      "cancel": "取消",
+      "create": "创建"
+    },
+    "orders": {
+      "title": "订单管理",
+      "allStatus": "全部状态",
+      "customer": "客户",
+      "orderId": "订单 ID",
+      "view": "查看",
+      "noOrders": "暂无订单",
+      "filters": {
+        "all": "全部状态",
+        "pending": "待处理",
+        "processing": "处理中",
+        "completed": "已完成",
+        "cancelled": "已取消"
+      }
+    },
+    "invoices": {
+      "title": "账单管理",
+      "invoiceNumber": "账单号",
+      "customer": "客户",
+      "noInvoices": "暂无账单",
+      "view": "查看"
+    },
+    "payments": {
+      "title": "支付管理",
+      "paymentId": "支付 ID",
+      "method": "支付方式",
+      "refund": "退款",
+      "noPayments": "暂无支付记录"
+    },
+    "customers": {
+      "title": "客户管理",
+      "role": "角色",
+      "joinedDate": "注册时间",
+      "noCustomers": "暂无客户",
+      "view": "查看"
+    },
+    "system": {
+      "title": "系统状态",
+      "apiVersion": "API 版本",
+      "database": "数据库",
+      "redis": "Redis",
+      "worker": "Worker",
+      "recentJobs": "最近任务",
+      "noJobs": "暂无任务",
+      "jobId": "任务 ID",
+      "created": "创建时间"
+    }
+  },
+  "status": {
+    "draft": "草稿",
+    "pending": "待处理",
+    "pending_payment": "待支付",
+    "paid": "已支付",
+    "active": "活跃",
+    "cancelled": "已取消",
+    "overdue": "逾期",
+    "stopped": "已停止",
+    "suspended": "已暂停",
+    "processing": "处理中",
+    "completed": "已完成",
+    "failed": "失败",
+    "refunded": "已退款",
+    "sent": "已发送",
+    "running": "运行中",
+    "inactive": "停用",
+    "unknown": "未知",
+    "admin": "管理员",
+    "customer": "客户",
+    "healthy": "健康",
+    "degraded": "降级",
+    "down": "不可用"
+  }
+}

@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuthStore } from '../../stores/auth'
 import { UserPlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function Register() {
   const [name, setName] = useState('')
@@ -15,18 +16,19 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const register = useAuthStore((state) => state.register)
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (password.length < 8) {
-      setError('密码至少需要 8 个字符')
+      setError(t('auth.register.passwordMin'))
       return
     }
 
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致')
+      setError(t('auth.register.passwordMismatch'))
       return
     }
 
@@ -36,7 +38,7 @@ export default function Register() {
       await register(email, password, name)
       navigate('/portal/dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : '注册失败')
+      setError(err instanceof Error ? err.message : t('auth.register.failed'))
     } finally {
       setLoading(false)
     }
@@ -49,8 +51,8 @@ export default function Register() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
             <UserPlus className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-text">注册</h1>
-          <p className="text-sm text-text-secondary mt-2">创建您的 EchoBilling 账号</p>
+          <h1 className="text-2xl font-bold text-text">{t('auth.register.title')}</h1>
+          <p className="text-sm text-text-secondary mt-2">{t('auth.register.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -63,8 +65,8 @@ export default function Register() {
           <Input
             id="name"
             type="text"
-            label="姓名"
-            placeholder="张三"
+            label={t('auth.register.name')}
+            placeholder={t('auth.register.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -73,8 +75,8 @@ export default function Register() {
           <Input
             id="email"
             type="email"
-            label="邮箱"
-            placeholder="your@email.com"
+            label={t('auth.register.email')}
+            placeholder={t('common.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -83,8 +85,8 @@ export default function Register() {
           <Input
             id="password"
             type="password"
-            label="密码"
-            placeholder="至少 8 个字符"
+            label={t('auth.register.password')}
+            placeholder={t('auth.register.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -93,22 +95,22 @@ export default function Register() {
           <Input
             id="confirmPassword"
             type="password"
-            label="确认密码"
-            placeholder="再次输入密码"
+            label={t('auth.register.confirmPassword')}
+            placeholder={t('auth.register.confirmPasswordPlaceholder')}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? '注册中...' : '注册'}
+            {loading ? t('auth.register.submitting') : t('auth.register.submit')}
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm text-text-secondary">
-          已有账号？{' '}
-          <Link to="/auth/login" className="text-primary hover:underline">
-            立即登录
+          {t('auth.register.hasAccount')}{' '}
+          <Link to="/login" className="text-primary hover:underline">
+            {t('auth.register.loginNow')}
           </Link>
         </div>
       </Card>

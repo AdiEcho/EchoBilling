@@ -4,6 +4,8 @@ import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Order {
   id: string
@@ -19,6 +21,8 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const token = useAuthStore((state) => state.token)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -32,7 +36,7 @@ export default function AdminOrders() {
         setLoading(false)
       }
     }
-    fetchOrders()
+    void fetchOrders()
   }, [token])
 
   const filteredOrders =
@@ -54,7 +58,7 @@ export default function AdminOrders() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text">Orders Management</h1>
+        <h1 className="text-3xl font-bold text-text">{t('admin.orders.title')}</h1>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-text-secondary" />
           <select
@@ -62,31 +66,35 @@ export default function AdminOrders() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-surface border border-border rounded-lg px-3 py-2 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t('admin.orders.filters.all')}</option>
+            <option value="pending">{t('admin.orders.filters.pending')}</option>
+            <option value="processing">{t('admin.orders.filters.processing')}</option>
+            <option value="completed">{t('admin.orders.filters.completed')}</option>
+            <option value="cancelled">{t('admin.orders.filters.cancelled')}</option>
           </select>
         </div>
       </div>
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">Loading...</div>
+          <div className="text-text-secondary p-4">{t('common.loading')}</div>
         ) : filteredOrders.length === 0 ? (
-          <div className="text-text-secondary p-4">No orders found</div>
+          <div className="text-text-secondary p-4">{t('admin.orders.noOrders')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Order ID</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Amount</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Date</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.orders.orderId')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.orders.customer')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.amount')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.date')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,14 +111,19 @@ export default function AdminOrders() {
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                      <Badge variant={getStatusVariant(order.status)}>
+                        {t(`status.${order.status}`, { defaultValue: order.status })}
+                      </Badge>
                     </td>
-                    <td className="py-3 px-4 text-text">${order.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-text">
+                      {t('common.currency')}
+                      {order.amount.toFixed(2)}
+                    </td>
                     <td className="py-3 px-4 text-text-secondary">
-                      {new Date(order.created_at).toLocaleDateString()}
+                      {new Date(order.created_at).toLocaleDateString(locale)}
                     </td>
                     <td className="py-3 px-4">
-                      <button className="text-primary hover:text-primary/80 text-sm">View</button>
+                      <button className="text-primary hover:text-primary/80 text-sm">{t('admin.orders.view')}</button>
                     </td>
                   </tr>
                 ))}

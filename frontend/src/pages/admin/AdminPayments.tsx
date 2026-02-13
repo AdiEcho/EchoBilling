@@ -5,6 +5,8 @@ import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Payment {
   id: string
@@ -18,6 +20,8 @@ export default function AdminPayments() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const token = useAuthStore((state) => state.token)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -31,7 +35,7 @@ export default function AdminPayments() {
         setLoading(false)
       }
     }
-    fetchPayments()
+    void fetchPayments()
   }, [token])
 
   const handleRefund = (paymentId: string) => {
@@ -55,24 +59,28 @@ export default function AdminPayments() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text">Payments</h1>
+      <h1 className="text-3xl font-bold text-text">{t('admin.payments.title')}</h1>
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">Loading...</div>
+          <div className="text-text-secondary p-4">{t('common.loading')}</div>
         ) : payments.length === 0 ? (
-          <div className="text-text-secondary p-4">No payments found</div>
+          <div className="text-text-secondary p-4">{t('admin.payments.noPayments')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Payment ID</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Amount</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Method</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Date</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.payments.paymentId')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.amount')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.payments.method')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.date')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -82,23 +90,24 @@ export default function AdminPayments() {
                     className="border-b border-border hover:bg-surface/50 transition-colors"
                   >
                     <td className="py-3 px-4 text-text font-mono">{payment.id.slice(0, 8)}</td>
-                    <td className="py-3 px-4 text-text">${payment.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-text">
+                      {t('common.currency')}
+                      {payment.amount.toFixed(2)}
+                    </td>
                     <td className="py-3 px-4">
-                      <Badge variant={getStatusVariant(payment.status)}>{payment.status}</Badge>
+                      <Badge variant={getStatusVariant(payment.status)}>
+                        {t(`status.${payment.status}`, { defaultValue: payment.status })}
+                      </Badge>
                     </td>
                     <td className="py-3 px-4 text-text-secondary capitalize">{payment.method}</td>
                     <td className="py-3 px-4 text-text-secondary">
-                      {new Date(payment.created_at).toLocaleDateString()}
+                      {new Date(payment.created_at).toLocaleDateString(locale)}
                     </td>
                     <td className="py-3 px-4">
                       {payment.status === 'completed' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRefund(payment.id)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleRefund(payment.id)}>
                           <RefreshCw className="w-3 h-3 mr-1" />
-                          Refund
+                          {t('admin.payments.refund')}
                         </Button>
                       )}
                     </td>

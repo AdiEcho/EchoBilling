@@ -1,26 +1,14 @@
 import { Building2, Target, Users, Award } from 'lucide-react'
 import Card from '../../components/ui/Card'
+import { useTranslation } from 'react-i18next'
 
 export default function About() {
+  const { t } = useTranslation()
+
   const values = [
-    {
-      icon: Target,
-      title: 'Our Mission',
-      description:
-        'To provide developers and businesses with reliable, high-performance cloud infrastructure that scales with their needs.',
-    },
-    {
-      icon: Users,
-      title: 'Customer First',
-      description:
-        'We prioritize customer satisfaction with 24/7 support and transparent communication.',
-    },
-    {
-      icon: Award,
-      title: 'Quality Standards',
-      description:
-        'Enterprise-grade infrastructure with industry-leading uptime and security standards.',
-    },
+    { icon: Target, key: 'mission' },
+    { icon: Users, key: 'customer' },
+    { icon: Award, key: 'quality' },
   ]
 
   return (
@@ -28,11 +16,9 @@ export default function About() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="font-heading text-4xl md:text-5xl font-bold text-text mb-4">
-            About EchoBilling
+            {t('about.title')}
           </h1>
-          <p className="text-xl text-text-secondary">
-            Building the future of cloud infrastructure
-          </p>
+          <p className="text-xl text-text-secondary">{t('about.subtitle')}</p>
         </div>
 
         <Card className="mb-12">
@@ -42,40 +28,33 @@ export default function About() {
             </div>
             <div>
               <h2 className="font-heading text-2xl font-bold text-text mb-3">
-                EchoBilling LLC
+                {t('about.company.title')}
               </h2>
               <p className="text-text-secondary leading-relaxed mb-4">
-                EchoBilling is a leading provider of cloud infrastructure solutions, specializing
-                in high-performance VPS hosting. Founded with a vision to democratize access to
-                enterprise-grade infrastructure, we serve developers, startups, and businesses
-                worldwide.
+                {t('about.company.paragraph1')}
               </p>
-              <p className="text-text-secondary leading-relaxed">
-                Our state-of-the-art data centers and cutting-edge technology ensure that your
-                applications run smoothly, securely, and efficiently. We believe in transparent
-                pricing, exceptional support, and empowering our customers to build amazing things.
-              </p>
+              <p className="text-text-secondary leading-relaxed">{t('about.company.paragraph2')}</p>
             </div>
           </div>
         </Card>
 
         <div className="mb-12">
           <h2 className="font-heading text-3xl font-bold text-text mb-8 text-center">
-            Our Values
+            {t('about.valuesTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {values.map((value) => {
               const Icon = value.icon
               return (
-                <Card key={value.title} hover>
+                <Card key={value.key} hover>
                   <div className="text-center">
                     <div className="inline-flex p-3 rounded-lg bg-primary/10 text-primary mb-4">
                       <Icon className="w-6 h-6" />
                     </div>
                     <h3 className="font-heading text-xl font-semibold text-text mb-2">
-                      {value.title}
+                      {t(`about.values.${value.key}.title`)}
                     </h3>
-                    <p className="text-text-secondary text-sm">{value.description}</p>
+                    <p className="text-text-secondary text-sm">{t(`about.values.${value.key}.description`)}</p>
                   </div>
                 </Card>
               )
@@ -85,22 +64,22 @@ export default function About() {
 
         <Card className="bg-surface/50">
           <h2 className="font-heading text-2xl font-bold text-text mb-4">
-            Company Information
+            {t('about.companyInfoTitle')}
           </h2>
           <div className="space-y-2 text-text-secondary">
             <p>
-              <span className="font-medium text-text">Legal Entity:</span> EchoBilling LLC
+              <span className="font-medium text-text">{t('about.companyInfo.legalEntity')}</span>{' '}
+              {t('about.company.title')}
             </p>
             <p>
-              <span className="font-medium text-text">Registration:</span> Delaware, United States
+              <span className="font-medium text-text">{t('about.companyInfo.registration')}</span>{' '}
+              {t('about.companyInfo.registrationValue')}
             </p>
             <p>
-              <span className="font-medium text-text">Founded:</span> 2024
+              <span className="font-medium text-text">{t('about.companyInfo.founded')}</span>{' '}
+              {t('about.companyInfo.foundedValue')}
             </p>
-            <p className="text-sm text-text-muted mt-4">
-              EchoBilling LLC is a registered limited liability company operating in compliance
-              with all applicable federal and state regulations.
-            </p>
+            <p className="text-sm text-text-muted mt-4">{t('about.companyInfo.note')}</p>
           </div>
         </Card>
       </div>

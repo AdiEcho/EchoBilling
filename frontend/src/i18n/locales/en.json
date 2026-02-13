@@ -1,0 +1,462 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "noData": "No data",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "create": "Create",
+    "signOut": "Sign Out",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "services": "Services",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "customers": "Customers",
+    "system": "System",
+    "billingMethods": "Billing Methods",
+    "security": "Security",
+    "status": "Status",
+    "amount": "Amount",
+    "date": "Date",
+    "actions": "Actions",
+    "name": "Name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "category": "Category",
+    "description": "Description",
+    "feature": "Feature",
+    "cpu": "CPU",
+    "ram": "RAM",
+    "storage": "Storage",
+    "bandwidth": "Bandwidth",
+    "month": "/month",
+    "orderNow": "Order Now",
+    "goBack": "Go Back",
+    "save": "Save",
+    "all": "All",
+    "pageInfo": "Page {{page}} of {{total}}",
+    "lastUpdated": "Last updated: February 13, 2026",
+    "currency": "$"
+  },
+  "languageSwitcher": {
+    "ariaLabel": "Switch language",
+    "switchToEnglish": "EN",
+    "switchToChinese": "中文"
+  },
+  "nav": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "support": "Support",
+    "pricing": "Pricing",
+    "vpsHosting": "VPS Hosting",
+    "about": "About",
+    "contact": "Contact",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy",
+    "cancellation": "Cancellation Policy",
+    "helpCenter": "Help Center",
+    "copyright": "© {{year}} EchoBilling LLC. All rights reserved."
+  },
+  "publicLayout": {
+    "toggleMenu": "Toggle menu"
+  },
+  "portalLayout": {
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "adminLayout": {
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "welcome": "Welcome back to EchoBilling",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "failed": "Login failed",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now"
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create your EchoBilling account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "namePlaceholder": "John Doe",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "submit": "Register",
+      "submitting": "Registering...",
+      "failed": "Registration failed",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Sign in now"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Cloud Infrastructure Built for",
+      "highlight": "Performance",
+      "description": "Premium VPS hosting powered by cutting-edge technology. Deploy your applications with confidence on our high-performance infrastructure.",
+      "cta": "Get Started"
+    },
+    "features": {
+      "title": "Everything You Need to Succeed",
+      "items": {
+        "storage": {
+          "title": "NVMe SSD Storage",
+          "description": "Lightning-fast NVMe SSDs for superior performance and reliability"
+        },
+        "network": {
+          "title": "10Gbps Network",
+          "description": "High-speed network connectivity for seamless data transfer"
+        },
+        "ddos": {
+          "title": "DDoS Protection",
+          "description": "Enterprise-grade protection against distributed attacks"
+        },
+        "uptime": {
+          "title": "99.99% Uptime",
+          "description": "Industry-leading uptime guarantee for your critical workloads"
+        },
+        "global": {
+          "title": "Global Locations",
+          "description": "Deploy servers in multiple regions worldwide"
+        },
+        "support": {
+          "title": "24/7 Support",
+          "description": "Expert support team available around the clock"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Choose a plan that fits your needs and deploy in minutes",
+      "button": "View Pricing"
+    },
+    "trust": "Trusted by developers worldwide"
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the perfect plan for your needs. All plans include our core features.",
+    "mostPopular": "Most Popular",
+    "includedFeatures": "Included Features:",
+    "cta": "Get Started",
+    "footnote": "All prices in USD. Billed monthly. Cancel anytime.",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "specs": {
+          "cpu": "1 vCPU",
+          "ram": "1GB RAM",
+          "storage": "25GB NVMe SSD",
+          "bandwidth": "1TB Bandwidth"
+        }
+      },
+      "pro": {
+        "name": "Pro",
+        "specs": {
+          "cpu": "2 vCPU",
+          "ram": "4GB RAM",
+          "storage": "80GB NVMe SSD",
+          "bandwidth": "4TB Bandwidth"
+        }
+      },
+      "business": {
+        "name": "Business",
+        "specs": {
+          "cpu": "4 vCPU",
+          "ram": "8GB RAM",
+          "storage": "160GB NVMe SSD",
+          "bandwidth": "5TB Bandwidth"
+        }
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "specs": {
+          "cpu": "8 vCPU",
+          "ram": "16GB RAM",
+          "storage": "320GB NVMe SSD",
+          "bandwidth": "10TB Bandwidth"
+        }
+      }
+    },
+    "featureLabels": {
+      "rootAccess": "Full Root Access",
+      "ddos": "DDoS Protection",
+      "sla999": "99.9% Uptime SLA",
+      "sla9999": "99.99% Uptime SLA",
+      "ipv4v6": "IPv4 & IPv6",
+      "prioritySupport": "Priority Support",
+      "freeBackups": "Free Backups",
+      "dedicatedIp": "Dedicated IP",
+      "customSolutions": "Custom Solutions"
+    }
+  },
+  "about": {
+    "title": "About EchoBilling",
+    "subtitle": "Building the future of cloud infrastructure",
+    "company": {
+      "title": "EchoBilling LLC",
+      "paragraph1": "EchoBilling is a leading provider of cloud infrastructure solutions, specializing in high-performance VPS hosting. Founded with a vision to democratize access to enterprise-grade infrastructure, we serve developers, startups, and businesses worldwide.",
+      "paragraph2": "Our state-of-the-art data centers and cutting-edge technology ensure that your applications run smoothly, securely, and efficiently. We believe in transparent pricing, exceptional support, and empowering our customers to build amazing things."
+    },
+    "valuesTitle": "Our Values",
+    "values": {
+      "mission": {
+        "title": "Our Mission",
+        "description": "To provide developers and businesses with reliable, high-performance cloud infrastructure that scales with their needs."
+      },
+      "customer": {
+        "title": "Customer First",
+        "description": "We prioritize customer satisfaction with 24/7 support and transparent communication."
+      },
+      "quality": {
+        "title": "Quality Standards",
+        "description": "Enterprise-grade infrastructure with industry-leading uptime and security standards."
+      }
+    },
+    "companyInfoTitle": "Company Information",
+    "companyInfo": {
+      "legalEntity": "Legal Entity:",
+      "registration": "Registration:",
+      "founded": "Founded:",
+      "registrationValue": "Delaware, United States",
+      "foundedValue": "2024",
+      "note": "EchoBilling LLC is a registered limited liability company operating in compliance with all applicable federal and state regulations."
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Have questions? We're here to help.",
+    "sendMessage": "Send us a Message",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "subject": "Subject",
+      "subjectPlaceholder": "How can we help?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us more about your inquiry...",
+      "send": "Send Message"
+    },
+    "info": {
+      "email": "Email",
+      "businessHours": "Business Hours",
+      "support247": "24/7 Support Available",
+      "responseTime": "Response within 2 hours",
+      "address": "Address",
+      "addressValue": "Delaware, United States"
+    },
+    "urgent": {
+      "title": "Need Immediate Help?",
+      "description": "For urgent technical issues, please contact our support team directly.",
+      "button": "Open Support Ticket"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service"
+  },
+  "privacy": {
+    "title": "Privacy Policy"
+  },
+  "refundPolicy": {
+    "title": "Refund Policy"
+  },
+  "cancellationPolicy": {
+    "title": "Cancellation Policy"
+  },
+  "productDetail": {
+    "failed": "Failed to load product",
+    "loading": "Loading product details...",
+    "notFound": "Product Not Found",
+    "notFoundDescription": "The product you are looking for does not exist.",
+    "choosePlan": "Choose Your Plan",
+    "features": "Features:",
+    "detailedComparison": "Detailed Comparison",
+    "monthlyPrice": "Monthly Price"
+  },
+  "portal": {
+    "dashboard": {
+      "welcome": "Welcome back, {{name}}",
+      "overview": "This is your account overview",
+      "activeServices": "Active Services",
+      "pendingOrders": "Pending Orders",
+      "unpaidInvoices": "Unpaid Invoices",
+      "totalSpent": "Total Spent",
+      "recentOrders": "Recent Orders",
+      "noOrders": "No orders yet",
+      "orderId": "Order ID"
+    },
+    "orders": {
+      "title": "My Orders",
+      "subtitle": "View and manage all your orders",
+      "noOrders": "No orders yet",
+      "orderId": "Order ID",
+      "view": "View"
+    },
+    "services": {
+      "title": "My Services",
+      "subtitle": "Manage all your service instances",
+      "noServices": "No services",
+      "ipAddress": "IP Address",
+      "plan": "Plan"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "subtitle": "View and manage your invoices",
+      "noInvoices": "No invoices",
+      "invoiceNumber": "Invoice #",
+      "view": "View"
+    },
+    "billing": {
+      "title": "Billing Methods",
+      "subtitle": "Manage your payment methods",
+      "stripeTitle": "Stripe Payments",
+      "stripeDescription": "We use Stripe to process all payments. Stripe is a secure and reliable payment platform supporting multiple methods.",
+      "manageButton": "Manage Payment Methods",
+      "pciTitle": "PCI Compliance",
+      "pciDescription": "Your payment information is securely stored and processed by Stripe. We never store your credit card data on our servers.",
+      "supportedTitle": "Supported Payment Methods",
+      "methods": {
+        "creditCard": "Credit Card",
+        "debitCard": "Debit Card",
+        "alipay": "Alipay",
+        "wechatPay": "WeChat Pay"
+      }
+    },
+    "security": {
+      "title": "Security Settings",
+      "subtitle": "Manage your account security",
+      "changePasswordTitle": "Change Password",
+      "changePasswordDescription": "Update your password regularly to protect your account",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmNewPassword": "Confirm New Password",
+      "confirmNewPasswordPlaceholder": "Re-enter new password",
+      "passwordMin": "New password must be at least 8 characters",
+      "passwordMismatch": "New passwords do not match",
+      "passwordChanged": "Password changed successfully",
+      "passwordChangeFailed": "Failed to change password",
+      "submit": "Change Password",
+      "submitting": "Updating...",
+      "sessionTitle": "Session Information",
+      "sessionDescription": "Your current login session",
+      "currentDevice": "Current Device",
+      "loginTime": "Login Time",
+      "twoFactorTitle": "Two-Factor Authentication",
+      "twoFactorDescription": "Improve your account security by enabling 2FA",
+      "comingSoon": "Coming Soon"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "totalCustomers": "Total Customers",
+      "totalOrders": "Total Orders",
+      "revenue": "Revenue",
+      "activeServices": "Active Services"
+    },
+    "products": {
+      "title": "Products Management",
+      "addProduct": "Add Product",
+      "noProducts": "No products found",
+      "slug": "Slug",
+      "status": "Status",
+      "plans": "Plans",
+      "modalTitle": "Add Product",
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "orders": {
+      "title": "Orders Management",
+      "allStatus": "All Status",
+      "customer": "Customer",
+      "orderId": "Order ID",
+      "view": "View",
+      "noOrders": "No orders found",
+      "filters": {
+        "all": "All Status",
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "invoices": {
+      "title": "Invoices",
+      "invoiceNumber": "Invoice #",
+      "customer": "Customer",
+      "noInvoices": "No invoices found",
+      "view": "View"
+    },
+    "payments": {
+      "title": "Payments",
+      "paymentId": "Payment ID",
+      "method": "Method",
+      "refund": "Refund",
+      "noPayments": "No payments found"
+    },
+    "customers": {
+      "title": "Customers",
+      "role": "Role",
+      "joinedDate": "Joined Date",
+      "noCustomers": "No customers found",
+      "view": "View"
+    },
+    "system": {
+      "title": "System",
+      "apiVersion": "API Version",
+      "database": "Database",
+      "redis": "Redis",
+      "worker": "Worker",
+      "recentJobs": "Recent Jobs",
+      "noJobs": "No recent jobs",
+      "jobId": "Job ID",
+      "created": "Created"
+    }
+  },
+  "status": {
+    "draft": "Draft",
+    "pending": "Pending",
+    "pending_payment": "Pending Payment",
+    "paid": "Paid",
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "overdue": "Overdue",
+    "stopped": "Stopped",
+    "suspended": "Suspended",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "refunded": "Refunded",
+    "sent": "Sent",
+    "running": "Running",
+    "inactive": "Inactive",
+    "unknown": "Unknown",
+    "admin": "Admin",
+    "customer": "Customer",
+    "healthy": "Healthy",
+    "degraded": "Degraded",
+    "down": "Down"
+  }
+}

@@ -5,6 +5,8 @@ import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import { Eye } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Invoice {
   id: string
@@ -18,6 +20,8 @@ export default function Invoices() {
   const token = useAuthStore((state) => state.token)
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -27,13 +31,13 @@ export default function Invoices() {
         const data = await api<{ invoices: Invoice[] }>('/portal/invoices', { token })
         setInvoices(data.invoices)
       } catch (err) {
-        console.error('获取账单失败:', err)
+        console.error('Failed to fetch invoices:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchInvoices()
+    void fetchInvoices()
   }, [token])
 
   const statusVariant = (status: string) => {
@@ -51,64 +55,62 @@ export default function Invoices() {
     }
   }
 
-  const statusText = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return '已支付'
-      case 'pending':
-        return '待支付'
-      case 'overdue':
-        return '逾期'
-      case 'cancelled':
-        return '已取消'
-      default:
-        return status
-    }
-  }
-
   if (loading) {
-    return <div className="text-text-secondary">加载中...</div>
+    return <div className="text-text-secondary">{t('common.loading')}</div>
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-text">账单</h1>
-        <p className="text-text-secondary mt-2">查看和管理您的账单</p>
+        <h1 className="text-3xl font-bold text-text">{t('portal.invoices.title')}</h1>
+        <p className="text-text-secondary mt-2">{t('portal.invoices.subtitle')}</p>
       </div>
 
       <Card>
         {invoices.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">暂无账单</p>
+          <p className="text-text-secondary text-center py-8">{t('portal.invoices.noInvoices')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">账单号</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">状态</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">金额</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">日期</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">操作</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('portal.invoices.invoiceNumber')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.status')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.amount')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.date')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.actions')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {invoices.map((invoice) => (
                   <tr key={invoice.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 px-4 text-sm text-text font-mono">
-                      {invoice.invoice_number}
-                    </td>
+                    <td className="py-3 px-4 text-sm text-text font-mono">{invoice.invoice_number}</td>
                     <td className="py-3 px-4">
-                      <Badge variant={statusVariant(invoice.status)}>{statusText(invoice.status)}</Badge>
+                      <Badge variant={statusVariant(invoice.status)}>
+                        {t(`status.${invoice.status}`, { defaultValue: invoice.status })}
+                      </Badge>
                     </td>
-                    <td className="py-3 px-4 text-sm text-text">¥{invoice.total}</td>
+                    <td className="py-3 px-4 text-sm text-text">
+                      {t('common.currency')}
+                      {invoice.total}
+                    </td>
                     <td className="py-3 px-4 text-sm text-text-secondary">
-                      {new Date(invoice.created_at).toLocaleDateString('zh-CN')}
+                      {new Date(invoice.created_at).toLocaleDateString(locale)}
                     </td>
                     <td className="py-3 px-4">
                       <Button variant="ghost" size="sm">
                         <Eye className="w-4 h-4 mr-1" />
-                        查看
+                        {t('portal.invoices.view')}
                       </Button>
                     </td>
                   </tr>

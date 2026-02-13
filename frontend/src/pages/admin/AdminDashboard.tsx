@@ -3,6 +3,7 @@ import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
 
 interface DashboardStats {
   total_customers: number
@@ -15,6 +16,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const token = useAuthStore((state) => state.token)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -28,30 +30,30 @@ export default function AdminDashboard() {
         setLoading(false)
       }
     }
-    fetchStats()
+    void fetchStats()
   }, [token])
 
   const statCards = [
     {
-      title: 'Total Customers',
+      title: t('admin.dashboard.totalCustomers'),
       value: stats?.total_customers ?? 0,
       icon: Users,
       color: 'text-primary',
     },
     {
-      title: 'Total Orders',
+      title: t('admin.dashboard.totalOrders'),
       value: stats?.total_orders ?? 0,
       icon: ShoppingCart,
       color: 'text-cta',
     },
     {
-      title: 'Revenue',
-      value: `$${stats?.revenue?.toFixed(2) ?? '0.00'}`,
+      title: t('admin.dashboard.revenue'),
+      value: `${t('common.currency')}${stats?.revenue?.toFixed(2) ?? '0.00'}`,
       icon: DollarSign,
       color: 'text-yellow-500',
     },
     {
-      title: 'Active Services',
+      title: t('admin.dashboard.activeServices'),
       value: stats?.active_services ?? 0,
       icon: Server,
       color: 'text-blue-500',
@@ -60,10 +62,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold text-text">{t('admin.dashboard.title')}</h1>
 
       {loading ? (
-        <div className="text-text-secondary">Loading...</div>
+        <div className="text-text-secondary">{t('common.loading')}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat) => (

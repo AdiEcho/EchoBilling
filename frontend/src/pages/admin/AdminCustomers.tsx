@@ -4,6 +4,8 @@ import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Customer {
   id: string
@@ -19,6 +21,8 @@ export default function AdminCustomers() {
   const [page, setPage] = useState(1)
   const [totalPages] = useState(5)
   const token = useAuthStore((state) => state.token)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -32,31 +36,31 @@ export default function AdminCustomers() {
         setLoading(false)
       }
     }
-    fetchCustomers()
+    void fetchCustomers()
   }, [token, page])
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text">Customers</h1>
+      <h1 className="text-3xl font-bold text-text">{t('admin.customers.title')}</h1>
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">Loading...</div>
+          <div className="text-text-secondary p-4">{t('common.loading')}</div>
         ) : customers.length === 0 ? (
-          <div className="text-text-secondary p-4">No customers found</div>
+          <div className="text-text-secondary p-4">{t('admin.customers.noCustomers')}</div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">Name</th>
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">Email</th>
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">Role</th>
+                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.name')}</th>
+                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.email')}</th>
+                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.customers.role')}</th>
                     <th className="text-left py-3 px-4 text-text-secondary font-medium">
-                      Joined Date
+                      {t('admin.customers.joinedDate')}
                     </th>
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -67,12 +71,16 @@ export default function AdminCustomers() {
                     >
                       <td className="py-3 px-4 text-text">{customer.name}</td>
                       <td className="py-3 px-4 text-text-secondary">{customer.email}</td>
-                      <td className="py-3 px-4 text-text-secondary capitalize">{customer.role}</td>
+                      <td className="py-3 px-4 text-text-secondary capitalize">
+                        {t(`status.${customer.role}`, { defaultValue: customer.role })}
+                      </td>
                       <td className="py-3 px-4 text-text-secondary">
-                        {new Date(customer.created_at).toLocaleDateString()}
+                        {new Date(customer.created_at).toLocaleDateString(locale)}
                       </td>
                       <td className="py-3 px-4">
-                        <button className="text-primary hover:text-primary/80 text-sm">View</button>
+                        <button className="text-primary hover:text-primary/80 text-sm">
+                          {t('admin.customers.view')}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -81,9 +89,7 @@ export default function AdminCustomers() {
             </div>
 
             <div className="flex items-center justify-between p-4 border-t border-border">
-              <div className="text-text-secondary text-sm">
-                Page {page} of {totalPages}
-              </div>
+              <div className="text-text-secondary text-sm">{t('common.pageInfo', { page, total: totalPages })}</div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

@@ -2,84 +2,43 @@ import { Check } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import { useTranslation } from 'react-i18next'
 
 export default function Pricing() {
+  const { t } = useTranslation()
+
   const plans = [
     {
-      name: 'Starter',
+      key: 'starter',
       price: 5,
       popular: false,
-      specs: {
-        cpu: '1 vCPU',
-        ram: '1GB RAM',
-        storage: '25GB NVMe SSD',
-        bandwidth: '1TB Bandwidth',
-      },
-      features: [
-        'Full Root Access',
-        'DDoS Protection',
-        '99.9% Uptime SLA',
-        'IPv4 & IPv6',
-      ],
+      features: ['rootAccess', 'ddos', 'sla999', 'ipv4v6'],
     },
     {
-      name: 'Pro',
+      key: 'pro',
       price: 20,
       popular: true,
-      specs: {
-        cpu: '2 vCPU',
-        ram: '4GB RAM',
-        storage: '80GB NVMe SSD',
-        bandwidth: '4TB Bandwidth',
-      },
-      features: [
-        'Full Root Access',
-        'DDoS Protection',
-        '99.99% Uptime SLA',
-        'IPv4 & IPv6',
-        'Priority Support',
-        'Free Backups',
-      ],
+      features: ['rootAccess', 'ddos', 'sla9999', 'ipv4v6', 'prioritySupport', 'freeBackups'],
     },
     {
-      name: 'Business',
+      key: 'business',
       price: 40,
       popular: false,
-      specs: {
-        cpu: '4 vCPU',
-        ram: '8GB RAM',
-        storage: '160GB NVMe SSD',
-        bandwidth: '5TB Bandwidth',
-      },
-      features: [
-        'Full Root Access',
-        'DDoS Protection',
-        '99.99% Uptime SLA',
-        'IPv4 & IPv6',
-        'Priority Support',
-        'Free Backups',
-        'Dedicated IP',
-      ],
+      features: ['rootAccess', 'ddos', 'sla9999', 'ipv4v6', 'prioritySupport', 'freeBackups', 'dedicatedIp'],
     },
     {
-      name: 'Enterprise',
+      key: 'enterprise',
       price: 80,
       popular: false,
-      specs: {
-        cpu: '8 vCPU',
-        ram: '16GB RAM',
-        storage: '320GB NVMe SSD',
-        bandwidth: '10TB Bandwidth',
-      },
       features: [
-        'Full Root Access',
-        'DDoS Protection',
-        '99.99% Uptime SLA',
-        'IPv4 & IPv6',
-        'Priority Support',
-        'Free Backups',
-        'Dedicated IP',
-        'Custom Solutions',
+        'rootAccess',
+        'ddos',
+        'sla9999',
+        'ipv4v6',
+        'prioritySupport',
+        'freeBackups',
+        'dedicatedIp',
+        'customSolutions',
       ],
     },
   ]
@@ -89,17 +48,15 @@ export default function Pricing() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="font-heading text-4xl md:text-5xl font-bold text-text mb-4">
-            Simple, Transparent Pricing
+            {t('pricing.title')}
           </h1>
-          <p className="text-xl text-text-secondary">
-            Choose the perfect plan for your needs. All plans include our core features.
-          </p>
+          <p className="text-xl text-text-secondary">{t('pricing.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan) => (
             <Card
-              key={plan.name}
+              key={plan.key}
               hover
               className={`relative flex flex-col ${
                 plan.popular ? 'border-primary shadow-lg shadow-primary/20' : ''
@@ -108,66 +65,61 @@ export default function Pricing() {
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <Badge variant="info" className="px-3 py-1">
-                    Most Popular
+                    {t('pricing.mostPopular')}
                   </Badge>
                 </div>
               )}
 
               <div className="flex-1">
                 <h3 className="font-heading text-2xl font-bold text-text mb-2">
-                  {plan.name}
+                  {t(`pricing.plans.${plan.key}.name`)}
                 </h3>
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-text">${plan.price}</span>
-                  <span className="text-text-secondary">/month</span>
+                  <span className="text-text-secondary">{t('common.month')}</span>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center text-text-secondary">
                     <Check className="w-4 h-4 text-cta mr-2 flex-shrink-0" />
-                    <span>{plan.specs.cpu}</span>
+                    <span>{t(`pricing.plans.${plan.key}.specs.cpu`)}</span>
                   </div>
                   <div className="flex items-center text-text-secondary">
                     <Check className="w-4 h-4 text-cta mr-2 flex-shrink-0" />
-                    <span>{plan.specs.ram}</span>
+                    <span>{t(`pricing.plans.${plan.key}.specs.ram`)}</span>
                   </div>
                   <div className="flex items-center text-text-secondary">
                     <Check className="w-4 h-4 text-cta mr-2 flex-shrink-0" />
-                    <span>{plan.specs.storage}</span>
+                    <span>{t(`pricing.plans.${plan.key}.specs.storage`)}</span>
                   </div>
                   <div className="flex items-center text-text-secondary">
                     <Check className="w-4 h-4 text-cta mr-2 flex-shrink-0" />
-                    <span>{plan.specs.bandwidth}</span>
+                    <span>{t(`pricing.plans.${plan.key}.specs.bandwidth`)}</span>
                   </div>
                 </div>
 
                 <div className="border-t border-border pt-4 mb-6">
-                  <p className="text-sm font-medium text-text mb-3">Included Features:</p>
+                  <p className="text-sm font-medium text-text mb-3">{t('pricing.includedFeatures')}</p>
                   <div className="space-y-2">
-                    {plan.features.map((feature) => (
-                      <div key={feature} className="flex items-center text-sm text-text-secondary">
+                    {plan.features.map((featureKey) => (
+                      <div key={featureKey} className="flex items-center text-sm text-text-secondary">
                         <Check className="w-4 h-4 text-cta mr-2 flex-shrink-0" />
-                        <span>{feature}</span>
+                        <span>{t(`pricing.featureLabels.${featureKey}`)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <Button
-                variant={plan.popular ? 'cta' : 'primary'}
-                className="w-full"
-              >
-                Get Started
+              <Button variant={plan.popular ? 'cta' : 'primary'} className="w-full">
+                {t('pricing.cta')}
               </Button>
             </Card>
           ))}
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-text-secondary">
-            All prices in USD. Billed monthly. Cancel anytime.
-          </p>
+          <p className="text-text-secondary">{t('pricing.footnote')}</p>
         </div>
       </div>
     </div>

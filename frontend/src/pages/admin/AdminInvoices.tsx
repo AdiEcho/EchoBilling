@@ -3,6 +3,8 @@ import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Invoice {
   id: string
@@ -18,6 +20,8 @@ export default function AdminInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const token = useAuthStore((state) => state.token)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -31,7 +35,7 @@ export default function AdminInvoices() {
         setLoading(false)
       }
     }
-    fetchInvoices()
+    void fetchInvoices()
   }, [token])
 
   const getStatusVariant = (status: string) => {
@@ -53,24 +57,28 @@ export default function AdminInvoices() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text">Invoices</h1>
+      <h1 className="text-3xl font-bold text-text">{t('admin.invoices.title')}</h1>
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">Loading...</div>
+          <div className="text-text-secondary p-4">{t('common.loading')}</div>
         ) : invoices.length === 0 ? (
-          <div className="text-text-secondary p-4">No invoices found</div>
+          <div className="text-text-secondary p-4">{t('admin.invoices.noInvoices')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Invoice #</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Amount</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Date</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.invoices.invoiceNumber')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">
+                    {t('admin.invoices.customer')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.amount')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.date')}</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,14 +95,21 @@ export default function AdminInvoices() {
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge variant={getStatusVariant(invoice.status)}>{invoice.status}</Badge>
+                      <Badge variant={getStatusVariant(invoice.status)}>
+                        {t(`status.${invoice.status}`, { defaultValue: invoice.status })}
+                      </Badge>
                     </td>
-                    <td className="py-3 px-4 text-text">${invoice.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-text">
+                      {t('common.currency')}
+                      {invoice.amount.toFixed(2)}
+                    </td>
                     <td className="py-3 px-4 text-text-secondary">
-                      {new Date(invoice.created_at).toLocaleDateString()}
+                      {new Date(invoice.created_at).toLocaleDateString(locale)}
                     </td>
                     <td className="py-3 px-4">
-                      <button className="text-primary hover:text-primary/80 text-sm">View</button>
+                      <button className="text-primary hover:text-primary/80 text-sm">
+                        {t('admin.invoices.view')}
+                      </button>
                     </td>
                   </tr>
                 ))}

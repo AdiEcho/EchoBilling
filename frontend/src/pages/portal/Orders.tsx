@@ -5,6 +5,8 @@ import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import { Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Order {
   id: string
@@ -20,6 +22,8 @@ export default function Orders() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const limit = 10
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -34,13 +38,13 @@ export default function Orders() {
         setOrders(data.orders)
         setTotalPages(Math.ceil(data.total / limit))
       } catch (err) {
-        console.error('获取订单失败:', err)
+        console.error('Failed to fetch orders:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchOrders()
+    void fetchOrders()
   }, [token, page])
 
   const statusVariant = (status: string) => {
@@ -58,67 +62,63 @@ export default function Orders() {
     }
   }
 
-  const statusText = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return '草稿'
-      case 'pending_payment':
-        return '待支付'
-      case 'paid':
-        return '已支付'
-      case 'active':
-        return '活跃'
-      case 'cancelled':
-        return '已取消'
-      default:
-        return status
-    }
-  }
-
   if (loading) {
-    return <div className="text-text-secondary">加载中...</div>
+    return <div className="text-text-secondary">{t('common.loading')}</div>
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-text">我的订单</h1>
-        <p className="text-text-secondary mt-2">查看和管理您的所有订单</p>
+        <h1 className="text-3xl font-bold text-text">{t('portal.orders.title')}</h1>
+        <p className="text-text-secondary mt-2">{t('portal.orders.subtitle')}</p>
       </div>
 
       <Card>
         {orders.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">暂无订单</p>
+          <p className="text-text-secondary text-center py-8">{t('portal.orders.noOrders')}</p>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">订单 ID</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">状态</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">金额</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">日期</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">操作</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                      {t('portal.orders.orderId')}
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                      {t('common.status')}
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                      {t('common.amount')}
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                      {t('common.date')}
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                      {t('common.actions')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order.id} className="border-b border-border/50 last:border-0">
-                      <td className="py-3 px-4 text-sm text-text font-mono">
-                        {order.id.substring(0, 8)}...
-                      </td>
+                      <td className="py-3 px-4 text-sm text-text font-mono">{order.id.substring(0, 8)}...</td>
                       <td className="py-3 px-4">
-                        <Badge variant={statusVariant(order.status)}>{statusText(order.status)}</Badge>
+                        <Badge variant={statusVariant(order.status)}>
+                          {t(`status.${order.status}`, { defaultValue: order.status })}
+                        </Badge>
                       </td>
-                      <td className="py-3 px-4 text-sm text-text">¥{order.total}</td>
+                      <td className="py-3 px-4 text-sm text-text">
+                        {t('common.currency')}
+                        {order.total}
+                      </td>
                       <td className="py-3 px-4 text-sm text-text-secondary">
-                        {new Date(order.created_at).toLocaleDateString('zh-CN')}
+                        {new Date(order.created_at).toLocaleDateString(locale)}
                       </td>
                       <td className="py-3 px-4">
                         <Button variant="ghost" size="sm">
                           <Eye className="w-4 h-4 mr-1" />
-                          查看
+                          {t('portal.orders.view')}
                         </Button>
                       </td>
                     </tr>
@@ -129,9 +129,7 @@ export default function Orders() {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-text-secondary">
-                  第 {page} 页，共 {totalPages} 页
-                </p>
+                <p className="text-sm text-text-secondary">{t('common.pageInfo', { page, total: totalPages })}</p>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"

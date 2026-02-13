@@ -4,6 +4,8 @@ import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import { Server, ShoppingCart, FileText, DollarSign } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toDateLocale } from '../../i18n/locale'
 
 interface Stats {
   active_services: number
@@ -25,6 +27,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const { t, i18n } = useTranslation()
+  const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,17 +42,17 @@ export default function Dashboard() {
         setStats(statsData)
         setRecentOrders(ordersData.orders)
       } catch (err) {
-        console.error('获取数据失败:', err)
+        console.error('Failed to fetch dashboard data:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchData()
+    void fetchData()
   }, [token])
 
   if (loading) {
-    return <div className="text-text-secondary">加载中...</div>
+    return <div className="text-text-secondary">{t('common.loading')}</div>
   }
 
   const statusVariant = (status: string) => {
@@ -66,35 +70,20 @@ export default function Dashboard() {
     }
   }
 
-  const statusText = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return '草稿'
-      case 'pending_payment':
-        return '待支付'
-      case 'paid':
-        return '已支付'
-      case 'active':
-        return '活跃'
-      case 'cancelled':
-        return '已取消'
-      default:
-        return status
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-text">欢迎回来，{user?.name}</h1>
-        <p className="text-text-secondary mt-2">这是您的账户概览</p>
+        <h1 className="text-3xl font-bold text-text">
+          {t('portal.dashboard.welcome', { name: user?.name ?? user?.email ?? '' })}
+        </h1>
+        <p className="text-text-secondary mt-2">{t('portal.dashboard.overview')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">活跃服务</p>
+              <p className="text-sm text-text-secondary">{t('portal.dashboard.activeServices')}</p>
               <p className="text-2xl font-bold text-text mt-1">{stats?.active_services || 0}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-cta/10 flex items-center justify-center">
@@ -106,7 +95,7 @@ export default function Dashboard() {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">待处理订单</p>
+              <p className="text-sm text-text-secondary">{t('portal.dashboard.pendingOrders')}</p>
               <p className="text-2xl font-bold text-text mt-1">{stats?.pending_orders || 0}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
@@ -118,7 +107,7 @@ export default function Dashboard() {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">未支付账单</p>
+              <p className="text-sm text-text-secondary">{t('portal.dashboard.unpaidInvoices')}</p>
               <p className="text-2xl font-bold text-text mt-1">{stats?.unpaid_invoices || 0}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
@@ -130,8 +119,11 @@ export default function Dashboard() {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">总消费</p>
-              <p className="text-2xl font-bold text-text mt-1">¥{stats?.total_spent || 0}</p>
+              <p className="text-sm text-text-secondary">{t('portal.dashboard.totalSpent')}</p>
+              <p className="text-2xl font-bold text-text mt-1">
+                {t('common.currency')}
+                {stats?.total_spent || 0}
+              </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-primary" />
@@ -141,32 +133,43 @@ export default function Dashboard() {
       </div>
 
       <Card>
-        <h2 className="text-xl font-semibold text-text mb-4">最近订单</h2>
+        <h2 className="text-xl font-semibold text-text mb-4">{t('portal.dashboard.recentOrders')}</h2>
         {recentOrders.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">暂无订单</p>
+          <p className="text-text-secondary text-center py-8">{t('portal.dashboard.noOrders')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">订单 ID</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">状态</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">金额</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">日期</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('portal.dashboard.orderId')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.status')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.amount')}
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
+                    {t('common.date')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 px-4 text-sm text-text font-mono">
-                      {order.id.substring(0, 8)}...
-                    </td>
+                    <td className="py-3 px-4 text-sm text-text font-mono">{order.id.substring(0, 8)}...</td>
                     <td className="py-3 px-4">
-                      <Badge variant={statusVariant(order.status)}>{statusText(order.status)}</Badge>
+                      <Badge variant={statusVariant(order.status)}>
+                        {t(`status.${order.status}`, { defaultValue: order.status })}
+                      </Badge>
                     </td>
-                    <td className="py-3 px-4 text-sm text-text">¥{order.total}</td>
+                    <td className="py-3 px-4 text-sm text-text">
+                      {t('common.currency')}
+                      {order.total}
+                    </td>
                     <td className="py-3 px-4 text-sm text-text-secondary">
-                      {new Date(order.created_at).toLocaleDateString('zh-CN')}
+                      {new Date(order.created_at).toLocaleDateString(locale)}
                     </td>
                   </tr>
                 ))}

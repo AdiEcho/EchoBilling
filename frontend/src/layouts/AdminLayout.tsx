@@ -1,24 +1,33 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/auth'
 import {
-  LayoutDashboard, Package, ShoppingCart, FileText,
-  CreditCard, Users, Settings, LogOut,
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  FileText,
+  CreditCard,
+  Users,
+  Settings,
+  LogOut,
 } from 'lucide-react'
-
-const sidebarLinks = [
-  { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/admin/products', label: 'Products', icon: Package },
-  { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { to: '/admin/invoices', label: 'Invoices', icon: FileText },
-  { to: '/admin/payments', label: 'Payments', icon: CreditCard },
-  { to: '/admin/customers', label: 'Customers', icon: Users },
-  { to: '/admin/system', label: 'System', icon: Settings },
-]
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 export default function AdminLayout() {
   const { user, logout } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
+
+  const sidebarLinks = [
+    { to: '/admin/dashboard', label: t('common.dashboard'), icon: LayoutDashboard },
+    { to: '/admin/products', label: t('common.products', { defaultValue: 'Products' }), icon: Package },
+    { to: '/admin/orders', label: t('common.orders'), icon: ShoppingCart },
+    { to: '/admin/invoices', label: t('common.invoices'), icon: FileText },
+    { to: '/admin/payments', label: t('common.payments'), icon: CreditCard },
+    { to: '/admin/customers', label: t('common.customers'), icon: Users },
+    { to: '/admin/system', label: t('common.system'), icon: Settings },
+  ]
 
   const handleLogout = () => {
     logout()
@@ -30,7 +39,7 @@ export default function AdminLayout() {
       <aside className="sticky top-0 h-screen w-60 border-r border-border bg-surface/50 flex flex-col">
         <div className="p-4 border-b border-border">
           <Link to="/admin/dashboard" className="text-lg font-bold font-heading text-text">
-            Echo<span className="text-primary">Admin</span>
+            Echo<span className="text-primary">{t('adminLayout.admin')}</span>
           </Link>
         </div>
 
@@ -56,10 +65,11 @@ export default function AdminLayout() {
         </nav>
 
         <div className="p-2 border-t border-border">
+          <LanguageSwitcher className="mb-2 w-full justify-start" />
           {user && (
             <div className="px-3 py-2 mb-2">
               <p className="text-sm font-medium text-text truncate">{user.name || user.email}</p>
-              <p className="text-xs text-text-muted">Admin</p>
+              <p className="text-xs text-text-muted">{t('adminLayout.admin')}</p>
             </div>
           )}
           <button
@@ -67,7 +77,7 @@ export default function AdminLayout() {
             className="flex items-center gap-3 w-full rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-surface-hover hover:text-danger transition-colors"
           >
             <LogOut size={18} />
-            <span>Sign Out</span>
+            <span>{t('common.signOut')}</span>
           </button>
         </div>
       </aside>

@@ -1,25 +1,35 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/auth'
 import {
-  LayoutDashboard, ShoppingCart, Server, FileText,
-  CreditCard, Shield, LogOut, ChevronLeft, ChevronRight,
+  LayoutDashboard,
+  ShoppingCart,
+  Server,
+  FileText,
+  CreditCard,
+  Shield,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { useState } from 'react'
-
-const sidebarLinks = [
-  { to: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/portal/orders', label: 'Orders', icon: ShoppingCart },
-  { to: '/portal/services', label: 'Services', icon: Server },
-  { to: '/portal/invoices', label: 'Invoices', icon: FileText },
-  { to: '/portal/billing', label: 'Billing Methods', icon: CreditCard },
-  { to: '/portal/security', label: 'Security', icon: Shield },
-]
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 export default function PortalLayout() {
   const { user, logout } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
+  const { t } = useTranslation()
+
+  const sidebarLinks = [
+    { to: '/portal/dashboard', label: t('common.dashboard'), icon: LayoutDashboard },
+    { to: '/portal/orders', label: t('common.orders'), icon: ShoppingCart },
+    { to: '/portal/services', label: t('common.services'), icon: Server },
+    { to: '/portal/invoices', label: t('common.invoices'), icon: FileText },
+    { to: '/portal/billing', label: t('common.billingMethods'), icon: CreditCard },
+    { to: '/portal/security', label: t('common.security'), icon: Shield },
+  ]
 
   const handleLogout = () => {
     logout()
@@ -42,7 +52,7 @@ export default function PortalLayout() {
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="text-text-muted hover:text-text p-1"
-            aria-label="Toggle sidebar"
+            aria-label={t('portalLayout.toggleSidebar')}
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -70,6 +80,7 @@ export default function PortalLayout() {
         </nav>
 
         <div className="p-2 border-t border-border">
+          {!collapsed && <LanguageSwitcher className="mb-2 w-full justify-start" />}
           {!collapsed && user && (
             <div className="px-3 py-2 mb-2">
               <p className="text-sm font-medium text-text truncate">{user.name || user.email}</p>
@@ -81,7 +92,7 @@ export default function PortalLayout() {
             className="flex items-center gap-3 w-full rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-surface-hover hover:text-danger transition-colors"
           >
             <LogOut size={18} />
-            {!collapsed && <span>Sign Out</span>}
+            {!collapsed && <span>{t('common.signOut')}</span>}
           </button>
         </div>
       </aside>
