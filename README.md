@@ -11,29 +11,43 @@ EchoBilling 是一个面向托管/VPS 类产品的全栈计费平台。
 ## 当前状态
 
 仓库目前处于积极开发中。
-已包含核心认证、商品目录、订单、管理端与计费模块，以及公开页、用户门户和管理后台相关前端页面。
+已包含核心认证、商品目录、订单、支付（Stripe）、计费与续费、系统初始化设置等后端模块，以及公开页、用户门户和管理后台前端页面。前端支持深色模式与国际化（i18n）。
 
 ## 技术栈
 
 - 后端：Go、Gin、pgx、JWT、Stripe SDK、Asynq
 - 数据库：PostgreSQL
 - 缓存/队列：Redis
-- 前端：React、TypeScript、Vite、Tailwind CSS
+- 前端：React 19、TypeScript、Vite、Tailwind CSS、React Router、Zustand、React Hook Form、i18next
 - 工具链：goose、sqlc、golangci-lint、Docker Compose
 
 ## 仓库结构
 
 ```text
 .
-|- cmd/
-|  |- api/                 # 后端服务入口
-|  `- worker/              # Asynq Worker 入口
-|- internal/               # 后端业务模块
-|- frontend/               # React 单页应用
-|- migrations/             # Goose SQL 迁移文件
-|- queries/                # SQLC 查询文件
-|- docker-compose.yml
-`- Makefile
+├── cmd/
+│   ├── api/                      # 后端服务入口
+│   └── worker/                   # Asynq Worker 入口
+├── internal/                     # 后端业务模块
+│   ├── admin/                    # 管理后台
+│   ├── app/                      # 应用初始化（配置、数据库、Redis）
+│   ├── auth/                     # 认证与授权
+│   ├── billing/                  # 计费
+│   ├── catalog/                  # 商品目录
+│   ├── common/                   # 通用工具与常量
+│   ├── customer/                 # 客户管理
+│   ├── db/                       # 数据库连接与 SQLC 生成代码
+│   ├── order/                    # 订单管理
+│   ├── payment/                  # 支付处理（Stripe）
+│   ├── provisioning/             # 产品配置与部署
+│   └── setup/                    # 系统初始化设置
+├── frontend/                     # React 单页应用
+├── migrations/                   # Goose SQL 迁移文件
+├── queries/                      # SQLC 查询文件
+├── docker-compose.yml            # 开发环境（Postgres + Redis）
+├── docker-compose.deploy.yml     # 部署环境（完整服务栈）
+├── Dockerfile                    # 多阶段构建（前端 + 后端）
+└── Makefile
 ```
 
 ## 环境要求
@@ -61,21 +75,18 @@ cp .env.example .env
 - `DATABASE_URL`：Postgres 连接串
 - `REDIS_ADDR`：Redis 地址
 - `JWT_SECRET`：JWT 签名密钥
+- `JWT_EXPIRY`：Token 过期时间（如 `24h`）
 - `STRIPE_SECRET_KEY`、`STRIPE_PUBLISHABLE_KEY`、`STRIPE_WEBHOOK_SECRET`：Stripe 集成配置
 - `FRONTEND_URL`：结账跳转使用的前端地址
-- `ENVIRONMENT`：本地开发请使用 `dev`
-
-Token 过期配置说明：
-
-- 后端读取 `JWT_EXPIRY_HOURS`（整数，默认 `24`）。
-- 如果 `.env` 里只有 `JWT_EXPIRY`，当前后端配置加载器会忽略它。
+- `ENVIRONMENT`：本地开发请使用 `development`
+- `RENEWAL_WEBHOOK_URL`、`RENEWAL_WEBHOOK_TOKEN`：Worker 续费通知 Webhook 配置
 
 ## 快速开始（本地开发）
 
 ### 1) 启动 PostgreSQL 和 Redis
 
 ```bash
-make docker-db-up
+make docker-up
 ```
 
 ### 2) 执行数据库迁移
@@ -130,12 +141,12 @@ curl http://localhost:8080/health
 {"status":"ok","service":"echobilling"}
 ```
 
-## 快速开始（Docker 方式）
+## 快速开始（Docker 部署）
 
 ```bash
 cp .env.example .env
-make docker-build
-make docker-up
+make deploy-build
+make deploy-up
 ```
 
 随后在宿主机执行迁移（命令同上）。
@@ -143,7 +154,7 @@ make docker-up
 停止服务：
 
 ```bash
-make docker-down
+make deploy-down
 ```
 
 ## 默认访问地址
@@ -168,12 +179,19 @@ docker compose exec -T postgres psql -U echobilling -d echobilling \
 
 - `make help`：查看可用命令
 - `make run-api`：本地运行后端服务
-- `make run-worker`：本地运行 worker
-- `make test`：执行 `go test ./...`
+- `make run-worker`：本地运行 Worker
 - `make build`：构建 `bin/api` 与 `bin/worker`
+- `make test`：执行 `go test ./...`
+- `make lint`：运行 golangci-lint 代码检查
 - `make sqlc`：重新生成 SQLC 代码
+- `make migrate-up`：执行数据库迁移
+- `make migrate-down`：回滚一步迁移
 - `make migrate-status`：查看迁移状态
 - `make migrate-create NAME=create_xxx`：创建新迁移
+- `make docker-up` / `docker-down`：启动/停止开发基础设施
+- `make deploy-build`：构建部署镜像
+- `make deploy-up` / `deploy-down`：启动/停止完整部署栈
+- `make clean`：清理构建产物
 
 ## 许可证
 
