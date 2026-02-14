@@ -1,57 +1,21 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useMemo } from 'react'
+import { useFetch } from '../../hooks/useFetch'
+import { getStatusVariant, formatCurrency } from '../../lib/status'
+import type { AdminInvoice } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import DataTable from '../../components/ui/DataTable'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface Invoice {
-  id: string
-  invoice_number: string
-  customer_name: string
-  customer_email: string
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
-  amount: number
-  created_at: string
-}
-
 export default function AdminInvoices() {
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(true)
-  const token = useAuthStore((state) => state.token)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      if (!token) return
-      try {
-        const data = await api<Invoice[]>('/admin/invoices')
-        setInvoices(data)
-      } catch (error) {
-        console.error('Failed to fetch invoices:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchInvoices()
-  }, [token])
+  const { data: invoices, loading } = useFetch<AdminInvoice[]>('/admin/invoices')
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'paid': return 'success'
-      case 'sent': return 'warning'
-      case 'overdue': return 'danger'
-      case 'draft': return 'default'
-      case 'cancelled': return 'danger'
-      default: return 'default'
-    }
-  }
-
-  const columns = useMemo<ColumnDef<Invoice, unknown>[]>(
+  const columns = useMemo<ColumnDef<AdminInvoice, unknown>[]>(
     () => [
       {
         accessorKey: 'invoice_number',
@@ -81,7 +45,7 @@ export default function AdminInvoices() {
         accessorKey: 'amount',
         header: () => t('common.amount'),
         cell: ({ row }) => (
-          <span className="text-text">{t('common.currency')}{row.original.amount.toFixed(2)}</span>
+          <span className="text-text">{t('common.currency')}{formatCurrency(row.original.amount)}</span>
         ),
       },
       {
@@ -103,7 +67,7 @@ export default function AdminInvoices() {
         ),
       },
     ],
-    [t, locale]
+    [t, locale],
   )
 
   return (
@@ -113,7 +77,7 @@ export default function AdminInvoices() {
       <Card>
         <DataTable
           columns={columns}
-          data={invoices}
+          data={invoices ?? []}
           loading={loading}
           emptyText={t('admin.invoices.noInvoices')}
           skeletonCols={6}

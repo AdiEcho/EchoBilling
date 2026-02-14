@@ -1,6 +1,8 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
+import { useMemo } from 'react'
+import { usePaginatedFetch } from '../../hooks/useFetch'
+import { getStatusVariant, formatId } from '../../lib/status'
+import { toast } from '../../stores/toast'
+import type { Order } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
@@ -11,58 +13,19 @@ import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface Order {
-  id: string
-  status: string
-  total: number
-  created_at: string
-}
-
 export default function Orders() {
-  const token = useAuthStore((state) => state.token)
   const navigate = useNavigate()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const limit = 10
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!token) return
+  const { data: orders, loading, page, totalPages, setPage } = usePaginatedFetch<Order>(
+    '/portal/orders',
+    'orders',
+    { limit: 10 },
+  )
 
-      setLoading(true)
-      try {
-        const data = await api<{ orders: Order[]; total: number }>(
-          `/portal/orders?page=${page}&limit=${limit}`
-        )
-        setOrders(data.orders)
-        setTotalPages(Math.ceil(data.total / limit))
-      } catch (err) {
-        console.error('Failed to fetch orders:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void fetchOrders()
-  }, [token, page])
-
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'success'
-      case 'pending_payment':
-        return 'warning'
-      case 'paid':
-        return 'info'
-      case 'cancelled':
-        return 'danger'
-      default:
-        return 'default'
-    }
+  if (!loading && !orders) {
+    toast.error(t('common.fetchError'))
   }
 
   const columns = useMemo<ColumnDef<Order, unknown>[]>(
@@ -71,14 +34,14 @@ export default function Orders() {
         accessorKey: 'id',
         header: () => t('portal.orders.orderId'),
         cell: ({ row }) => (
-          <span className="text-text font-mono">{row.original.id.substring(0, 8)}...</span>
+          <span className="text-text font-mono">{formatId(row.original.id)}...</span>
         ),
       },
       {
         accessorKey: 'status',
         header: () => t('common.status'),
         cell: ({ row }) => (
-          <Badge variant={statusVariant(row.original.status)}>
+          <Badge variant={getStatusVariant(row.original.status)}>
             {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
           </Badge>
         ),
@@ -110,7 +73,7 @@ export default function Orders() {
         ),
       },
     ],
-    [t, locale, navigate]
+    [t, locale, navigate],
   )
 
   return (
@@ -123,7 +86,7 @@ export default function Orders() {
       <Card>
         <DataTable
           columns={columns}
-          data={orders}
+          data={orders ?? []}
           loading={loading}
           emptyText={t('portal.orders.noOrders')}
           pagination={{ page, totalPages, onPageChange: setPage }}

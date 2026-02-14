@@ -7,11 +7,50 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// planFields holds the columns queried from the plans table, used by buildPlanSnapshot.
+type planFields struct {
+	ID             string
+	Name           string
+	ProductID      string
+	Description    *string
+	CPUCores       *int
+	MemoryMB       *int
+	DiskGB         *int
+	BandwidthTB    *string
+	PriceMonthly   *string
+	PriceQuarterly *string
+	PriceAnnually  *string
+	SetupFee       string
+	Features       json.RawMessage
+	IsActive       bool
+}
+
+// buildPlanSnapshot creates a JSON snapshot of a plan for storage in order_items.
+func buildPlanSnapshot(p *planFields) (json.RawMessage, error) {
+	snapshot := map[string]interface{}{
+		"id":              p.ID,
+		"name":            p.Name,
+		"product_id":      p.ProductID,
+		"description":     p.Description,
+		"cpu_cores":       p.CPUCores,
+		"memory_mb":       p.MemoryMB,
+		"disk_gb":         p.DiskGB,
+		"bandwidth_tb":    p.BandwidthTB,
+		"price_monthly":   p.PriceMonthly,
+		"price_quarterly": p.PriceQuarterly,
+		"price_annually":  p.PriceAnnually,
+		"setup_fee":       p.SetupFee,
+		"features":        p.Features,
+	}
+	return json.Marshal(snapshot)
+}
 
 // Handler 订单处理器
 type Handler struct {
@@ -92,12 +131,10 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 		return
 	}
 
-	userIDValue, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
-	userID := userIDValue.(string)
 
 	ctx := c.Request.Context()
 
@@ -114,22 +151,7 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 		return
 	}
 
-	var (
-		planID         string
-		planName       string
-		productID      string
-		description    *string
-		cpuCores       *int
-		memoryMB       *int
-		diskGB         *int
-		bandwidthTB    *string
-		priceMonthly   *string
-		priceQuarterly *string
-		priceAnnually  *string
-		setupFee       string
-		features       json.RawMessage
-		isActive       bool
-	)
+	var plan planFields
 
 	err = tx.QueryRow(ctx,
 		`SELECT id, name, product_id, description, cpu_cores, memory_mb, disk_gb,
@@ -139,10 +161,10 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 		 WHERE id = $1`,
 		req.PlanID,
 	).Scan(
-		&planID, &planName, &productID, &description,
-		&cpuCores, &memoryMB, &diskGB, &bandwidthTB,
-		&priceMonthly, &priceQuarterly, &priceAnnually,
-		&setupFee, &features, &isActive,
+		&plan.ID, &plan.Name, &plan.ProductID, &plan.Description,
+		&plan.CPUCores, &plan.MemoryMB, &plan.DiskGB, &plan.BandwidthTB,
+		&plan.PriceMonthly, &plan.PriceQuarterly, &plan.PriceAnnually,
+		&plan.SetupFee, &plan.Features, &plan.IsActive,
 	)
 
 	if err != nil {
@@ -154,7 +176,7 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 		return
 	}
 
-	if !isActive {
+	if !plan.IsActive {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Plan is not active"})
 		return
 	}
@@ -162,42 +184,26 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 	var unitPrice string
 	switch req.BillingCycle {
 	case "monthly":
-		if priceMonthly == nil {
+		if plan.PriceMonthly == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Monthly billing not available"})
 			return
 		}
-		unitPrice = *priceMonthly
+		unitPrice = *plan.PriceMonthly
 	case "quarterly":
-		if priceQuarterly == nil {
+		if plan.PriceQuarterly == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Quarterly billing not available"})
 			return
 		}
-		unitPrice = *priceQuarterly
+		unitPrice = *plan.PriceQuarterly
 	case "annually":
-		if priceAnnually == nil {
+		if plan.PriceAnnually == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Annual billing not available"})
 			return
 		}
-		unitPrice = *priceAnnually
+		unitPrice = *plan.PriceAnnually
 	}
 
-	snapshot := map[string]interface{}{
-		"id":              planID,
-		"name":            planName,
-		"product_id":      productID,
-		"description":     description,
-		"cpu_cores":       cpuCores,
-		"memory_mb":       memoryMB,
-		"disk_gb":         diskGB,
-		"bandwidth_tb":    bandwidthTB,
-		"price_monthly":   priceMonthly,
-		"price_quarterly": priceQuarterly,
-		"price_annually":  priceAnnually,
-		"setup_fee":       setupFee,
-		"features":        features,
-	}
-
-	snapshotJSON, err := json.Marshal(snapshot)
+	snapshotJSON, err := buildPlanSnapshot(&plan)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create plan snapshot"})
 		return
@@ -288,12 +294,10 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 
 // GetCart 获取购物车（当前草稿订单）
 func (h *Handler) GetCart(c *gin.Context) {
-	userIDValue, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
-	userID := userIDValue.(string)
 
 	ctx := c.Request.Context()
 	cart, err := h.getDraftCart(ctx, userID)
@@ -324,9 +328,8 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	}
 
 	// 从上下文获取用户 ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 
@@ -341,30 +344,17 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	defer tx.Rollback(ctx)
 
 	// 验证所有计划并获取价格
-	type planInfo struct {
-		ID             string
-		Name           string
-		ProductID      string
-		Description    *string
-		CPUCores       *int
-		MemoryMB       *int
-		DiskGB         *int
-		BandwidthTB    *string
-		PriceMonthly   *string
-		PriceQuarterly *string
-		PriceAnnually  *string
-		SetupFee       string
-		Features       json.RawMessage
-		BillingCycle   string
-		Quantity       int
-		UnitPrice      string
+	type planOrderInfo struct {
+		planFields
+		BillingCycle string
+		Quantity     int
+		UnitPrice    string
 	}
 
-	plans := make([]planInfo, 0, len(req.Items))
+	plans := make([]planOrderInfo, 0, len(req.Items))
 
 	for _, item := range req.Items {
-		var plan planInfo
-		var priceMonthly, priceQuarterly, priceAnnually *string
+		var plan planOrderInfo
 		var isActive bool
 
 		err := tx.QueryRow(ctx,
@@ -377,7 +367,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		).Scan(
 			&plan.ID, &plan.Name, &plan.ProductID, &plan.Description,
 			&plan.CPUCores, &plan.MemoryMB, &plan.DiskGB, &plan.BandwidthTB,
-			&priceMonthly, &priceQuarterly, &priceAnnually,
+			&plan.PriceMonthly, &plan.PriceQuarterly, &plan.PriceAnnually,
 			&plan.SetupFee, &plan.Features, &isActive,
 		)
 
@@ -400,31 +390,28 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		var price string
 		switch item.BillingCycle {
 		case "monthly":
-			if priceMonthly == nil {
+			if plan.PriceMonthly == nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Monthly billing not available for plan: " + item.PlanID})
 				return
 			}
-			price = *priceMonthly
+			price = *plan.PriceMonthly
 		case "quarterly":
-			if priceQuarterly == nil {
+			if plan.PriceQuarterly == nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Quarterly billing not available for plan: " + item.PlanID})
 				return
 			}
-			price = *priceQuarterly
+			price = *plan.PriceQuarterly
 		case "annually":
-			if priceAnnually == nil {
+			if plan.PriceAnnually == nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Annual billing not available for plan: " + item.PlanID})
 				return
 			}
-			price = *priceAnnually
+			price = *plan.PriceAnnually
 		}
 
 		plan.BillingCycle = item.BillingCycle
 		plan.Quantity = item.Quantity
 		plan.UnitPrice = price
-		plan.PriceMonthly = priceMonthly
-		plan.PriceQuarterly = priceQuarterly
-		plan.PriceAnnually = priceAnnually
 
 		plans = append(plans, plan)
 	}
@@ -449,24 +436,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	// 创建订单项
 	order.Items = make([]OrderItem, 0, len(plans))
 	for _, plan := range plans {
-		// 创建计划快照
-		snapshot := map[string]interface{}{
-			"id":              plan.ID,
-			"name":            plan.Name,
-			"product_id":      plan.ProductID,
-			"description":     plan.Description,
-			"cpu_cores":       plan.CPUCores,
-			"memory_mb":       plan.MemoryMB,
-			"disk_gb":         plan.DiskGB,
-			"bandwidth_tb":    plan.BandwidthTB,
-			"price_monthly":   plan.PriceMonthly,
-			"price_quarterly": plan.PriceQuarterly,
-			"price_annually":  plan.PriceAnnually,
-			"setup_fee":       plan.SetupFee,
-			"features":        plan.Features,
-		}
-
-		snapshotJSON, err := json.Marshal(snapshot)
+		snapshotJSON, err := buildPlanSnapshot(&plan.planFields)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create plan snapshot"})
 			return
@@ -516,9 +486,8 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 // ListOrders 列出用户订单
 func (h *Handler) ListOrders(c *gin.Context) {
 	// 从上下文获取用户 ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 
@@ -590,9 +559,8 @@ func (h *Handler) GetOrder(c *gin.Context) {
 	orderID := c.Param("id")
 
 	// 从上下文获取用户 ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 

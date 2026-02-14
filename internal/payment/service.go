@@ -24,12 +24,10 @@ func (h *Handler) CreateCheckoutSession(c *gin.Context) {
 		return
 	}
 
-	userIDValue, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
-	userID := userIDValue.(string)
 
 	ctx := c.Request.Context()
 	tx, err := h.pool.Begin(ctx)

@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
+import { useMemo } from 'react'
+import { useFetch } from '../../hooks/useFetch'
+import { getStatusVariant } from '../../lib/status'
+import type { Invoice } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
@@ -11,53 +12,13 @@ import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface Invoice {
-  id: string
-  invoice_number: string
-  status: string
-  total: number
-  created_at: string
-}
-
 export default function Invoices() {
-  const token = useAuthStore((state) => state.token)
   const navigate = useNavigate()
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(true)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      if (!token) return
-
-      try {
-        const data = await api<{ invoices: Invoice[] }>('/portal/invoices')
-        setInvoices(data.invoices)
-      } catch (err) {
-        console.error('Failed to fetch invoices:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void fetchInvoices()
-  }, [token])
-
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'success'
-      case 'pending':
-        return 'warning'
-      case 'overdue':
-        return 'danger'
-      case 'cancelled':
-        return 'default'
-      default:
-        return 'default'
-    }
-  }
+  const { data, loading } = useFetch<{ invoices: Invoice[] }>('/portal/invoices')
+  const invoices = data?.invoices ?? []
 
   const columns = useMemo<ColumnDef<Invoice, unknown>[]>(
     () => [
@@ -72,7 +33,7 @@ export default function Invoices() {
         accessorKey: 'status',
         header: () => t('common.status'),
         cell: ({ row }) => (
-          <Badge variant={statusVariant(row.original.status)}>
+          <Badge variant={getStatusVariant(row.original.status)}>
             {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
           </Badge>
         ),
@@ -104,7 +65,7 @@ export default function Invoices() {
         ),
       },
     ],
-    [t, locale, navigate]
+    [t, locale, navigate],
   )
 
   return (

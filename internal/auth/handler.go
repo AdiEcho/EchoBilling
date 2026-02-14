@@ -108,14 +108,12 @@ func (h *Handler) Login(c *gin.Context) {
 
 // Me 获取当前用户信息
 func (h *Handler) Me(c *gin.Context) {
-	// 从中间件设置的上下文中获取用户 ID
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 
-	user, err := h.getUserByID(c.Request.Context(), userID.(string))
+	user, err := h.getUserByID(c.Request.Context(), userID)
 	if err != nil {
 		common.WriteServiceError(c, err)
 		return

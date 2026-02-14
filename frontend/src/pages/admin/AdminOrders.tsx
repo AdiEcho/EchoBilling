@@ -1,97 +1,56 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Filter, Eye } from 'lucide-react'
+import { useFetch } from '../../hooks/useFetch'
+import { getStatusVariant, formatId, formatCurrency } from '../../lib/status'
+import { toast } from '../../stores/toast'
+import { api } from '../../lib/utils'
+import type { AdminOrder } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
+import Select from '../../components/ui/Select'
 import DataTable from '../../components/ui/DataTable'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface OrderItem {
-  id: string
-  plan_name: string
-  quantity: number
-  unit_price: number
-}
-
-interface Order {
-  id: string
-  customer_name: string
-  customer_email: string
-  status: 'pending' | 'processing' | 'completed' | 'cancelled'
-  amount: number
-  items?: OrderItem[]
-  created_at: string
-}
-
 const STATUS_OPTIONS = ['pending', 'processing', 'completed', 'cancelled']
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [viewOrder, setViewOrder] = useState<Order | null>(null)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [viewOrder, setViewOrder] = useState<AdminOrder | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
-  const token = useAuthStore((state) => state.token)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  const fetchOrders = async () => {
-    if (!token) return
-    try {
-      const data = await api<Order[]>('/admin/orders')
-      setOrders(data)
-    } catch (error) {
-      console.error('Failed to fetch orders:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    void fetchOrders()
-  }, [token])
+  const { data: orders, loading, refetch } = useFetch<AdminOrder[]>('/admin/orders')
 
   const filteredOrders =
-    statusFilter === 'all' ? orders : orders.filter((o) => o.status === statusFilter)
+    statusFilter === 'all' ? (orders ?? []) : (orders ?? []).filter((o) => o.status === statusFilter)
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'completed': return 'success'
-      case 'processing': return 'warning'
-      case 'cancelled': return 'danger'
-      default: return 'default'
-    }
-  }
-
-  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
-    if (!token) return
+  const handleStatusUpdate = useCallback(async (orderId: string, newStatus: string) => {
     setUpdatingStatus(orderId)
     try {
       await api(`/admin/orders/${orderId}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: newStatus }),
       })
-      setOrders((prev) =>
-        prev.map((o) => o.id === orderId ? { ...o, status: newStatus as Order['status'] } : o)
-      )
-    } catch (error) {
-      console.error('Failed to update order status:', error)
+      toast.success(t('admin.orders.statusUpdated'))
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('common.fetchError'))
     } finally {
       setUpdatingStatus(null)
     }
-  }
+  }, [refetch, t])
 
-  const columns = useMemo<ColumnDef<Order, unknown>[]>(
+  const columns = useMemo<ColumnDef<AdminOrder, unknown>[]>(
     () => [
       {
         accessorKey: 'id',
         header: () => t('admin.orders.orderId'),
-        cell: ({ row }) => <span className="text-text font-mono">{row.original.id.slice(0, 8)}</span>,
+        cell: ({ row }) => <span className="text-text font-mono">{formatId(row.original.id)}</span>,
       },
       {
         accessorKey: 'customer_name',
@@ -107,23 +66,23 @@ export default function AdminOrders() {
         accessorKey: 'status',
         header: () => t('common.status'),
         cell: ({ row }) => (
-          <select
+          <Select
             value={row.original.status}
             disabled={updatingStatus === row.original.id}
             onChange={(e) => void handleStatusUpdate(row.original.id, e.target.value)}
-            className="bg-surface border border-border rounded px-2 py-1 text-xs text-text focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{t(`status.${s}`, { defaultValue: s })}</option>
-            ))}
-          </select>
+            options={STATUS_OPTIONS.map((s) => ({
+              value: s,
+              label: t(`status.${s}`, { defaultValue: s }),
+            }))}
+            className="w-auto text-xs py-1"
+          />
         ),
       },
       {
         accessorKey: 'amount',
         header: () => t('common.amount'),
         cell: ({ row }) => (
-          <span className="text-text">{t('common.currency')}{row.original.amount.toFixed(2)}</span>
+          <span className="text-text">{t('common.currency')}{formatCurrency(row.original.amount)}</span>
         ),
       },
       {
@@ -146,8 +105,16 @@ export default function AdminOrders() {
         ),
       },
     ],
-    [t, locale, updatingStatus]
+    [t, locale, updatingStatus, handleStatusUpdate],
   )
+
+  const filterOptions = [
+    { value: 'all', label: t('admin.orders.filters.all') },
+    { value: 'pending', label: t('admin.orders.filters.pending') },
+    { value: 'processing', label: t('admin.orders.filters.processing') },
+    { value: 'completed', label: t('admin.orders.filters.completed') },
+    { value: 'cancelled', label: t('admin.orders.filters.cancelled') },
+  ]
 
   return (
     <div className="space-y-6">
@@ -155,17 +122,12 @@ export default function AdminOrders() {
         <h1 className="text-3xl font-bold text-text">{t('admin.orders.title')}</h1>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-text-secondary" />
-          <select
+          <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-surface border border-border rounded-lg px-3 py-2 text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="all">{t('admin.orders.filters.all')}</option>
-            <option value="pending">{t('admin.orders.filters.pending')}</option>
-            <option value="processing">{t('admin.orders.filters.processing')}</option>
-            <option value="completed">{t('admin.orders.filters.completed')}</option>
-            <option value="cancelled">{t('admin.orders.filters.cancelled')}</option>
-          </select>
+            options={filterOptions}
+            className="w-auto"
+          />
         </div>
       </div>
 
@@ -180,7 +142,7 @@ export default function AdminOrders() {
       </Card>
 
       {/* Order Detail Modal */}
-      <Modal open={!!viewOrder} onClose={() => setViewOrder(null)} title={`${t('admin.orders.orderId')}: ${viewOrder?.id.slice(0, 8) ?? ''}`}>
+      <Modal open={!!viewOrder} onClose={() => setViewOrder(null)} title={`${t('admin.orders.orderId')}: ${viewOrder ? formatId(viewOrder.id) : ''}`}>
         {viewOrder && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -197,7 +159,7 @@ export default function AdminOrders() {
               </div>
               <div>
                 <p className="text-text-secondary">{t('common.amount')}</p>
-                <p className="text-text font-bold">{t('common.currency')}{viewOrder.amount.toFixed(2)}</p>
+                <p className="text-text font-bold">{t('common.currency')}{formatCurrency(viewOrder.amount)}</p>
               </div>
               <div>
                 <p className="text-text-secondary">{t('common.date')}</p>

@@ -1,53 +1,19 @@
-import { useEffect, useState } from 'react'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
+import { useFetch } from '../../hooks/useFetch'
+import type { Service } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import { SkeletonCard } from '../../components/ui/Skeleton'
 import { Server } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-interface Service {
-  id: string
-  hostname: string
-  ip_address: string
-  plan_name: string
-  status: string
-}
-
 export default function Services() {
-  const token = useAuthStore((state) => state.token)
   const navigate = useNavigate()
-  const [services, setServices] = useState<Service[]>([])
-  const [loading, setLoading] = useState(true)
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      if (!token) return
-
-      try {
-        const data = await api<{ services: Service[] }>('/portal/services')
-        setServices(data.services)
-      } catch (err) {
-        console.error('Failed to fetch services:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void fetchServices()
-  }, [token])
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div><div className="h-9 w-48 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-64 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
-      </div>
-    )
-  }
+  const { data, loading } = useFetch<{ services: Service[] }>('/portal/services')
+  const services = data?.services ?? []
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,6 +28,15 @@ export default function Services() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div><div className="h-9 w-48 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-64 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -71,10 +46,7 @@ export default function Services() {
 
       {services.length === 0 ? (
         <Card>
-          <div className="text-center py-12">
-            <Server className="w-12 h-12 text-text-muted mx-auto mb-4" />
-            <p className="text-text-secondary">{t('portal.services.noServices')}</p>
-          </div>
+          <EmptyState icon={Server} message={t('portal.services.noServices')} />
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

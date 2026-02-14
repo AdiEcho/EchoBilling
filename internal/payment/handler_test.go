@@ -3,36 +3,38 @@ package payment
 import (
 	"testing"
 	"time"
+
+	"github.com/adiecho/echobilling/internal/common"
 )
 
 func TestDecimalAndCentsConversions(t *testing.T) {
 	t.Parallel()
 
-	cents, err := decimalAmountToCents("10.99")
+	cents, err := common.DecimalAmountToCents("10.99")
 	if err != nil {
-		t.Fatalf("decimalAmountToCents returned error: %v", err)
+		t.Fatalf("DecimalAmountToCents returned error: %v", err)
 	}
 	if cents != 1099 {
-		t.Fatalf("decimalAmountToCents = %d, want 1099", cents)
+		t.Fatalf("DecimalAmountToCents = %d, want 1099", cents)
 	}
 
-	amount := centsToDecimal(1099)
+	amount := common.CentsToDecimal(1099)
 	if amount != "10.99" {
-		t.Fatalf("centsToDecimal = %s, want 10.99", amount)
+		t.Fatalf("CentsToDecimal = %s, want 10.99", amount)
 	}
 }
 
 func TestRefundAndDisputeStatusMapping(t *testing.T) {
 	t.Parallel()
 
-	if got := mapRefundStatus("succeeded"); got != "succeeded" {
-		t.Fatalf("mapRefundStatus(succeeded) = %s", got)
+	if got := common.MapRefundStatus("succeeded"); got != "succeeded" {
+		t.Fatalf("MapRefundStatus(succeeded) = %s", got)
 	}
-	if got := mapRefundStatus("failed"); got != "failed" {
-		t.Fatalf("mapRefundStatus(failed) = %s", got)
+	if got := common.MapRefundStatus("failed"); got != "failed" {
+		t.Fatalf("MapRefundStatus(failed) = %s", got)
 	}
-	if got := mapRefundStatus("random"); got != "pending" {
-		t.Fatalf("mapRefundStatus(random) = %s", got)
+	if got := common.MapRefundStatus("random"); got != "pending" {
+		t.Fatalf("MapRefundStatus(random) = %s", got)
 	}
 
 	if got := mapDisputeStatus("won"); got != "won" {

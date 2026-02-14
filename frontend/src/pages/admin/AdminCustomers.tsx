@@ -1,44 +1,21 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useMemo } from 'react'
+import { usePaginatedFetch } from '../../hooks/useFetch'
+import type { Customer } from '../../types/models'
 import Card from '../../components/ui/Card'
 import DataTable from '../../components/ui/DataTable'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface Customer {
-  id: string
-  name: string
-  email: string
-  role: string
-  created_at: string
-}
-
 export default function AdminCustomers() {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const token = useAuthStore((state) => state.token)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      if (!token) return
-      try {
-        const data = await api<{ customers: Customer[]; total: number }>(`/admin/customers?page=${page}`)
-        setCustomers(data.customers)
-        setTotalPages(Math.ceil(data.total / 10))
-      } catch (error) {
-        console.error('Failed to fetch customers:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchCustomers()
-  }, [token, page])
+  const { data: customers, loading, page, totalPages, setPage } = usePaginatedFetch<Customer>(
+    '/admin/customers',
+    'customers',
+    { limit: 10 },
+  )
 
   const columns = useMemo<ColumnDef<Customer, unknown>[]>(
     () => [
@@ -80,7 +57,7 @@ export default function AdminCustomers() {
         ),
       },
     ],
-    [t, locale]
+    [t, locale],
   )
 
   return (
@@ -90,7 +67,7 @@ export default function AdminCustomers() {
       <Card>
         <DataTable
           columns={columns}
-          data={customers}
+          data={customers ?? []}
           loading={loading}
           emptyText={t('admin.customers.noCustomers')}
           pagination={{ page, totalPages, onPageChange: setPage }}

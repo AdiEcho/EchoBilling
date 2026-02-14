@@ -1,63 +1,43 @@
-import { useEffect, useState } from 'react'
-import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react'
-import Card from '../../components/ui/Card'
+import { useFetch } from '../../hooks/useFetch'
+import type { AdminDashboardStats } from '../../types/models'
+import StatCard from '../../components/ui/StatCard'
 import { SkeletonCard } from '../../components/ui/Skeleton'
-import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
+import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-interface DashboardStats {
-  total_customers: number
-  total_orders: number
-  revenue: number
-  active_services: number
-}
-
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const token = useAuthStore((state) => state.token)
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!token) return
-      try {
-        const data = await api<DashboardStats>('/admin/dashboard')
-        setStats(data)
-      } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchStats()
-  }, [token])
+  const { data: stats, loading } = useFetch<AdminDashboardStats>('/admin/dashboard')
 
   const statCards = [
     {
       title: t('admin.dashboard.totalCustomers'),
       value: stats?.total_customers ?? 0,
       icon: Users,
-      color: 'text-primary',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
     },
     {
       title: t('admin.dashboard.totalOrders'),
       value: stats?.total_orders ?? 0,
       icon: ShoppingCart,
-      color: 'text-cta',
+      iconColor: 'text-cta',
+      iconBg: 'bg-cta/10',
     },
     {
       title: t('admin.dashboard.revenue'),
       value: `${t('common.currency')}${stats?.revenue?.toFixed(2) ?? '0.00'}`,
       icon: DollarSign,
-      color: 'text-yellow-500',
+      iconColor: 'text-warning',
+      iconBg: 'bg-warning/10',
     },
     {
       title: t('admin.dashboard.activeServices'),
       value: stats?.active_services ?? 0,
       icon: Server,
-      color: 'text-blue-500',
+      iconColor: 'text-info',
+      iconBg: 'bg-info/10',
     },
   ]
 
@@ -70,15 +50,7 @@ export default function AdminDashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat) => (
-            <Card key={stat.title}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-secondary text-sm">{stat.title}</p>
-                  <p className="text-2xl font-bold text-text mt-1">{stat.value}</p>
-                </div>
-                <stat.icon className={`w-10 h-10 ${stat.color}`} />
-              </div>
-            </Card>
+            <StatCard key={stat.title} {...stat} />
           ))}
         </div>
       )}

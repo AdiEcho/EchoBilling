@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -56,9 +57,8 @@ type AdminInvoiceSummary struct {
 
 // ListInvoices 获取用户的发票列表
 func (h *Handler) ListInvoices(c *gin.Context) {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *Handler) ListInvoices(c *gin.Context) {
 		limit = 20
 	}
 
-	invoices, total, err := h.listUserInvoices(c.Request.Context(), userID.(string), page, limit)
+	invoices, total, err := h.listUserInvoices(c.Request.Context(), userID, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
@@ -87,13 +87,12 @@ func (h *Handler) ListInvoices(c *gin.Context) {
 
 // GetInvoice 获取单个发票详情
 func (h *Handler) GetInvoice(c *gin.Context) {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := common.GetUserID(c)
+	if !ok {
 		return
 	}
 
-	invoice, err := h.getUserInvoice(c.Request.Context(), userID.(string), c.Param("id"))
+	invoice, err := h.getUserInvoice(c.Request.Context(), userID, c.Param("id"))
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrInvoiceNotFound):

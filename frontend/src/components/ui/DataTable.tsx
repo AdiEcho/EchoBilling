@@ -14,10 +14,24 @@ import { useTranslation } from 'react-i18next'
 import Button from './Button'
 import { SkeletonTable } from './Skeleton'
 
+/** Build a compact page number array like [1, '...', 4, 5, 6, '...', 10] */
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const pages: (number | '...')[] = [1]
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  if (start > 2) pages.push('...')
+  for (let i = start; i <= end; i++) pages.push(i)
+  if (end < total - 1) pages.push('...')
+  pages.push(total)
+  return pages
+}
+
 export interface DataTablePagination {
   page: number
   totalPages: number
   onPageChange: (page: number) => void
+  totalRecords?: number
 }
 
 interface DataTableProps<TData> {
@@ -131,9 +145,11 @@ export default function DataTable<TData>({
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
           <p className="text-sm text-text-secondary">
-            {t('common.pageInfo', { page: pagination.page, total: pagination.totalPages })}
+            {pagination.totalRecords != null
+              ? t('common.pageInfoWithTotal', { page: pagination.page, total: pagination.totalPages, records: pagination.totalRecords })
+              : t('common.pageInfo', { page: pagination.page, total: pagination.totalPages })}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <Button
               variant="outline"
               size="sm"
@@ -142,6 +158,20 @@ export default function DataTable<TData>({
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
+            {getPageNumbers(pagination.page, pagination.totalPages).map((p, i) =>
+              p === '...' ? (
+                <span key={`ellipsis-${i}`} className="px-2 py-1.5 text-sm text-text-muted">...</span>
+              ) : (
+                <Button
+                  key={p}
+                  variant={p === pagination.page ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => pagination.onPageChange(p as number)}
+                >
+                  {p}
+                </Button>
+              ),
+            )}
             <Button
               variant="outline"
               size="sm"

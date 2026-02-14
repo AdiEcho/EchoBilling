@@ -1,56 +1,97 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { useAuthStore } from '../../stores/auth'
-import { api } from '../../lib/utils'
+import { useFetch } from '../../hooks/useFetch'
+import { getStatusVariant, formatId } from '../../lib/status'
+import type { PortalStats, Order } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import StatCard from '../../components/ui/StatCard'
+import DataTable from '../../components/ui/DataTable'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import { Server, ShoppingCart, FileText, DollarSign } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
-
-interface Stats {
-  active_services: number
-  pending_orders: number
-  unpaid_invoices: number
-  total_spent: number
-}
-
-interface Order {
-  id: string
-  status: string
-  total: number
-  created_at: string
-}
+import type { ColumnDef } from '@tanstack/react-table'
 
 export default function Dashboard() {
   const user = useAuthStore((state) => state.user)
-  const token = useAuthStore((state) => state.token)
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [recentOrders, setRecentOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!token) return
+  const { data: stats, loading: statsLoading } = useFetch<PortalStats>('/portal/stats')
+  const { data: ordersData, loading: ordersLoading } = useFetch<{ orders: Order[] }>('/portal/orders?limit=5')
+  const recentOrders = ordersData?.orders ?? []
 
-      try {
-        const [statsData, ordersData] = await Promise.all([
-          api<Stats>('/portal/stats'),
-          api<{ orders: Order[] }>('/portal/orders?limit=5'),
-        ])
-        setStats(statsData)
-        setRecentOrders(ordersData.orders)
-      } catch (err) {
-        console.error('Failed to fetch dashboard data:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const loading = statsLoading || ordersLoading
 
-    void fetchData()
-  }, [token])
+  const statCards = [
+    {
+      title: t('portal.dashboard.activeServices'),
+      value: stats?.active_services ?? 0,
+      icon: Server,
+      iconColor: 'text-cta',
+      iconBg: 'bg-cta/10',
+    },
+    {
+      title: t('portal.dashboard.pendingOrders'),
+      value: stats?.pending_orders ?? 0,
+      icon: ShoppingCart,
+      iconColor: 'text-warning',
+      iconBg: 'bg-warning/10',
+    },
+    {
+      title: t('portal.dashboard.unpaidInvoices'),
+      value: stats?.unpaid_invoices ?? 0,
+      icon: FileText,
+      iconColor: 'text-danger',
+      iconBg: 'bg-danger/10',
+    },
+    {
+      title: t('portal.dashboard.totalSpent'),
+      value: `${t('common.currency')}${stats?.total_spent ?? 0}`,
+      icon: DollarSign,
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
+    },
+  ]
+
+  const columns = useMemo<ColumnDef<Order, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: () => t('portal.dashboard.orderId'),
+        cell: ({ row }) => (
+          <span className="text-text font-mono">{formatId(row.original.id)}...</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.original.status)}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'total',
+        header: () => t('common.amount'),
+        cell: ({ row }) => (
+          <span className="text-text">{t('common.currency')}{row.original.total}</span>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('common.date'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleDateString(locale)}
+          </span>
+        ),
+      },
+    ],
+    [t, locale],
+  )
 
   if (loading) {
     return (
@@ -60,21 +101,6 @@ export default function Dashboard() {
         <Card><SkeletonTable rows={5} cols={4} /></Card>
       </div>
     )
-  }
-
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'success'
-      case 'pending_payment':
-        return 'warning'
-      case 'paid':
-        return 'info'
-      case 'cancelled':
-        return 'danger'
-      default:
-        return 'default'
-    }
   }
 
   return (
@@ -87,103 +113,18 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-text-secondary">{t('portal.dashboard.activeServices')}</p>
-              <p className="text-2xl font-bold text-text mt-1">{stats?.active_services || 0}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-cta/10 flex items-center justify-center">
-              <Server className="w-6 h-6 text-cta" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-text-secondary">{t('portal.dashboard.pendingOrders')}</p>
-              <p className="text-2xl font-bold text-text mt-1">{stats?.pending_orders || 0}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
-              <ShoppingCart className="w-6 h-6 text-warning" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-text-secondary">{t('portal.dashboard.unpaidInvoices')}</p>
-              <p className="text-2xl font-bold text-text mt-1">{stats?.unpaid_invoices || 0}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-danger" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-text-secondary">{t('portal.dashboard.totalSpent')}</p>
-              <p className="text-2xl font-bold text-text mt-1">
-                {t('common.currency')}
-                {stats?.total_spent || 0}
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </Card>
+        {statCards.map((stat) => (
+          <StatCard key={stat.title} {...stat} />
+        ))}
       </div>
 
       <Card>
         <h2 className="text-xl font-semibold text-text mb-4">{t('portal.dashboard.recentOrders')}</h2>
-        {recentOrders.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">{t('portal.dashboard.noOrders')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('portal.dashboard.orderId')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.status')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.amount')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.date')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 px-4 text-sm text-text font-mono">{order.id.substring(0, 8)}...</td>
-                    <td className="py-3 px-4">
-                      <Badge variant={statusVariant(order.status)}>
-                        {t(`status.${order.status}`, { defaultValue: order.status })}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-sm text-text">
-                      {t('common.currency')}
-                      {order.total}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-text-secondary">
-                      {new Date(order.created_at).toLocaleDateString(locale)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={recentOrders}
+          emptyText={t('portal.dashboard.noOrders')}
+        />
       </Card>
     </div>
   )
