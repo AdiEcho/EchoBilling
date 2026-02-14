@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import { Server, ShoppingCart, FileText, DollarSign } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
@@ -52,7 +53,13 @@ export default function Dashboard() {
   }, [token])
 
   if (loading) {
-    return <div className="text-text-secondary">{t('common.loading')}</div>
+    return (
+      <div className="space-y-6">
+        <div><div className="h-9 w-64 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-48 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>
+        <Card><SkeletonTable rows={5} cols={4} /></Card>
+      </div>
+    )
   }
 
   const statusVariant = (status: string) => {

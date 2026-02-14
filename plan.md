@@ -13,44 +13,41 @@
 
 | Phase | 状态 | 完成度（估算） | 备注 |
 |------|------|------|------|
-| Phase 1: 骨架+基础设施 | 基本完成 | 100% | `sqlc` 已生成到 `internal/db/` |
-| Phase 2: 认证模块 | 进行中 | 100% | `handler + service + middleware` 已拆分完成，认证功能完整 |
-| Phase 3: 产品目录 | 进行中 | 100% | `handler + service` 已拆分完成，产品与后台 CRUD 可用 |
-| Phase 4: 订单模块 | 进行中 | 95% | 订单核心 helper 与用户门户逻辑已拆分到独立 `service.go` |
-| Phase 5: 支付模块 | 进行中 | 95% | `handler + service + webhook` 已拆分完成，待真实 Stripe 环境联调 |
-| Phase 6: 账单模块 | 进行中 | 90% | `handler + service` 已拆分完成，发票接口可用 |
-| Phase 7: 管理后台 | 进行中 | 100% | `handler + service + middleware` 已拆分完成，管理端核心接口可用 |
-| Phase 8: React 前端 | 进行中 | 80% | 主要页面已落地，设计系统组件与部分路由仍缺口 |
-| Phase 9: Worker 任务系统 | 进行中 | 90% | 已接入外部续费提醒 Webhook，并增加每日批量提醒调度 |
+| Phase 1: 骨架+基础设施 | ✅ 完成 | 100% | `sqlc` 已生成到 `internal/db/`（14 个文件） |
+| Phase 2: 认证模块 | ✅ 完成 | 100% | `handler + service + middleware + jwt + password` 6 文件完整 |
+| Phase 3: 产品目录 | ✅ 完成 | 100% | `handler + service + routes` 已拆分完成 |
+| Phase 4: 订单模块 | ✅ 完成 | 100% | `handler + service + routes` 完整，含单元测试 |
+| Phase 5: 支付模块 | 基本完成 | 98% | 代码完整（含 `provisioning.go`），待真实 Stripe 环境联调 |
+| Phase 6: 账单模块 | ✅ 完成 | 100% | `handler + service + routes` 已拆分完成 |
+| Phase 7: 管理后台 | ✅ 完成 | 100% | `handler + service + middleware + routes` 已拆分完成 |
+| Phase 8: React 前端 | 进行中 | 95% | Modal/Skeleton/ServiceDetail 已补齐，i18n 完整，仅缺独立 Table 组件 |
+| Phase 9: Worker 任务系统 | ✅ 完成 | 100% | `handler + tasks + scheduler` 完整，含单元测试 |
 
-### 本次核对结果
+### 本次核对结果（2026-02-14 全量扫描）
 
-- 后端验证：`go test ./...` 通过（含新增单测：状态流转/金额转换/续费提醒日期计算）。
-- `sqlc` 代码生成：通过 `CGO_ENABLED=0 go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate` 已生成 `internal/db/`。
-- 前端构建检查：`npm run build` 通过（Vite 生产构建成功）。
+- 后端 Go 文件总计：56 个，覆盖 12 个模块。
+- 单元测试文件：3 个（`order/handler_test.go`、`payment/handler_test.go`、`provisioning/handler_test.go`）。
+- 数据库迁移：11 个迁移文件，sqlc 生成 14 个文件，查询定义 11 个 `.sql` 文件。
+- 前端页面总计：31 个（公开 11 + 认证 2 + 门户 10 + 管理 7 + 购物车 1）。
+- 前端 UI 组件：6 个（Button/Input/Card/Badge/Modal/Skeleton），另有 LanguageSwitcher。
+- 前端布局组件：3 个（PublicLayout/PortalLayout/AdminLayout）。
+- i18n：完整支持中英文（4 个翻译文件）。
 
-### 本轮同步摘要（后端）
+### 本轮变更摘要（前端）
 
-- 已补齐门户后端接口：`GET /api/v1/portal/stats`、`GET /api/v1/portal/services`、`GET /api/v1/portal/services/{id}`、`POST /api/v1/portal/change-password`。
-- 已补齐支付到开通闭环：Stripe `checkout.session.completed` 后自动创建 `services`、写入 `provisioning_jobs` 并投递 Asynq 开通任务。
-- 已补齐管理系统接口：`GET /api/v1/admin/system`（DB/Redis/Worker 健康摘要）。
-- 已接入续费提醒外部通知：Worker 支持可配置 Webhook（含 Token/超时），并增加每日批量提醒调度（7/3/1 天）。
-- 当前后端剩余阻塞：Stripe 真实环境联调、后端集成/回归测试。
-
-### 本轮同步摘要（后端拆分）
-
-- 认证模块已完成独立拆分：`internal/auth/handler.go` + `internal/auth/service.go` + `internal/auth/middleware.go`。
-- 产品目录模块已完成独立拆分：`internal/catalog/handler.go` + `internal/catalog/service.go`。
-- 订单模块已完成服务层拆分：`internal/order/service.go`（购物车草稿单与状态机逻辑从 handler 拆出）。
-- 用户门户模块已完成服务层拆分：`internal/customer/handler.go` + `internal/customer/service.go`。
-- 支付模块已完成独立拆分：`internal/payment/handler.go` + `internal/payment/service.go` + `internal/payment/webhook.go`。
-- 账单模块已完成独立拆分：`internal/billing/handler.go` + `internal/billing/service.go`。
-- 管理后台模块已完成独立拆分：`internal/admin/handler.go` + `internal/admin/service.go` + `internal/admin/middleware.go`。
+- 已补齐 `Modal.tsx` 组件（支持 Escape 关闭、焦点陷阱）。
+- 已补齐 `Skeleton.tsx` 组件（Skeleton/SkeletonText/SkeletonCard/SkeletonTable 四种变体）。
+- 已实现 `/portal/services/{id}` 服务详情页（`ServiceDetail.tsx`）。
+- 已完善管理后台页面：`AdminDashboard`（统计卡片）、`AdminCustomers`（分页）、`AdminInvoices`（状态徽章）、`AdminOrders`（状态过滤+模态框详情）。
+- 已完善门户 `Dashboard.tsx`（统计卡片+最近订单）。
+- 已新增 `Cart.tsx` 购物车页面、`CheckoutSuccess.tsx`/`CheckoutCancel.tsx` 支付结果页。
+- 已新增 `InvoiceDetail.tsx` 发票详情页、`OrderDetail.tsx` 订单详情页。
 
 ### 主要阻塞（需优先修复）
 
 - Stripe 支付主流程仍缺少真实环境端到端联调（仅完成编译级与代码级修复）。
-- 后端仍缺少集成/回归测试（当前以单元测试与编译检查为主）。
+- 后端仍缺少集成/回归测试（当前仅 3 个单元测试文件）。
+- 前端缺少独立 Table 组件（当前各页面使用原生 `<table>` 实现，可提取为可复用组件）。
 
 ---
 
@@ -152,6 +149,7 @@
 - [x] 购物车相关接口（`POST /api/v1/cart/items`、`GET /api/v1/cart`）已实现。
 - [x] 已拆分独立 `service.go`（草稿单、购物车与状态机逻辑已迁移）。
 - [x] 用户门户模块已拆分独立 `service.go`（`internal/customer/service.go`）。
+- [x] 单元测试已覆盖（`handler_test.go`）。
 
 ### 4.1 后端
 - `handler.go` - 购物车、下单
@@ -240,11 +238,15 @@
 ## Phase 8: React 前端
 
 ### 当前进度
-- [x] Vite + React + TypeScript + Tailwind v4 + Router + Zustand 基础架构已完成。
-- [x] 公开页、认证页、用户中心、管理后台主要页面均已创建并接入路由。
+- [x] Vite + React 19 + TypeScript + Tailwind v4 + Router v7 + Zustand 基础架构已完成。
+- [x] 公开页（11 页）、认证页（2 页）、用户中心（10 页）、管理后台（7 页）均已创建并接入路由。
 - [x] 字体与主题变量（Space Grotesk / DM Sans / JetBrains Mono）已配置。
-- [ ] 设计系统仅完成 `Button/Input/Card/Badge`，`Modal/Table/Skeleton` 缺失。
-- [ ] 路由为 `/portal/services` 列表页，计划中的 `/portal/services/{id}` 详情页未实现。
+- [x] 设计系统已完成 `Button/Input/Card/Badge/Modal/Skeleton`，另有 `LanguageSwitcher`。
+- [x] `/portal/services/{id}` 服务详情页已实现（`ServiceDetail.tsx`）。
+- [x] i18n 国际化完整支持中英文（i18next + react-i18next，4 个翻译文件）。
+- [x] 购物车页面（`Cart.tsx`）、支付结果页（`CheckoutSuccess/Cancel`）已实现。
+- [x] 管理后台页面已完善：统计卡片、分页、状态过滤、模态框 CRUD。
+- [ ] 缺少独立 `Table` 可复用组件（当前各页面使用原生 `<table>`）。
 
 ### 8.1 项目初始化 (`frontend/`)
 - Vite + React + TypeScript
@@ -298,6 +300,8 @@
 - [x] VPS 开通/暂停/终止、续费提醒、发票生成、过期检查任务处理器已创建。
 - [x] 续费提醒已接入外部通知系统（Webhook，可配置 Token 与超时），并保留审计日志。
 - [x] 发票/服务任务字段与迁移不一致问题已修复。
+- [x] 单元测试已覆盖（`handler_test.go`）。
+- [x] 周期性任务调度器（`scheduler.go`）已实现。
 
 - `cmd/worker/main.go` - Asynq worker 启动
 - `internal/provisioning/` - VPS 开通任务（模拟）

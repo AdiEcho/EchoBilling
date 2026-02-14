@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react'
 import Card from '../../components/ui/Card'
+import { SkeletonCard } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
       <h1 className="text-3xl font-bold text-text">{t('admin.dashboard.title')}</h1>
 
       {loading ? (
-        <div className="text-text-secondary">{t('common.loading')}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat) => (

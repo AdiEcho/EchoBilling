@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
@@ -45,7 +46,7 @@ export default function AdminCustomers() {
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">{t('common.loading')}</div>
+          <SkeletonTable rows={5} cols={5} />
         ) : customers.length === 0 ? (
           <div className="text-text-secondary p-4">{t('admin.customers.noCustomers')}</div>
         ) : (

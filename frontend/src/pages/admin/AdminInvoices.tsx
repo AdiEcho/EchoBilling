@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
@@ -61,7 +62,7 @@ export default function AdminInvoices() {
 
       <Card>
         {loading ? (
-          <div className="text-text-secondary p-4">{t('common.loading')}</div>
+          <SkeletonTable rows={5} cols={6} />
         ) : invoices.length === 0 ? (
           <div className="text-text-secondary p-4">{t('admin.invoices.noInvoices')}</div>
         ) : (
