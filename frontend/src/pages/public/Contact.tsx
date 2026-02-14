@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, Clock, MapPin, Send } from 'lucide-react'
+import { Mail, Clock, MapPin, Send, CheckCircle } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -12,11 +12,14 @@ export default function Contact() {
     subject: '',
     message: '',
   })
+  const [submitted, setSubmitted] = useState(false)
   const { t } = useTranslation()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
+    setSubmitted(true)
+    setFormData({ name: '', email: '', subject: '', message: '' })
+    setTimeout(() => setSubmitted(false), 5000)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -42,6 +45,14 @@ export default function Contact() {
               <h2 className="font-heading text-2xl font-bold text-text mb-6">
                 {t('contact.sendMessage')}
               </h2>
+
+              {submitted && (
+                <div className="flex items-center gap-3 rounded-lg border border-cta/30 bg-cta/5 px-4 py-3 mb-6 text-sm text-cta">
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  {t('contact.form.success')}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input

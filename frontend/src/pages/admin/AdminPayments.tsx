@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { RefreshCw } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import Input from '../../components/ui/Input'
-import { SkeletonTable } from '../../components/ui/Skeleton'
+import DataTable from '../../components/ui/DataTable'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface Payment {
   id: string
@@ -83,54 +84,73 @@ export default function AdminPayments() {
     }
   }
 
+  const columns = useMemo<ColumnDef<Payment, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: () => t('admin.payments.paymentId'),
+        cell: ({ row }) => <span className="text-text font-mono">{row.original.id.slice(0, 8)}</span>,
+      },
+      {
+        accessorKey: 'amount',
+        header: () => t('common.amount'),
+        cell: ({ row }) => (
+          <span className="text-text">{t('common.currency')}{row.original.amount.toFixed(2)}</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.original.status)}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'method',
+        header: () => t('admin.payments.method'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary capitalize">{row.original.method}</span>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('common.date'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleDateString(locale)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          row.original.status === 'completed' ? (
+            <Button size="sm" variant="outline" onClick={() => openRefundModal(row.original)}>
+              <RefreshCw className="w-3 h-3 mr-1" />
+              {t('admin.payments.refund')}
+            </Button>
+          ) : null
+        ),
+      },
+    ],
+    [t, locale]
+  )
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-text">{t('admin.payments.title')}</h1>
 
       <Card>
-        {loading ? (
-          <SkeletonTable rows={5} cols={6} />
-        ) : payments.length === 0 ? (
-          <div className="text-text-secondary p-4">{t('admin.payments.noPayments')}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.payments.paymentId')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.amount')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.payments.method')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.date')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((payment) => (
-                  <tr key={payment.id} className="border-b border-border hover:bg-surface/50 transition-colors">
-                    <td className="py-3 px-4 text-text font-mono">{payment.id.slice(0, 8)}</td>
-                    <td className="py-3 px-4 text-text">{t('common.currency')}{payment.amount.toFixed(2)}</td>
-                    <td className="py-3 px-4">
-                      <Badge variant={getStatusVariant(payment.status)}>
-                        {t(`status.${payment.status}`, { defaultValue: payment.status })}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-text-secondary capitalize">{payment.method}</td>
-                    <td className="py-3 px-4 text-text-secondary">{new Date(payment.created_at).toLocaleDateString(locale)}</td>
-                    <td className="py-3 px-4">
-                      {payment.status === 'completed' && (
-                        <Button size="sm" variant="outline" onClick={() => openRefundModal(payment)}>
-                          <RefreshCw className="w-3 h-3 mr-1" />
-                          {t('admin.payments.refund')}
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={payments}
+          loading={loading}
+          emptyText={t('admin.payments.noPayments')}
+          skeletonCols={6}
+        />
       </Card>
 
       {/* Refund Modal */}

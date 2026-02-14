@@ -255,7 +255,8 @@
       "subjectPlaceholder": "我们可以如何帮助您？",
       "message": "内容",
       "messagePlaceholder": "请描述您的问题...",
-      "send": "发送消息"
+      "send": "发送消息",
+      "success": "消息已成功发送，我们会尽快回复您。"
     },
     "info": {
       "email": "邮箱",
@@ -332,6 +333,7 @@
       "stripeTitle": "Stripe 支付",
       "stripeDescription": "我们使用 Stripe 处理所有支付。Stripe 是安全可靠的支付平台，支持多种支付方式。",
       "manageButton": "管理支付方式",
+    "autoManaged": "支付方式通过 Stripe Checkout 自动管理。下单时可添加或更新支付方式。",
       "pciTitle": "PCI 合规",
       "pciDescription": "您的支付信息由 Stripe 安全存储和处理。我们不会在服务器上保存信用卡信息。",
       "supportedTitle": "支持的支付方式",
@@ -531,6 +533,15 @@
     "cancelMessage": "您的支付已取消，未产生任何费用。",
     "backToCart": "返回购物车",
     "browsePlans": "浏览套餐"
+  },
+  "table": {
+    "pagination": {
+      "showing": "显示 {{from}} 至 {{to}} 条，共 {{total}} 条",
+      "previous": "上一页",
+      "next": "下一页"
+    },
+    "empty": "暂无数据",
+    "noResults": "未找到匹配结果"
   },
   "cart": {
     "title": "购物车",

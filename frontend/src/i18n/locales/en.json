@@ -255,7 +255,8 @@
       "subjectPlaceholder": "How can we help?",
       "message": "Message",
       "messagePlaceholder": "Tell us more about your inquiry...",
-      "send": "Send Message"
+      "send": "Send Message",
+      "success": "Your message has been sent successfully. We'll get back to you soon."
     },
     "info": {
       "email": "Email",
@@ -332,6 +333,7 @@
       "stripeTitle": "Stripe Payments",
       "stripeDescription": "We use Stripe to process all payments. Stripe is a secure and reliable payment platform supporting multiple methods.",
       "manageButton": "Manage Payment Methods",
+    "autoManaged": "Payment methods are automatically managed through Stripe Checkout. When you place an order, you can add or update your payment method during checkout.",
       "pciTitle": "PCI Compliance",
       "pciDescription": "Your payment information is securely stored and processed by Stripe. We never store your credit card data on our servers.",
       "supportedTitle": "Supported Payment Methods",
@@ -531,6 +533,15 @@
     "cancelMessage": "Your payment was cancelled. No charges were made.",
     "backToCart": "Back to Cart",
     "browsePlans": "Browse Plans"
+  },
+  "table": {
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}} entries",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "empty": "No data available",
+    "noResults": "No matching results found"
   },
   "cart": {
     "title": "Shopping Cart",

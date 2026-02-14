@@ -1,10 +1,17 @@
+import { useState } from 'react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { CreditCard, Shield } from 'lucide-react'
+import { CreditCard, Shield, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function BillingMethods() {
   const { t } = useTranslation()
+  const [showInfo, setShowInfo] = useState(false)
+
+  const handleManagePayments = () => {
+    setShowInfo(true)
+    setTimeout(() => setShowInfo(false), 5000)
+  }
 
   return (
     <div className="space-y-6">
@@ -12,6 +19,13 @@ export default function BillingMethods() {
         <h1 className="text-3xl font-bold text-text">{t('portal.billing.title')}</h1>
         <p className="text-text-secondary mt-2">{t('portal.billing.subtitle')}</p>
       </div>
+
+      {showInfo && (
+        <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-text-secondary">
+          <Info className="w-4 h-4 text-primary flex-shrink-0" />
+          {t('portal.billing.autoManaged')}
+        </div>
+      )}
 
       <Card>
         <div className="flex items-start gap-4">
@@ -21,7 +35,7 @@ export default function BillingMethods() {
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-text mb-2">{t('portal.billing.stripeTitle')}</h2>
             <p className="text-text-secondary text-sm mb-4">{t('portal.billing.stripeDescription')}</p>
-            <Button variant="primary">{t('portal.billing.manageButton')}</Button>
+            <Button variant="primary" onClick={handleManagePayments}>{t('portal.billing.manageButton')}</Button>
           </div>
         </div>
       </Card>

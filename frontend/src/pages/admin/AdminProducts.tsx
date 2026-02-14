@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Plus, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
+import DataTable from '../../components/ui/DataTable'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import { api } from '../../lib/utils'
 import { useAuthStore } from '../../stores/auth'
 import { useTranslation } from 'react-i18next'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 
 interface Plan {
   id: string
@@ -54,7 +56,7 @@ export default function AdminProducts() {
   const [formData, setFormData] = useState(emptyProduct)
 
   // Plan management
-  const [expandedProduct, setExpandedProduct] = useState<string | null>(null)
+  const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
   const [plans, setPlans] = useState<Plan[]>([])
   const [plansLoading, setPlansLoading] = useState(false)
   const [showPlanModal, setShowPlanModal] = useState(false)
@@ -92,13 +94,15 @@ export default function AdminProducts() {
     }
   }
 
-  const handleTogglePlans = (productId: string) => {
-    if (expandedProduct === productId) {
-      setExpandedProduct(null)
+  const handleTogglePlans = (productId: string, row: Row<Product>) => {
+    if (expandedProductId === productId) {
+      setExpandedProductId(null)
       setPlans([])
+      row.toggleExpanded(false)
     } else {
-      setExpandedProduct(productId)
+      setExpandedProductId(productId)
       void fetchPlans(productId)
+      row.toggleExpanded(true)
     }
   }
 
@@ -207,7 +211,6 @@ export default function AdminProducts() {
       }
       setShowPlanModal(false)
       void fetchPlans(planProductId)
-      // Refresh products to update plans_count
       void fetchProducts()
     } catch (error) {
       console.error('Failed to save plan:', error)
@@ -218,11 +221,140 @@ export default function AdminProducts() {
     if (!token || !confirm(t('admin.products.confirmDeletePlan'))) return
     try {
       await api(`/admin/plans/${planId}`, { method: 'DELETE', token })
-      if (expandedProduct) void fetchPlans(expandedProduct)
+      if (expandedProductId) void fetchPlans(expandedProductId)
       void fetchProducts()
     } catch (error) {
       console.error('Failed to delete plan:', error)
     }
+  }
+
+  const columns = useMemo<ColumnDef<Product, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: () => t('common.name'),
+        cell: ({ row }) => <span className="text-text">{row.original.name}</span>,
+      },
+      {
+        accessorKey: 'slug',
+        header: () => t('admin.products.slug'),
+        cell: ({ row }) => <span className="text-text-secondary">{row.original.slug}</span>,
+      },
+      {
+        accessorKey: 'category',
+        header: () => t('common.category'),
+        cell: ({ row }) => <span className="text-text-secondary">{row.original.category}</span>,
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('admin.products.status'),
+        cell: ({ row }) => (
+          <Badge variant={row.original.status === 'active' ? 'success' : 'default'}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        id: 'plans_count',
+        header: () => t('admin.products.plans'),
+        cell: ({ row }) => (
+          <button
+            onClick={() => handleTogglePlans(row.original.id, row)}
+            className="flex items-center gap-1 text-primary hover:text-primary/80"
+          >
+            {row.original.plans_count}
+            {row.getIsExpanded() ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
+          </button>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            <button
+              className="text-primary hover:text-primary/80"
+              aria-label={t('common.edit')}
+              onClick={() => openEditProduct(row.original)}
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              className="text-red-500 hover:text-red-400"
+              aria-label={t('common.delete')}
+              onClick={() => void handleDeleteProduct(row.original.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [t, expandedProductId]
+  )
+
+  const renderSubRow = (row: Row<Product>) => {
+    const product = row.original
+    return (
+      <>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-text">{t('admin.products.plansFor', { name: product.name })}</h3>
+          <Button size="sm" onClick={() => openCreatePlan(product.id)}>
+            <Plus className="w-3 h-3 mr-1" />
+            {t('admin.products.addPlan')}
+          </Button>
+        </div>
+        {plansLoading ? (
+          <SkeletonTable rows={2} cols={5} />
+        ) : plans.length === 0 ? (
+          <p className="text-text-secondary text-sm">{t('admin.products.noPlans')}</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.name')}</th>
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.cpu')}</th>
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.ram')}</th>
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.storage')}</th>
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('admin.products.monthlyPrice')}</th>
+                <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((plan) => (
+                <tr key={plan.id} className="border-b border-border/50">
+                  <td className="py-2 px-3 text-text">{plan.name}</td>
+                  <td className="py-2 px-3 text-text-secondary">{plan.cpu_cores} vCPU</td>
+                  <td className="py-2 px-3 text-text-secondary">{plan.memory_mb >= 1024 ? `${plan.memory_mb / 1024}GB` : `${plan.memory_mb}MB`}</td>
+                  <td className="py-2 px-3 text-text-secondary">{plan.disk_gb}GB</td>
+                  <td className="py-2 px-3 text-text">${plan.price_monthly}</td>
+                  <td className="py-2 px-3">
+                    <div className="flex gap-2">
+                      <button
+                        className="text-primary hover:text-primary/80"
+                        onClick={() => openEditPlan(plan, product.id)}
+                      >
+                        <Edit className="w-3 h-3" />
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-400"
+                        onClick={() => void handleDeletePlan(plan.id)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </>
+    )
   }
 
   return (
@@ -236,134 +368,14 @@ export default function AdminProducts() {
       </div>
 
       <Card>
-        {loading ? (
-          <SkeletonTable rows={5} cols={6} />
-        ) : products.length === 0 ? (
-          <div className="text-text-secondary p-4">{t('admin.products.noProducts')}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.name')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.slug')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.category')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.status')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.products.plans')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <>
-                    <tr
-                      key={product.id}
-                      className="border-b border-border hover:bg-surface/50 transition-colors"
-                    >
-                      <td className="py-3 px-4 text-text">{product.name}</td>
-                      <td className="py-3 px-4 text-text-secondary">{product.slug}</td>
-                      <td className="py-3 px-4 text-text-secondary">{product.category}</td>
-                      <td className="py-3 px-4">
-                        <Badge variant={product.status === 'active' ? 'success' : 'default'}>
-                          {t(`status.${product.status}`, { defaultValue: product.status })}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4">
-                        <button
-                          onClick={() => handleTogglePlans(product.id)}
-                          className="flex items-center gap-1 text-primary hover:text-primary/80"
-                        >
-                          {product.plans_count}
-                          {expandedProduct === product.id ? (
-                            <ChevronUp className="w-3 h-3" />
-                          ) : (
-                            <ChevronDown className="w-3 h-3" />
-                          )}
-                        </button>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex gap-2">
-                          <button
-                            className="text-primary hover:text-primary/80"
-                            aria-label={t('common.edit')}
-                            onClick={() => openEditProduct(product)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="text-red-500 hover:text-red-400"
-                            aria-label={t('common.delete')}
-                            onClick={() => void handleDeleteProduct(product.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    {expandedProduct === product.id && (
-                      <tr key={`${product.id}-plans`}>
-                        <td colSpan={6} className="bg-surface/30 px-8 py-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-sm font-medium text-text">{t('admin.products.plansFor', { name: product.name })}</h3>
-                            <Button size="sm" onClick={() => openCreatePlan(product.id)}>
-                              <Plus className="w-3 h-3 mr-1" />
-                              {t('admin.products.addPlan')}
-                            </Button>
-                          </div>
-                          {plansLoading ? (
-                            <SkeletonTable rows={2} cols={5} />
-                          ) : plans.length === 0 ? (
-                            <p className="text-text-secondary text-sm">{t('admin.products.noPlans')}</p>
-                          ) : (
-                            <table className="w-full text-sm">
-                              <thead>
-                                <tr className="border-b border-border">
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.name')}</th>
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.cpu')}</th>
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.ram')}</th>
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.storage')}</th>
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('admin.products.monthlyPrice')}</th>
-                                  <th className="text-left py-2 px-3 text-text-secondary font-medium">{t('common.actions')}</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {plans.map((plan) => (
-                                  <tr key={plan.id} className="border-b border-border/50">
-                                    <td className="py-2 px-3 text-text">{plan.name}</td>
-                                    <td className="py-2 px-3 text-text-secondary">{plan.cpu_cores} vCPU</td>
-                                    <td className="py-2 px-3 text-text-secondary">{plan.memory_mb >= 1024 ? `${plan.memory_mb / 1024}GB` : `${plan.memory_mb}MB`}</td>
-                                    <td className="py-2 px-3 text-text-secondary">{plan.disk_gb}GB</td>
-                                    <td className="py-2 px-3 text-text">${plan.price_monthly}</td>
-                                    <td className="py-2 px-3">
-                                      <div className="flex gap-2">
-                                        <button
-                                          className="text-primary hover:text-primary/80"
-                                          onClick={() => openEditPlan(plan, product.id)}
-                                        >
-                                          <Edit className="w-3 h-3" />
-                                        </button>
-                                        <button
-                                          className="text-red-500 hover:text-red-400"
-                                          onClick={() => void handleDeletePlan(plan.id)}
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          )}
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={products}
+          loading={loading}
+          emptyText={t('admin.products.noProducts')}
+          skeletonCols={6}
+          renderSubRow={renderSubRow}
+        />
       </Card>
 
       {/* Product Modal */}

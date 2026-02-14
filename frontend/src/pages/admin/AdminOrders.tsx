@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Filter, Eye } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
-import { SkeletonTable } from '../../components/ui/Skeleton'
+import DataTable from '../../components/ui/DataTable'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface OrderItem {
   id: string
@@ -86,6 +87,69 @@ export default function AdminOrders() {
     }
   }
 
+  const columns = useMemo<ColumnDef<Order, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: () => t('admin.orders.orderId'),
+        cell: ({ row }) => <span className="text-text font-mono">{row.original.id.slice(0, 8)}</span>,
+      },
+      {
+        accessorKey: 'customer_name',
+        header: () => t('admin.orders.customer'),
+        cell: ({ row }) => (
+          <div>
+            <div className="text-text">{row.original.customer_name}</div>
+            <div className="text-text-secondary text-xs">{row.original.customer_email}</div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <select
+            value={row.original.status}
+            disabled={updatingStatus === row.original.id}
+            onChange={(e) => void handleStatusUpdate(row.original.id, e.target.value)}
+            className="bg-surface border border-border rounded px-2 py-1 text-xs text-text focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>{t(`status.${s}`, { defaultValue: s })}</option>
+            ))}
+          </select>
+        ),
+      },
+      {
+        accessorKey: 'amount',
+        header: () => t('common.amount'),
+        cell: ({ row }) => (
+          <span className="text-text">{t('common.currency')}{row.original.amount.toFixed(2)}</span>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('common.date'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleDateString(locale)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          <Button variant="ghost" size="sm" onClick={() => setViewOrder(row.original)}>
+            <Eye className="w-4 h-4 mr-1" />
+            {t('admin.orders.view')}
+          </Button>
+        ),
+      },
+    ],
+    [t, locale, updatingStatus]
+  )
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -107,59 +171,13 @@ export default function AdminOrders() {
       </div>
 
       <Card>
-        {loading ? (
-          <SkeletonTable rows={5} cols={6} />
-        ) : filteredOrders.length === 0 ? (
-          <div className="text-text-secondary p-4">{t('admin.orders.noOrders')}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.orders.orderId')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.orders.customer')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.amount')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.date')}</th>
-                  <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border hover:bg-surface/50 transition-colors">
-                    <td className="py-3 px-4 text-text font-mono">{order.id.slice(0, 8)}</td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <div className="text-text">{order.customer_name}</div>
-                        <div className="text-text-secondary text-xs">{order.customer_email}</div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <select
-                        value={order.status}
-                        disabled={updatingStatus === order.id}
-                        onChange={(e) => void handleStatusUpdate(order.id, e.target.value)}
-                        className="bg-surface border border-border rounded px-2 py-1 text-xs text-text focus:outline-none focus:ring-1 focus:ring-primary"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>{t(`status.${s}`, { defaultValue: s })}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-3 px-4 text-text">{t('common.currency')}{order.amount.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-text-secondary">{new Date(order.created_at).toLocaleDateString(locale)}</td>
-                    <td className="py-3 px-4">
-                      <Button variant="ghost" size="sm" onClick={() => setViewOrder(order)}>
-                        <Eye className="w-4 h-4 mr-1" />
-                        {t('admin.orders.view')}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={filteredOrders}
+          loading={loading}
+          emptyText={t('admin.orders.noOrders')}
+          skeletonCols={6}
+        />
       </Card>
 
       {/* Order Detail Modal */}

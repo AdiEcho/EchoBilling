@@ -47,7 +47,7 @@
 
 - Stripe 支付主流程仍缺少真实环境端到端联调（仅完成编译级与代码级修复）。
 - 后端仍缺少集成/回归测试（当前仅 3 个单元测试文件）。
-- 前端缺少独立 Table 组件（当前各页面使用原生 `<table>` 实现，可提取为可复用组件）。
+- ~~前端缺少独立 Table 组件~~ — 已完成：`DataTable.tsx` 基于 TanStack React Table，7 个表格页面已迁移。
 
 ---
 
@@ -246,7 +246,7 @@
 - [x] i18n 国际化完整支持中英文（i18next + react-i18next，4 个翻译文件）。
 - [x] 购物车页面（`Cart.tsx`）、支付结果页（`CheckoutSuccess/Cancel`）已实现。
 - [x] 管理后台页面已完善：统计卡片、分页、状态过滤、模态框 CRUD。
-- [ ] 缺少独立 `Table` 可复用组件（当前各页面使用原生 `<table>`）。
+- [x] 可复用 `DataTable` 组件已创建（基于 TanStack React Table，支持分页/排序/展开行），7 个表格页面已迁移。
 
 ### 8.1 项目初始化 (`frontend/`)
 - Vite + React + TypeScript

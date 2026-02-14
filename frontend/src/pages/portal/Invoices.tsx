@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
-import { SkeletonTable } from '../../components/ui/Skeleton'
+import DataTable from '../../components/ui/DataTable'
 import { Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface Invoice {
   id: string
@@ -58,14 +59,53 @@ export default function Invoices() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div><div className="h-9 w-32 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-56 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
-        <Card><SkeletonTable rows={5} cols={5} /></Card>
-      </div>
-    )
-  }
+  const columns = useMemo<ColumnDef<Invoice, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'invoice_number',
+        header: () => t('portal.invoices.invoiceNumber'),
+        cell: ({ row }) => (
+          <span className="text-text font-mono">{row.original.invoice_number}</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <Badge variant={statusVariant(row.original.status)}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'total',
+        header: () => t('common.amount'),
+        cell: ({ row }) => (
+          <span className="text-text">{t('common.currency')}{row.original.total}</span>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('common.date'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleDateString(locale)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/invoices/${row.original.id}`)}>
+            <Eye className="w-4 h-4 mr-1" />
+            {t('portal.invoices.view')}
+          </Button>
+        ),
+      },
+    ],
+    [t, locale, navigate]
+  )
 
   return (
     <div className="space-y-6">
@@ -75,58 +115,12 @@ export default function Invoices() {
       </div>
 
       <Card>
-        {invoices.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">{t('portal.invoices.noInvoices')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('portal.invoices.invoiceNumber')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.status')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.amount')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.date')}
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                    {t('common.actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((invoice) => (
-                  <tr key={invoice.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 px-4 text-sm text-text font-mono">{invoice.invoice_number}</td>
-                    <td className="py-3 px-4">
-                      <Badge variant={statusVariant(invoice.status)}>
-                        {t(`status.${invoice.status}`, { defaultValue: invoice.status })}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-sm text-text">
-                      {t('common.currency')}
-                      {invoice.total}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-text-secondary">
-                      {new Date(invoice.created_at).toLocaleDateString(locale)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/invoices/${invoice.id}`)}>
-                        <Eye className="w-4 h-4 mr-1" />
-                        {t('portal.invoices.view')}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={invoices}
+          loading={loading}
+          emptyText={t('portal.invoices.noInvoices')}
+        />
       </Card>
     </div>
   )

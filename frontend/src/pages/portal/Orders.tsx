@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
-import { SkeletonTable } from '../../components/ui/Skeleton'
-import { Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import DataTable from '../../components/ui/DataTable'
+import { Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface Order {
   id: string
@@ -65,14 +66,53 @@ export default function Orders() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div><div className="h-9 w-48 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-64 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
-        <Card><SkeletonTable rows={5} cols={5} /></Card>
-      </div>
-    )
-  }
+  const columns = useMemo<ColumnDef<Order, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: () => t('portal.orders.orderId'),
+        cell: ({ row }) => (
+          <span className="text-text font-mono">{row.original.id.substring(0, 8)}...</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <Badge variant={statusVariant(row.original.status)}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'total',
+        header: () => t('common.amount'),
+        cell: ({ row }) => (
+          <span className="text-text">{t('common.currency')}{row.original.total}</span>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('common.date'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleDateString(locale)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/orders/${row.original.id}`)}>
+            <Eye className="w-4 h-4 mr-1" />
+            {t('portal.orders.view')}
+          </Button>
+        ),
+      },
+    ],
+    [t, locale, navigate]
+  )
 
   return (
     <div className="space-y-6">
@@ -82,84 +122,13 @@ export default function Orders() {
       </div>
 
       <Card>
-        {orders.length === 0 ? (
-          <p className="text-text-secondary text-center py-8">{t('portal.orders.noOrders')}</p>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                      {t('portal.orders.orderId')}
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                      {t('common.status')}
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                      {t('common.amount')}
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                      {t('common.date')}
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
-                      {t('common.actions')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id} className="border-b border-border/50 last:border-0">
-                      <td className="py-3 px-4 text-sm text-text font-mono">{order.id.substring(0, 8)}...</td>
-                      <td className="py-3 px-4">
-                        <Badge variant={statusVariant(order.status)}>
-                          {t(`status.${order.status}`, { defaultValue: order.status })}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-text">
-                        {t('common.currency')}
-                        {order.total}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-text-secondary">
-                        {new Date(order.created_at).toLocaleDateString(locale)}
-                      </td>
-                      <td className="py-3 px-4">
-                        <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/orders/${order.id}`)}>
-                          <Eye className="w-4 h-4 mr-1" />
-                          {t('portal.orders.view')}
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-text-secondary">{t('common.pageInfo', { page, total: totalPages })}</p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        <DataTable
+          columns={columns}
+          data={orders}
+          loading={loading}
+          emptyText={t('portal.orders.noOrders')}
+          pagination={{ page, totalPages, onPageChange: setPage }}
+        />
       </Card>
     </div>
   )
