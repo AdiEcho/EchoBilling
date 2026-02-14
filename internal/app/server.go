@@ -21,6 +21,7 @@ func NewServer(cfg *Config, pool *pgxpool.Pool, rdb *redis.Client) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Recovery())
+	r.Use(middleware.RequestID())
 	r.Use(gin.Logger())
 	r.Use(middleware.CORS(cfg.Environment, cfg.FrontendURL))
 	r.Use(middleware.RateLimit(100, 200)) // 全局限流：100 req/s，burst 200

@@ -16,6 +16,8 @@ export function getStatusVariant(status: string): BadgeVariant {
     case 'pending_payment':
     case 'processing':
     case 'sent':
+    case 'degraded':
+    case 'running':
       return 'warning'
     // danger states
     case 'cancelled':
@@ -23,10 +25,14 @@ export function getStatusVariant(status: string): BadgeVariant {
     case 'failed':
     case 'suspended':
     case 'stopped':
+    case 'down':
       return 'danger'
     // info states
     case 'provisioning':
       return 'info'
+    // system health
+    case 'healthy':
+      return 'success'
     default:
       return 'default'
   }

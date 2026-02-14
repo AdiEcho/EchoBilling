@@ -7,6 +7,7 @@ import Badge from '../../components/ui/Badge'
 import { SkeletonCard } from '../../components/ui/Skeleton'
 import { api } from '../../lib/utils'
 import { useAuthStore } from '../../stores/auth'
+import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 
 interface Plan {
@@ -39,20 +40,16 @@ export default function Pricing() {
     const fetchProducts = async () => {
       try {
         const products = await api<Product[]>('/products')
-        const allPlans: (Plan & { product_slug: string })[] = []
-        for (const product of products) {
-          try {
-            const productPlans = await api<Plan[]>(`/products/${product.id}/plans`)
-            for (const plan of productPlans) {
-              allPlans.push({ ...plan, product_slug: product.slug })
-            }
-          } catch {
-            // skip products with no plans
-          }
-        }
-        setPlans(allPlans)
+        const planResults = await Promise.all(
+          products.map((product) =>
+            api<Plan[]>(`/products/${product.id}/plans`)
+              .then((plans) => plans.map((plan) => ({ ...plan, product_slug: product.slug })))
+              .catch(() => [] as (Plan & { product_slug: string })[])
+          )
+        )
+        setPlans(planResults.flat())
       } catch (error) {
-        console.error('Failed to fetch products:', error)
+        toast.error(t('common.fetchError'))
       } finally {
         setLoading(false)
       }
@@ -74,7 +71,7 @@ export default function Pricing() {
       })
       navigate('/portal/cart')
     } catch (err) {
-      console.error('Failed to add to cart:', err)
+      toast.error(t('common.fetchError'))
     } finally {
       setAddingToCart(null)
     }
@@ -105,11 +102,11 @@ export default function Pricing() {
             {plans.map((plan, idx) => {
               const isPopular = idx === 1
               return (
+                <div key={plan.id} className={isPopular ? 'relative rounded-2xl bg-gradient-to-br from-primary via-cta to-primary p-[2px]' : ''}>
                 <Card
-                  key={plan.id}
                   hover
-                  className={`relative flex flex-col ${
-                    isPopular ? 'border-primary shadow-lg shadow-primary/20' : ''
+                  className={`relative flex flex-col h-full ${
+                    isPopular ? 'shadow-lg shadow-primary/20' : ''
                   }`}
                 >
                   {isPopular && (
@@ -170,6 +167,7 @@ export default function Pricing() {
                     {addingToCart === plan.id ? t('common.loading') : t('pricing.cta')}
                   </Button>
                 </Card>
+                </div>
               )
             })}
           </div>

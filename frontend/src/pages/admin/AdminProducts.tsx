@@ -5,10 +5,12 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import DataTable from '../../components/ui/DataTable'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import { api } from '../../lib/utils'
 import { useAuthStore } from '../../stores/auth'
+import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
@@ -63,6 +65,7 @@ export default function AdminProducts() {
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
   const [planForm, setPlanForm] = useState(emptyPlan)
   const [planProductId, setPlanProductId] = useState<string>('')
+  const [confirmDelete, setConfirmDelete] = useState<{ type: 'product' | 'plan'; id: string } | null>(null)
 
   const token = useAuthStore((state) => state.token)
   const { t } = useTranslation()
@@ -72,7 +75,7 @@ export default function AdminProducts() {
       const data = await api<Product[]>('/products')
       setProducts(data)
     } catch (error) {
-      console.error('Failed to fetch products:', error)
+      toast.error(t('common.fetchError'))
     } finally {
       setLoading(false)
     }
@@ -88,7 +91,7 @@ export default function AdminProducts() {
       const data = await api<Plan[]>(`/products/${productId}/plans`)
       setPlans(data)
     } catch (error) {
-      console.error('Failed to fetch plans:', error)
+      toast.error(t('common.fetchError'))
     } finally {
       setPlansLoading(false)
     }
@@ -143,18 +146,20 @@ export default function AdminProducts() {
       setLoading(true)
       void fetchProducts()
     } catch (error) {
-      console.error('Failed to save product:', error)
+      toast.error(t('common.saveError', { defaultValue: 'Save failed' }))
     }
   }
 
   const handleDeleteProduct = async (productId: string) => {
-    if (!token || !confirm(t('admin.products.confirmDelete'))) return
+    if (!token) return
     try {
       await api(`/admin/products/${productId}`, { method: 'DELETE' })
       setLoading(true)
       void fetchProducts()
     } catch (error) {
-      console.error('Failed to delete product:', error)
+      toast.error(t('common.deleteError', { defaultValue: 'Delete failed' }))
+    } finally {
+      setConfirmDelete(null)
     }
   }
 
@@ -209,18 +214,20 @@ export default function AdminProducts() {
       void fetchPlans(planProductId)
       void fetchProducts()
     } catch (error) {
-      console.error('Failed to save plan:', error)
+      toast.error(t('common.saveError', { defaultValue: 'Save failed' }))
     }
   }
 
   const handleDeletePlan = async (planId: string) => {
-    if (!token || !confirm(t('admin.products.confirmDeletePlan'))) return
+    if (!token) return
     try {
       await api(`/admin/plans/${planId}`, { method: 'DELETE' })
       if (expandedProductId) void fetchPlans(expandedProductId)
       void fetchProducts()
     } catch (error) {
-      console.error('Failed to delete plan:', error)
+      toast.error(t('common.deleteError', { defaultValue: 'Delete failed' }))
+    } finally {
+      setConfirmDelete(null)
     }
   }
 
@@ -282,7 +289,7 @@ export default function AdminProducts() {
             <button
               className="text-red-500 hover:text-red-400"
               aria-label={t('common.delete')}
-              onClick={() => void handleDeleteProduct(row.original.id)}
+              onClick={() => setConfirmDelete({ type: 'product', id: row.original.id })}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -338,7 +345,7 @@ export default function AdminProducts() {
                       </button>
                       <button
                         className="text-red-500 hover:text-red-400"
-                        onClick={() => void handleDeletePlan(plan.id)}
+                        onClick={() => setConfirmDelete({ type: 'plan', id: plan.id })}
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -493,6 +500,23 @@ export default function AdminProducts() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (confirmDelete?.type === 'product') void handleDeleteProduct(confirmDelete.id)
+          else if (confirmDelete?.type === 'plan') void handleDeletePlan(confirmDelete.id)
+        }}
+        title={t('common.confirmDelete', { defaultValue: 'Confirm Delete' })}
+        message={
+          confirmDelete?.type === 'product'
+            ? t('admin.products.confirmDelete')
+            : t('admin.products.confirmDeletePlan')
+        }
+        variant="danger"
+        confirmText={t('common.delete')}
+      />
     </div>
   )
 }

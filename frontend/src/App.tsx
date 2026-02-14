@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from 'react'
 import { useAuthStore } from './stores/auth'
 import { useSetupStore } from './stores/setup'
 import ToastContainer from './components/ui/Toast'
+import PageTransition from './components/PageTransition'
 
 // Layouts (always loaded)
 import PublicLayout from './layouts/PublicLayout'
@@ -101,6 +102,7 @@ export default function App() {
   return (
     <SetupGuard>
       <Suspense fallback={<PageLoader />}>
+        <PageTransition>
         <Routes>
           {/* Setup page */}
           <Route path="/setup" element={<SetupAdmin />} />
@@ -149,6 +151,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </PageTransition>
       </Suspense>
       <ToastContainer />
     </SetupGuard>

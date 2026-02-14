@@ -8,7 +8,7 @@ import {
   type SortingState,
   type Row,
 } from '@tanstack/react-table'
-import { useState, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Button from './Button'
@@ -45,6 +45,7 @@ interface DataTableProps<TData> {
   skeletonCols?: number
   renderSubRow?: (row: Row<TData>) => ReactNode
   getRowCanExpand?: (row: Row<TData>) => boolean
+  onRowClick?: (row: Row<TData>) => void
 }
 
 export default function DataTable<TData>({
@@ -58,6 +59,7 @@ export default function DataTable<TData>({
   skeletonCols,
   renderSubRow,
   getRowCanExpand,
+  onRowClick,
 }: DataTableProps<TData>) {
   const { t } = useTranslation()
   const [sorting, setSorting] = useState<SortingState>([])
@@ -118,10 +120,10 @@ export default function DataTable<TData>({
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <>
+              <Fragment key={row.id}>
                 <tr
-                  key={row.id}
-                  className="border-b border-border/50 last:border-0 hover:bg-surface/50 transition-colors"
+                  className={`border-b border-border/50 last:border-0 hover:bg-surface-hover/50 transition-colors${onRowClick ? ' cursor-pointer' : ''}`}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="py-3 px-4">
@@ -130,13 +132,13 @@ export default function DataTable<TData>({
                   ))}
                 </tr>
                 {row.getIsExpanded() && renderSubRow && (
-                  <tr key={`${row.id}-expanded`}>
+                  <tr>
                     <td colSpan={columns.length} className="bg-surface/30 px-8 py-4">
                       {renderSubRow(row)}
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>

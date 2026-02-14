@@ -7,6 +7,8 @@ import Button from '../../components/ui/Button'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { getStatusVariant } from '../../lib/status'
+import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 
@@ -53,16 +55,6 @@ export default function OrderDetailPage() {
     void fetchOrder()
   }, [token, id, t])
 
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case 'active': case 'completed': return 'success'
-      case 'pending_payment': case 'pending': return 'warning'
-      case 'paid': case 'processing': return 'info'
-      case 'cancelled': return 'danger'
-      default: return 'default'
-    }
-  }
-
   const handleCheckout = async () => {
     if (!token || !order) return
     setCheckingOut(true)
@@ -73,7 +65,7 @@ export default function OrderDetailPage() {
       })
       window.location.href = data.session_url
     } catch (err) {
-      console.error('Checkout failed:', err)
+      toast.error(t('common.fetchError'))
       setCheckingOut(false)
     }
   }
@@ -120,7 +112,7 @@ export default function OrderDetailPage() {
             <p className="text-sm text-text-secondary">{t('portal.orders.orderId')}</p>
             <p className="text-text font-mono">{order.id}</p>
           </div>
-          <Badge variant={statusVariant(order.status) as 'success' | 'warning' | 'info' | 'danger' | 'default'}>
+          <Badge variant={getStatusVariant(order.status)}>
             {t(`status.${order.status}`, { defaultValue: order.status })}
           </Badge>
         </div>

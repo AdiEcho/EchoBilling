@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -28,35 +29,29 @@ func (h *Handler) HandleWebhook(c *gin.Context) {
 
 	event, err := webhook.ConstructEvent(body, c.GetHeader("Stripe-Signature"), h.webhookSecret)
 	if err != nil {
+		log.Printf("[webhook] signature verification failed: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
 		return
 	}
 
 	ctx := c.Request.Context()
 
-	var exists bool
-	err = h.pool.QueryRow(ctx,
-		`SELECT EXISTS(SELECT 1 FROM payment_events WHERE stripe_event_id = $1)`,
-		event.ID,
-	).Scan(&exists)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
-		return
-	}
-	if exists {
-		c.JSON(http.StatusOK, gin.H{"message": "Event already processed"})
-		return
-	}
-
+	// Atomic idempotency: INSERT ON CONFLICT DO NOTHING, then check affected rows
 	eventData, _ := json.Marshal(event.Data.Raw)
 	eventRecordID := uuid.New().String()
-	_, err = h.pool.Exec(ctx,
+	tag, err := h.pool.Exec(ctx,
 		`INSERT INTO payment_events (id, stripe_event_id, event_type, payload, processed, created_at)
-		 VALUES ($1, $2, $3, $4, false, $5)`,
+		 VALUES ($1, $2, $3, $4, false, $5)
+		 ON CONFLICT (stripe_event_id) DO NOTHING`,
 		eventRecordID, event.ID, event.Type, eventData, time.Now(),
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store event"})
+		return
+	}
+	if tag.RowsAffected() == 0 {
+		// Event already exists — duplicate delivery
+		c.JSON(http.StatusOK, gin.H{"message": "Event already processed"})
 		return
 	}
 

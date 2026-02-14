@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -14,9 +14,25 @@ interface ModalProps {
 export default function Modal({ open, onClose, title, children, className }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!open) return
+    if (open) {
+      setMounted(true)
+      // Trigger enter animation on next frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true))
+      })
+    } else {
+      setVisible(false)
+      const timer = setTimeout(() => setMounted(false), 200)
+      return () => clearTimeout(timer)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!mounted) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -24,22 +40,23 @@ export default function Modal({ open, onClose, title, children, className }: Mod
 
     document.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
-
-    // Focus trap: focus the content on open
     contentRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
     }
-  }, [open, onClose])
+  }, [mounted, onClose])
 
-  if (!open) return null
+  if (!mounted) return null
 
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className={cn(
+        'fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-200',
+        visible ? 'opacity-100' : 'opacity-0'
+      )}
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose()
       }}
@@ -49,6 +66,8 @@ export default function Modal({ open, onClose, title, children, className }: Mod
         tabIndex={-1}
         className={cn(
           'rounded-2xl border border-border/50 bg-surface/90 backdrop-blur-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto outline-none',
+          'transition-all duration-200',
+          visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2',
           className
         )}
       >

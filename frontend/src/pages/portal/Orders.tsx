@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { usePaginatedFetch } from '../../hooks/useFetch'
 import { getStatusVariant, formatId } from '../../lib/status'
 import { toast } from '../../stores/toast'
@@ -18,15 +18,17 @@ export default function Orders() {
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
-  const { data: orders, loading, page, totalPages, setPage } = usePaginatedFetch<Order>(
+  const { data: orders, loading, error, page, totalPages, setPage } = usePaginatedFetch<Order>(
     '/portal/orders',
     'orders',
     { limit: 10 },
   )
 
-  if (!loading && !orders) {
-    toast.error(t('common.fetchError'))
-  }
+  useEffect(() => {
+    if (!loading && error) {
+      toast.error(t('common.fetchError'))
+    }
+  }, [loading, error, t])
 
   const columns = useMemo<ColumnDef<Order, unknown>[]>(
     () => [

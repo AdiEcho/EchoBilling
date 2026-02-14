@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Activity, Database, Zap, Cpu } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import DataTable from '../../components/ui/DataTable'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { getStatusVariant, formatId } from '../../lib/status'
+import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface SystemInfo {
   api_version: string
@@ -41,7 +45,7 @@ export default function AdminSystem() {
         setSystemInfo(sysData)
         setJobs(jobsData)
       } catch (error) {
-        console.error('Failed to fetch system info:', error)
+        toast.error(t('common.fetchError'))
       } finally {
         setLoading(false)
       }
@@ -49,22 +53,39 @@ export default function AdminSystem() {
     void fetchData()
   }, [token])
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'healthy':
-      case 'completed':
-        return 'success'
-      case 'degraded':
-      case 'pending':
-      case 'running':
-        return 'warning'
-      case 'down':
-      case 'failed':
-        return 'danger'
-      default:
-        return 'default'
-    }
-  }
+  const jobColumns = useMemo<ColumnDef<Job, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: () => t('admin.system.jobId'),
+        cell: ({ row }) => <span className="text-text font-mono">{formatId(row.original.id)}</span>,
+      },
+      {
+        accessorKey: 'name',
+        header: () => t('common.name'),
+        cell: ({ row }) => <span className="text-text">{row.original.name}</span>,
+      },
+      {
+        accessorKey: 'status',
+        header: () => t('common.status'),
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.original.status)}>
+            {t(`status.${row.original.status}`, { defaultValue: row.original.status })}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('admin.system.created'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {new Date(row.original.created_at).toLocaleString(locale)}
+          </span>
+        ),
+      },
+    ],
+    [t, locale],
+  )
 
   const systemCards = [
     {
@@ -133,38 +154,11 @@ export default function AdminSystem() {
 
           <Card>
             <h2 className="text-xl font-bold text-text mb-4">{t('admin.system.recentJobs')}</h2>
-            {jobs.length === 0 ? (
-              <div className="text-text-secondary">{t('admin.system.noJobs')}</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.system.jobId')}</th>
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.name')}</th>
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.system.created')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {jobs.map((job) => (
-                      <tr key={job.id} className="border-b border-border hover:bg-surface/50 transition-colors">
-                        <td className="py-3 px-4 text-text font-mono">{job.id.slice(0, 8)}</td>
-                        <td className="py-3 px-4 text-text">{job.name}</td>
-                        <td className="py-3 px-4">
-                          <Badge variant={getStatusVariant(job.status)}>
-                            {t(`status.${job.status}`, { defaultValue: job.status })}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 text-text-secondary">
-                          {new Date(job.created_at).toLocaleString(locale)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <DataTable
+              columns={jobColumns}
+              data={jobs}
+              emptyText={t('admin.system.noJobs')}
+            />
           </Card>
         </>
       )}

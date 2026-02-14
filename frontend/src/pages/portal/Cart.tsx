@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ShoppingCart, Trash2, CreditCard } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import DataTable from '../../components/ui/DataTable'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
+import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface CartItem {
   id: string
@@ -37,7 +40,7 @@ export default function Cart() {
       const data = await api<CartData>('/cart')
       setCart(data)
     } catch (err) {
-      console.error('Failed to fetch cart:', err)
+      toast.error(t('common.fetchError'))
     } finally {
       setLoading(false)
     }
@@ -53,7 +56,7 @@ export default function Cart() {
       await api(`/cart/items/${itemId}`, { method: 'DELETE' })
       void fetchCart()
     } catch (err) {
-      console.error('Failed to remove item:', err)
+      toast.error(t('common.deleteError', { defaultValue: 'Delete failed' }))
     }
   }
 
@@ -67,7 +70,7 @@ export default function Cart() {
       })
       window.location.href = data.session_url
     } catch (err) {
-      console.error('Checkout failed:', err)
+      toast.error(t('common.fetchError'))
       setCheckingOut(false)
     }
   }
@@ -82,6 +85,62 @@ export default function Cart() {
   }
 
   const items = cart?.items ?? []
+
+  const columns = useMemo<ColumnDef<CartItem, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'plan_name',
+        header: () => t('cart.plan'),
+        cell: ({ row }) => (
+          <div>
+            <div className="text-text font-medium">{row.original.plan_name}</div>
+            {row.original.specs && <div className="text-xs text-text-secondary">{row.original.specs}</div>}
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'billing_cycle',
+        header: () => t('cart.billingCycle'),
+        cell: ({ row }) => (
+          <span className="text-text-secondary">
+            {t(`cart.cycle_${row.original.billing_cycle}`, { defaultValue: row.original.billing_cycle })}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'quantity',
+        header: () => t('cart.quantity'),
+        cell: ({ row }) => <span className="text-text">{row.original.quantity}</span>,
+      },
+      {
+        accessorKey: 'unit_price',
+        header: () => t('cart.unitPrice'),
+        cell: ({ row }) => <span className="text-text">{t('common.currency')}{row.original.unit_price}</span>,
+      },
+      {
+        id: 'subtotal',
+        header: () => t('cart.subtotal'),
+        cell: ({ row }) => (
+          <span className="text-text font-medium">
+            {t('common.currency')}{(row.original.quantity * row.original.unit_price).toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => t('common.actions'),
+        cell: ({ row }) => (
+          <button
+            className="text-red-500 hover:text-red-400"
+            onClick={() => void handleRemoveItem(row.original.id)}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        ),
+      },
+    ],
+    [t],
+  )
 
   return (
     <div className="space-y-6">
@@ -100,46 +159,11 @@ export default function Cart() {
       ) : (
         <>
           <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('cart.plan')}</th>
-                    <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('cart.billingCycle')}</th>
-                    <th className="text-right py-3 px-4 text-text-secondary font-medium">{t('cart.quantity')}</th>
-                    <th className="text-right py-3 px-4 text-text-secondary font-medium">{t('cart.unitPrice')}</th>
-                    <th className="text-right py-3 px-4 text-text-secondary font-medium">{t('cart.subtotal')}</th>
-                    <th className="text-right py-3 px-4 text-text-secondary font-medium">{t('common.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => (
-                    <tr key={item.id} className="border-b border-border/50 last:border-0">
-                      <td className="py-3 px-4">
-                        <div className="text-text font-medium">{item.plan_name}</div>
-                        {item.specs && <div className="text-xs text-text-secondary">{item.specs}</div>}
-                      </td>
-                      <td className="py-3 px-4 text-text-secondary">
-                        {t(`cart.cycle_${item.billing_cycle}`, { defaultValue: item.billing_cycle })}
-                      </td>
-                      <td className="py-3 px-4 text-text text-right">{item.quantity}</td>
-                      <td className="py-3 px-4 text-text text-right">{t('common.currency')}{item.unit_price}</td>
-                      <td className="py-3 px-4 text-text font-medium text-right">
-                        {t('common.currency')}{(item.quantity * item.unit_price).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          className="text-red-500 hover:text-red-400"
-                          onClick={() => void handleRemoveItem(item.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={columns}
+              data={items}
+              emptyText={t('cart.empty')}
+            />
           </Card>
 
           {/* Total & Checkout */}
