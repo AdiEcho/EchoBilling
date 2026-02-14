@@ -3,7 +3,9 @@ import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import { SkeletonCard } from '../../components/ui/Skeleton'
 import { Server } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 interface Service {
@@ -16,6 +18,7 @@ interface Service {
 
 export default function Services() {
   const token = useAuthStore((state) => state.token)
+  const navigate = useNavigate()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const { t } = useTranslation()
@@ -38,7 +41,12 @@ export default function Services() {
   }, [token])
 
   if (loading) {
-    return <div className="text-text-secondary">{t('common.loading')}</div>
+    return (
+      <div className="space-y-6">
+        <div><div className="h-9 w-48 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-64 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
+      </div>
+    )
   }
 
   const getStatusColor = (status: string) => {
@@ -71,7 +79,7 @@ export default function Services() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service) => (
-            <Card key={service.id} hover>
+            <Card key={service.id} hover className="cursor-pointer" onClick={() => navigate(`/portal/services/${service.id}`)}>
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">

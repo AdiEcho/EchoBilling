@@ -4,7 +4,9 @@ import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { Eye } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 
@@ -18,6 +20,7 @@ interface Invoice {
 
 export default function Invoices() {
   const token = useAuthStore((state) => state.token)
+  const navigate = useNavigate()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const { t, i18n } = useTranslation()
@@ -56,7 +59,12 @@ export default function Invoices() {
   }
 
   if (loading) {
-    return <div className="text-text-secondary">{t('common.loading')}</div>
+    return (
+      <div className="space-y-6">
+        <div><div className="h-9 w-32 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-56 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
+        <Card><SkeletonTable rows={5} cols={5} /></Card>
+      </div>
+    )
   }
 
   return (
@@ -108,7 +116,7 @@ export default function Invoices() {
                       {new Date(invoice.created_at).toLocaleDateString(locale)}
                     </td>
                     <td className="py-3 px-4">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/invoices/${invoice.id}`)}>
                         <Eye className="w-4 h-4 mr-1" />
                         {t('portal.invoices.view')}
                       </Button>

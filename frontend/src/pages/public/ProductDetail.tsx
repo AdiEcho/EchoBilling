@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Check, Loader2 } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../lib/utils'
+import { useAuthStore } from '../../stores/auth'
 import { useTranslation } from 'react-i18next'
 
 interface ProductPlan {
@@ -28,9 +29,12 @@ interface Product {
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const token = useAuthStore((state) => state.token)
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [addingToCart, setAddingToCart] = useState<string | null>(null)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -133,8 +137,15 @@ export default function ProductDetail() {
                   )}
                 </div>
 
-                <Button variant="cta" className="w-full">
-                  {t('common.orderNow')}
+                <Button variant="cta" className="w-full" disabled={addingToCart === plan.id} onClick={() => {
+                  if (!token) { navigate('/login'); return }
+                  setAddingToCart(plan.id)
+                  void api('/cart/items', {
+                    method: 'POST', token,
+                    body: JSON.stringify({ plan_id: plan.id, billing_cycle: 'monthly', quantity: 1 }),
+                  }).then(() => navigate('/portal/cart')).catch(() => {}).finally(() => setAddingToCart(null))
+                }}>
+                  {addingToCart === plan.id ? t('common.loading') : t('common.orderNow')}
                 </Button>
               </Card>
             ))}

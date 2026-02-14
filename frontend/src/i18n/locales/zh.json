@@ -366,6 +366,50 @@
       "twoFactorTitle": "双因素认证",
       "twoFactorDescription": "启用双因素认证，提升账户安全",
       "comingSoon": "即将推出"
+    },
+    "serviceDetail": {
+      "title": "服务详情",
+      "failed": "加载服务失败",
+      "notFound": "未找到服务",
+      "basicInfo": "基本信息",
+      "dateInfo": "日期信息",
+      "createdAt": "创建时间",
+      "expiresAt": "到期时间"
+    },
+    "orderDetail": {
+      "title": "订单详情",
+      "failed": "加载订单失败",
+      "notFound": "未找到订单",
+      "items": "订单项目",
+      "noItems": "暂无项目",
+      "planName": "套餐",
+      "billingCycle": "计费周期",
+      "quantity": "数量",
+      "unitPrice": "单价",
+      "subtotal": "小计",
+      "total": "合计",
+      "payNow": "立即支付",
+      "processing": "处理中...",
+      "cycle_monthly": "月付",
+      "cycle_quarterly": "季付",
+      "cycle_annually": "年付"
+    },
+    "invoiceDetail": {
+      "title": "账单详情",
+      "failed": "加载账单失败",
+      "notFound": "未找到账单",
+      "invoiceId": "账单 ID",
+      "items": "账单项目",
+      "noItems": "暂无项目",
+      "quantity": "数量",
+      "unitPrice": "单价",
+      "subtotal": "小计",
+      "tax": "税费",
+      "total": "合计",
+      "dateInfo": "日期信息",
+      "dueDate": "到期日",
+      "paidAt": "支付时间",
+      "createdAt": "创建时间"
     }
   },
   "admin": {
@@ -384,8 +428,19 @@
       "status": "状态",
       "plans": "套餐数",
       "modalTitle": "新增产品",
+      "editProduct": "编辑产品",
       "cancel": "取消",
-      "create": "创建"
+      "create": "创建",
+      "confirmDelete": "确定要删除此产品吗？",
+      "confirmDeletePlan": "确定要删除此套餐吗？",
+      "plansFor": "{{name}} 的套餐",
+      "addPlan": "新增套餐",
+      "editPlan": "编辑套餐",
+      "noPlans": "暂无套餐",
+      "monthlyPrice": "月付",
+      "quarterlyPrice": "季付",
+      "annuallyPrice": "年付",
+      "featuresComma": "功能（逗号分隔）"
     },
     "orders": {
       "title": "订单管理",
@@ -394,6 +449,7 @@
       "orderId": "订单 ID",
       "view": "查看",
       "noOrders": "暂无订单",
+      "orderItems": "订单项目",
       "filters": {
         "all": "全部状态",
         "pending": "待处理",
@@ -414,7 +470,13 @@
       "paymentId": "支付 ID",
       "method": "支付方式",
       "refund": "退款",
-      "noPayments": "暂无支付记录"
+      "noPayments": "暂无支付记录",
+      "refundTitle": "处理退款",
+      "refundConfirm": "确认退款支付 {{id}}？",
+      "originalAmount": "原始金额",
+      "refundAmount": "退款金额",
+      "refunding": "处理中...",
+      "confirmRefund": "确认退款"
     },
     "customers": {
       "title": "客户管理",
@@ -458,5 +520,32 @@
     "healthy": "健康",
     "degraded": "降级",
     "down": "不可用"
+  },
+  "checkout": {
+    "successTitle": "支付成功",
+    "successMessage": "您的支付已成功处理，服务将很快开通。",
+    "sessionId": "会话 ID",
+    "viewOrders": "查看订单",
+    "backToDashboard": "返回仪表盘",
+    "cancelTitle": "支付已取消",
+    "cancelMessage": "您的支付已取消，未产生任何费用。",
+    "backToCart": "返回购物车",
+    "browsePlans": "浏览套餐"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty": "购物车为空",
+    "browsePlans": "浏览套餐",
+    "plan": "套餐",
+    "billingCycle": "计费周期",
+    "quantity": "数量",
+    "unitPrice": "单价",
+    "subtotal": "小计",
+    "total": "合计",
+    "checkout": "去结账",
+    "processing": "处理中...",
+    "cycle_monthly": "月付",
+    "cycle_quarterly": "季付",
+    "cycle_annually": "年付"
   }
 }

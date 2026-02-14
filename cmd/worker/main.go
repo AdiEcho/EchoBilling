@@ -31,7 +31,7 @@ func main() {
 	log.Println("Connected to database")
 
 	// 创建任务处理器
-	handler := provisioning.NewTaskHandler(pool)
+	handler := provisioning.NewTaskHandler(pool, cfg)
 
 	// 创建 Asynq 服务器
 	srv := asynq.NewServer(

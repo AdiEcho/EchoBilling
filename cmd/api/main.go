@@ -11,10 +11,10 @@ import (
 
 	"github.com/adiecho/echobilling/internal/admin"
 	"github.com/adiecho/echobilling/internal/app"
-	"github.com/adiecho/echobilling/internal/app/middleware"
 	"github.com/adiecho/echobilling/internal/auth"
 	"github.com/adiecho/echobilling/internal/billing"
 	"github.com/adiecho/echobilling/internal/catalog"
+	"github.com/adiecho/echobilling/internal/customer"
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
 )
@@ -42,8 +42,8 @@ func main() {
 	log.Println("Connected to Redis")
 
 	router := app.NewServer(cfg, pool, rdb)
-	authMiddleware := middleware.AuthRequired(cfg.JWTSecret)
-	adminMiddleware := middleware.AdminRequired()
+	authMiddleware := auth.AuthMiddleware(cfg.JWTSecret)
+	adminMiddleware := admin.AdminMiddleware()
 
 	// API v1 路由组
 	v1 := router.Group("/api/v1")
@@ -58,11 +58,17 @@ func main() {
 
 	// 用户门户路由（需要认证）
 	portal := v1.Group("/portal", authMiddleware)
+	authed := v1.Group("", authMiddleware)
+
+	// 用户门户附加路由
+	customerHandler := customer.NewHandler(pool)
+	customer.RegisterRoutes(portal, customerHandler)
 
 	// 订单路由
 	orderHandler := order.NewHandler(pool)
 	adminGroup := v1.Group("/admin", authMiddleware, adminMiddleware)
 	order.RegisterRoutes(portal, adminGroup, orderHandler)
+	order.RegisterCartRoutes(authed, orderHandler)
 
 	// 账单路由
 	billingHandler := billing.NewHandler(pool)
@@ -70,7 +76,9 @@ func main() {
 
 	// 支付路由
 	paymentHandler := payment.NewHandler(pool, cfg)
-	payment.RegisterRoutes(portal, v1.Group("/webhooks"), paymentHandler)
+	payment.RegisterRoutes(authed, v1.Group("/webhooks"), paymentHandler)
+	// 兼容旧路径
+	portal.POST("/checkout/session", paymentHandler.CreateCheckoutSession)
 
 	// 管理后台路由
 	adminHandler := admin.NewHandler(pool, cfg)

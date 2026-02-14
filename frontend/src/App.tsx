@@ -14,16 +14,22 @@ import Privacy from './pages/public/Privacy'
 import RefundPolicy from './pages/public/RefundPolicy'
 import CancellationPolicy from './pages/public/CancellationPolicy'
 import ProductDetail from './pages/public/ProductDetail'
+import CheckoutSuccess from './pages/public/CheckoutSuccess'
+import CheckoutCancel from './pages/public/CheckoutCancel'
 
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 
 import Dashboard from './pages/portal/Dashboard'
 import Orders from './pages/portal/Orders'
+import OrderDetail from './pages/portal/OrderDetail'
 import Services from './pages/portal/Services'
+import ServiceDetail from './pages/portal/ServiceDetail'
 import Invoices from './pages/portal/Invoices'
+import InvoiceDetail from './pages/portal/InvoiceDetail'
 import BillingMethods from './pages/portal/BillingMethods'
 import Security from './pages/portal/Security'
+import Cart from './pages/portal/Cart'
 
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
@@ -68,16 +74,22 @@ export default function App() {
         <Route path="/vps/:slug" element={<ProductDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/checkout/success" element={<CheckoutSuccess />} />
+        <Route path="/checkout/cancel" element={<CheckoutCancel />} />
       </Route>
 
       {/* Portal (authenticated) */}
       <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
         <Route path="/portal/dashboard" element={<Dashboard />} />
         <Route path="/portal/orders" element={<Orders />} />
+        <Route path="/portal/orders/:id" element={<OrderDetail />} />
         <Route path="/portal/services" element={<Services />} />
+        <Route path="/portal/services/:id" element={<ServiceDetail />} />
         <Route path="/portal/invoices" element={<Invoices />} />
+        <Route path="/portal/invoices/:id" element={<InvoiceDetail />} />
         <Route path="/portal/billing" element={<BillingMethods />} />
         <Route path="/portal/security" element={<Security />} />
+        <Route path="/portal/cart" element={<Cart />} />
       </Route>
 
       {/* Admin */}

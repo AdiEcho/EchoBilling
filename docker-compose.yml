@@ -16,6 +16,9 @@ services:
       - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
       - FRONTEND_URL=http://localhost:5173
+      - RENEWAL_WEBHOOK_URL=${RENEWAL_WEBHOOK_URL}
+      - RENEWAL_WEBHOOK_TOKEN=${RENEWAL_WEBHOOK_TOKEN}
+      - NOTIFICATION_TIMEOUT_SECONDS=${NOTIFICATION_TIMEOUT_SECONDS:-5}
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,6 +36,9 @@ services:
       - REDIS_ADDR=redis:6379
       - JWT_SECRET=dev-secret-change-in-production
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - RENEWAL_WEBHOOK_URL=${RENEWAL_WEBHOOK_URL}
+      - RENEWAL_WEBHOOK_TOKEN=${RENEWAL_WEBHOOK_TOKEN}
+      - NOTIFICATION_TIMEOUT_SECONDS=${NOTIFICATION_TIMEOUT_SECONDS:-5}
     depends_on:
       postgres:
         condition: service_healthy

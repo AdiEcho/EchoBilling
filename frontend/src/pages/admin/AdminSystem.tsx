@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Activity, Database, Zap, Cpu } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../lib/utils'
 import { useTranslation } from 'react-i18next'
@@ -23,25 +24,29 @@ interface Job {
 
 export default function AdminSystem() {
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null)
-  const [jobs] = useState<Job[]>([])
+  const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const token = useAuthStore((state) => state.token)
   const { t, i18n } = useTranslation()
   const locale = toDateLocale(i18n.language)
 
   useEffect(() => {
-    const fetchSystemInfo = async () => {
+    const fetchData = async () => {
       if (!token) return
       try {
-        const data = await api<SystemInfo>('/admin/system', { token })
-        setSystemInfo(data)
+        const [sysData, jobsData] = await Promise.all([
+          api<SystemInfo>('/admin/system', { token }),
+          api<Job[]>('/admin/system/jobs', { token }).catch(() => [] as Job[]),
+        ])
+        setSystemInfo(sysData)
+        setJobs(jobsData)
       } catch (error) {
         console.error('Failed to fetch system info:', error)
       } finally {
         setLoading(false)
       }
     }
-    void fetchSystemInfo()
+    void fetchData()
   }, [token])
 
   const getStatusVariant = (status: string) => {
@@ -96,7 +101,14 @@ export default function AdminSystem() {
       <h1 className="text-3xl font-bold text-text">{t('admin.system.title')}</h1>
 
       {loading ? (
-        <div className="text-text-secondary">{t('common.loading')}</div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+          <Card><SkeletonTable rows={3} cols={4} /></Card>
+        </>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -128,22 +140,15 @@ export default function AdminSystem() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">
-                        {t('admin.system.jobId')}
-                      </th>
+                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.system.jobId')}</th>
                       <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.name')}</th>
                       <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('common.status')}</th>
-                      <th className="text-left py-3 px-4 text-text-secondary font-medium">
-                        {t('admin.system.created')}
-                      </th>
+                      <th className="text-left py-3 px-4 text-text-secondary font-medium">{t('admin.system.created')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {jobs.map((job) => (
-                      <tr
-                        key={job.id}
-                        className="border-b border-border hover:bg-surface/50 transition-colors"
-                      >
+                      <tr key={job.id} className="border-b border-border hover:bg-surface/50 transition-colors">
                         <td className="py-3 px-4 text-text font-mono">{job.id.slice(0, 8)}</td>
                         <td className="py-3 px-4 text-text">{job.name}</td>
                         <td className="py-3 px-4">

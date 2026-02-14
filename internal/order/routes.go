@@ -19,5 +19,15 @@ func RegisterRoutes(portal *gin.RouterGroup, admin *gin.RouterGroup, h *Handler)
 	{
 		adminOrders.GET("", h.AdminListOrders)
 		adminOrders.PATCH("/:id/status", h.AdminUpdateOrderStatus)
+		adminOrders.PATCH("/:id", h.AdminUpdateOrderStatus)
+	}
+}
+
+// RegisterCartRoutes 注册购物车路由（认证后）
+func RegisterCartRoutes(authenticated *gin.RouterGroup, h *Handler) {
+	cart := authenticated.Group("/cart")
+	{
+		cart.POST("/items", h.AddCartItem)
+		cart.GET("", h.GetCart)
 	}
 }

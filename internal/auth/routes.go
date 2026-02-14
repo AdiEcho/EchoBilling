@@ -9,6 +9,7 @@ func RegisterRoutes(rg *gin.RouterGroup, h *Handler, authMiddleware gin.HandlerF
 	// 公开路由
 	rg.POST("/register", h.Register)
 	rg.POST("/login", h.Login)
+	rg.POST("/refresh", h.Refresh)
 
 	// 需要认证的路由
 	rg.GET("/me", authMiddleware, h.Me)

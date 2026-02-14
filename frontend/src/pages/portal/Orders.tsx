@@ -4,7 +4,9 @@ import { api } from '../../lib/utils'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toDateLocale } from '../../i18n/locale'
 
@@ -17,6 +19,7 @@ interface Order {
 
 export default function Orders() {
   const token = useAuthStore((state) => state.token)
+  const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -63,7 +66,12 @@ export default function Orders() {
   }
 
   if (loading) {
-    return <div className="text-text-secondary">{t('common.loading')}</div>
+    return (
+      <div className="space-y-6">
+        <div><div className="h-9 w-48 animate-pulse bg-surface-hover/50 rounded" /><div className="h-5 w-64 animate-pulse bg-surface-hover/50 rounded mt-2" /></div>
+        <Card><SkeletonTable rows={5} cols={5} /></Card>
+      </div>
+    )
   }
 
   return (
@@ -116,7 +124,7 @@ export default function Orders() {
                         {new Date(order.created_at).toLocaleDateString(locale)}
                       </td>
                       <td className="py-3 px-4">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/portal/orders/${order.id}`)}>
                           <Eye className="w-4 h-4 mr-1" />
                           {t('portal.orders.view')}
                         </Button>

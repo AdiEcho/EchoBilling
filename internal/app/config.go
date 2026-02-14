@@ -20,6 +20,9 @@ type Config struct {
 	StripePublishableKey string
 	FrontendURL          string
 	Environment          string
+	RenewalWebhookURL    string
+	RenewalWebhookToken  string
+	NotificationTimeout  time.Duration
 }
 
 func LoadConfig() (*Config, error) {
@@ -34,13 +37,27 @@ func LoadConfig() (*Config, error) {
 		StripeSecretKey:      getEnv("STRIPE_SECRET_KEY", ""),
 		StripeWebhookSecret:  getEnv("STRIPE_WEBHOOK_SECRET", ""),
 		StripePublishableKey: getEnv("STRIPE_PUBLISHABLE_KEY", ""),
-		FrontendURL:          getEnv("FRONTEND_URL", "http://localhost:3000"),
+		FrontendURL:          getEnv("FRONTEND_URL", "http://localhost:5173"),
 		Environment:          getEnv("ENVIRONMENT", "dev"),
+		RenewalWebhookURL:    getEnv("RENEWAL_WEBHOOK_URL", ""),
+		RenewalWebhookToken:  getEnv("RENEWAL_WEBHOOK_TOKEN", ""),
 	}
 
-	// 解析 JWT 过期时间（默认 24 小时）
-	jwtExpiryHours := getEnvInt("JWT_EXPIRY_HOURS", 24)
-	cfg.JWTExpiry = time.Duration(jwtExpiryHours) * time.Hour
+	// 解析 JWT 过期时间（优先 JWT_EXPIRY_HOURS，其次 JWT_EXPIRY，默认 24h）
+	jwtExpiryHours := getEnvInt("JWT_EXPIRY_HOURS", 0)
+	switch {
+	case jwtExpiryHours > 0:
+		cfg.JWTExpiry = time.Duration(jwtExpiryHours) * time.Hour
+	case getEnv("JWT_EXPIRY", "") != "":
+		if d, err := time.ParseDuration(getEnv("JWT_EXPIRY", "")); err == nil {
+			cfg.JWTExpiry = d
+		} else {
+			cfg.JWTExpiry = 24 * time.Hour
+		}
+	default:
+		cfg.JWTExpiry = 24 * time.Hour
+	}
+	cfg.NotificationTimeout = time.Duration(getEnvInt("NOTIFICATION_TIMEOUT_SECONDS", 5)) * time.Second
 
 	// 验证必需的配置
 	if cfg.DatabaseURL == "" {
