@@ -6,41 +6,24 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-type ServiceError struct {
-	StatusCode int
-	Message    string
-	Err        error
-}
-
-func (e *ServiceError) Error() string {
-	return e.Message
-}
-
-func newServiceError(status int, message string, err error) *ServiceError {
-	return &ServiceError{
-		StatusCode: status,
-		Message:    message,
-		Err:        err,
-	}
-}
-
-func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthResponse, *ServiceError) {
+func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthResponse, *common.ServiceError) {
 	var exists bool
 	err := h.pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", req.Email).Scan(&exists)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Database error", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Database error", err)
 	}
 	if exists {
-		return nil, newServiceError(http.StatusConflict, "Email already registered", nil)
+		return nil, common.NewServiceError(http.StatusConflict, "Email already registered", nil)
 	}
 
 	hashedPassword, err := HashPassword(req.Password)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to hash password", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to hash password", err)
 	}
 
 	userID := uuid.New().String()
@@ -53,7 +36,7 @@ func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthR
 		userID, req.Email, hashedPassword, req.Name, "customer", now,
 	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.CreatedAt)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to create user", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to create user", err)
 	}
 
 	authResp, serviceErr := h.issueTokens(user)
@@ -63,7 +46,7 @@ func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthR
 	return authResp, nil
 }
 
-func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthResponse, *ServiceError) {
+func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthResponse, *common.ServiceError) {
 	var user UserInfo
 	var passwordHash string
 	err := h.pool.QueryRow(ctx,
@@ -74,14 +57,14 @@ func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthRespons
 	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &passwordHash, &user.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, newServiceError(http.StatusUnauthorized, "Invalid email or password", err)
+			return nil, common.NewServiceError(http.StatusUnauthorized, "Invalid email or password", err)
 		}
-		return nil, newServiceError(http.StatusInternalServerError, "Database error", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Database error", err)
 	}
 
 	valid, err := VerifyPassword(req.Password, passwordHash)
 	if err != nil || !valid {
-		return nil, newServiceError(http.StatusUnauthorized, "Invalid email or password", err)
+		return nil, common.NewServiceError(http.StatusUnauthorized, "Invalid email or password", err)
 	}
 
 	authResp, serviceErr := h.issueTokens(user)
@@ -91,7 +74,7 @@ func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthRespons
 	return authResp, nil
 }
 
-func (h *Handler) getUserByID(ctx context.Context, userID string) (*UserInfo, *ServiceError) {
+func (h *Handler) getUserByID(ctx context.Context, userID string) (*UserInfo, *common.ServiceError) {
 	var user UserInfo
 	err := h.pool.QueryRow(ctx,
 		`SELECT id, email, name, role, created_at
@@ -101,18 +84,18 @@ func (h *Handler) getUserByID(ctx context.Context, userID string) (*UserInfo, *S
 	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, newServiceError(http.StatusNotFound, "User not found", err)
+			return nil, common.NewServiceError(http.StatusNotFound, "User not found", err)
 		}
-		return nil, newServiceError(http.StatusInternalServerError, "Database error", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Database error", err)
 	}
 
 	return &user, nil
 }
 
-func (h *Handler) refreshAuth(ctx context.Context, refreshToken string) (*AuthResponse, *ServiceError) {
+func (h *Handler) refreshAuth(ctx context.Context, refreshToken string) (*AuthResponse, *common.ServiceError) {
 	claims, err := ValidateToken(refreshToken, h.jwtSecret)
 	if err != nil || claims.UserID == "" {
-		return nil, newServiceError(http.StatusUnauthorized, "Invalid or expired refresh token", err)
+		return nil, common.NewServiceError(http.StatusUnauthorized, "Invalid or expired refresh token", err)
 	}
 
 	user, serviceErr := h.getUserByID(ctx, claims.UserID)
@@ -131,15 +114,15 @@ func (h *Handler) refreshAuth(ctx context.Context, refreshToken string) (*AuthRe
 	return authResp, nil
 }
 
-func (h *Handler) issueTokens(user UserInfo) (*AuthResponse, *ServiceError) {
+func (h *Handler) issueTokens(user UserInfo) (*AuthResponse, *common.ServiceError) {
 	accessToken, err := GenerateAccessToken(user.ID, user.Role, h.jwtSecret, h.jwtExpiry)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to generate access token", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to generate access token", err)
 	}
 
 	refreshToken, err := GenerateRefreshToken(user.ID, h.jwtSecret)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to generate refresh token", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to generate refresh token", err)
 	}
 
 	return &AuthResponse{

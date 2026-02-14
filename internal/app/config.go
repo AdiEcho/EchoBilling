@@ -13,6 +13,7 @@ type Config struct {
 	ServerPort           string
 	DatabaseURL          string
 	RedisAddr            string
+	RedisPassword        string
 	JWTSecret            string
 	JWTExpiry            time.Duration
 	StripeSecretKey      string
@@ -33,6 +34,7 @@ func LoadConfig() (*Config, error) {
 		ServerPort:           getEnv("SERVER_PORT", "8080"),
 		DatabaseURL:          getEnv("DATABASE_URL", ""),
 		RedisAddr:            getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisPassword:        getEnv("REDIS_PASSWORD", ""),
 		JWTSecret:            getEnv("JWT_SECRET", ""),
 		StripeSecretKey:      getEnv("STRIPE_SECRET_KEY", ""),
 		StripeWebhookSecret:  getEnv("STRIPE_WEBHOOK_SECRET", ""),

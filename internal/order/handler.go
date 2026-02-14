@@ -1,10 +1,8 @@
 package order
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -101,7 +99,7 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 	}
 	userID := userIDValue.(string)
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
@@ -297,7 +295,7 @@ func (h *Handler) GetCart(c *gin.Context) {
 	}
 	userID := userIDValue.(string)
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	cart, err := h.getDraftCart(ctx, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load cart"})
@@ -332,7 +330,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	// 开始事务
 	tx, err := h.pool.Begin(ctx)
@@ -363,7 +361,6 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	}
 
 	plans := make([]planInfo, 0, len(req.Items))
-	totalAmount := 0.0
 
 	for _, item := range req.Items {
 		var plan planInfo
@@ -429,14 +426,6 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		plan.PriceQuarterly = priceQuarterly
 		plan.PriceAnnually = priceAnnually
 
-		// 计算总金额
-		var priceFloat float64
-		if _, err := fmt.Sscanf(price, "%f", &priceFloat); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid price format"})
-			return
-		}
-		totalAmount += priceFloat * float64(item.Quantity)
-
 		plans = append(plans, plan)
 	}
 
@@ -447,9 +436,9 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	var order Order
 	err = tx.QueryRow(ctx,
 		`INSERT INTO orders (id, user_id, status, total_amount, currency, notes, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+		 VALUES ($1, $2, $3, 0, $4, $5, $6, $6)
 		 RETURNING id, user_id, status, total_amount, currency, notes, created_at, updated_at`,
-		orderID, userID, "draft", totalAmount, "USD", req.Notes, now,
+		orderID, userID, "draft", "USD", req.Notes, now,
 	).Scan(&order.ID, &order.UserID, &order.Status, &order.TotalAmount, &order.Currency, &order.Notes, &order.CreatedAt, &order.UpdatedAt)
 
 	if err != nil {
@@ -501,6 +490,20 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		order.Items = append(order.Items, item)
 	}
 
+	// 使用数据库端 SUM 计算总金额，避免浮点精度问题
+	err = tx.QueryRow(ctx,
+		`UPDATE orders
+		 SET total_amount = (SELECT COALESCE(SUM(quantity * unit_price), 0) FROM order_items WHERE order_id = $1),
+		     updated_at = $2
+		 WHERE id = $1
+		 RETURNING total_amount`,
+		orderID, now,
+	).Scan(&order.TotalAmount)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate order total"})
+		return
+	}
+
 	// 提交事务
 	if err := tx.Commit(ctx); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
@@ -529,7 +532,7 @@ func (h *Handler) ListOrders(c *gin.Context) {
 	}
 	offset := (page - 1) * limit
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	var total int64
 	err := h.pool.QueryRow(ctx,
@@ -593,7 +596,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	// 查询订单并验证所有权
 	var order Order
@@ -647,9 +650,27 @@ func (h *Handler) GetOrder(c *gin.Context) {
 
 // AdminListOrders 管理员列出所有订单
 func (h *Handler) AdminListOrders(c *gin.Context) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
-	// 查询所有订单
+	// 分页参数
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	// 查询总数
+	var total int64
+	if err := h.pool.QueryRow(ctx, `SELECT COUNT(*) FROM orders`).Scan(&total); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count orders"})
+		return
+	}
+
+	// 查询分页订单
 	rows, err := h.pool.Query(ctx,
 		`SELECT o.id,
 		        COALESCE(NULLIF(u.name, ''), u.email) AS customer_name,
@@ -659,7 +680,9 @@ func (h *Handler) AdminListOrders(c *gin.Context) {
 		        o.created_at
 		 FROM orders o
 		 JOIN users u ON u.id = o.user_id
-		 ORDER BY o.created_at DESC`,
+		 ORDER BY o.created_at DESC
+		 LIMIT $1 OFFSET $2`,
+		limit, offset,
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query orders"})
@@ -697,6 +720,9 @@ func (h *Handler) AdminListOrders(c *gin.Context) {
 		return
 	}
 
+	c.Header("X-Total-Count", strconv.FormatInt(total, 10))
+	c.Header("X-Page", strconv.Itoa(page))
+	c.Header("X-Limit", strconv.Itoa(limit))
 	c.JSON(http.StatusOK, orders)
 }
 
@@ -710,7 +736,7 @@ func (h *Handler) AdminUpdateOrderStatus(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	// 查询当前订单状态
 	var currentStatus string

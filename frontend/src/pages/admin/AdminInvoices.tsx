@@ -29,7 +29,7 @@ export default function AdminInvoices() {
     const fetchInvoices = async () => {
       if (!token) return
       try {
-        const data = await api<Invoice[]>('/admin/invoices', { token })
+        const data = await api<Invoice[]>('/admin/invoices')
         setInvoices(data)
       } catch (error) {
         console.error('Failed to fetch invoices:', error)

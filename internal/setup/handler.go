@@ -3,16 +3,14 @@ package setup
 import (
 	"context"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/adiecho/echobilling/internal/auth"
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
 type Handler struct {
 	pool      *pgxpool.Pool
@@ -75,7 +73,7 @@ func (h *Handler) CreateAdmin(c *gin.Context) {
 		return
 	}
 
-	if !emailRegex.MatchString(req.Email) {
+	if !common.ValidateEmail(req.Email) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
 		return
 	}

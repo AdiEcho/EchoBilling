@@ -33,7 +33,7 @@ export default function AdminPayments() {
   const fetchPayments = async () => {
     if (!token) return
     try {
-      const data = await api<Payment[]>('/admin/payments', { token })
+      const data = await api<Payment[]>('/admin/payments')
       setPayments(data)
     } catch (error) {
       console.error('Failed to fetch payments:', error)
@@ -52,7 +52,6 @@ export default function AdminPayments() {
     try {
       await api('/admin/refunds', {
         method: 'POST',
-        token,
         body: JSON.stringify({
           payment_id: refundPayment.id,
           amount: parseFloat(refundAmount),

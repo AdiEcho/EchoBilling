@@ -28,7 +28,7 @@ export default function AdminCustomers() {
     const fetchCustomers = async () => {
       if (!token) return
       try {
-        const data = await api<{ customers: Customer[]; total: number }>(`/admin/customers?page=${page}`, { token })
+        const data = await api<{ customers: Customer[]; total: number }>(`/admin/customers?page=${page}`)
         setCustomers(data.customers)
         setTotalPages(Math.ceil(data.total / 10))
       } catch (error) {

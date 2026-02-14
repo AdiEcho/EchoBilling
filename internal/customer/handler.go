@@ -1,10 +1,10 @@
 package customer
 
 import (
-	"context"
 	"net/http"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -39,27 +39,6 @@ type ChangePasswordRequest struct {
 	NewPassword     string `json:"new_password" binding:"required"`
 }
 
-type ServiceError struct {
-	StatusCode int
-	Message    string
-	Err        error
-}
-
-func newServiceError(statusCode int, message string, err error) *ServiceError {
-	return &ServiceError{
-		StatusCode: statusCode,
-		Message:    message,
-		Err:        err,
-	}
-}
-
-func writeServiceError(c *gin.Context, err *ServiceError) {
-	if err == nil {
-		return
-	}
-	c.JSON(err.StatusCode, gin.H{"error": err.Message})
-}
-
 func userIDFromContext(c *gin.Context) (string, bool) {
 	userIDValue, exists := c.Get("user_id")
 	if !exists {
@@ -76,7 +55,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 		return
 	}
 
-	stats, err := h.getStats(context.Background(), userID)
+	stats, err := h.getStats(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query stats"})
 		return
@@ -92,7 +71,7 @@ func (h *Handler) ListServices(c *gin.Context) {
 		return
 	}
 
-	services, err := h.listServices(context.Background(), userID)
+	services, err := h.listServices(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query services"})
 		return
@@ -109,9 +88,9 @@ func (h *Handler) GetService(c *gin.Context) {
 	}
 	serviceID := c.Param("id")
 
-	service, err := h.getService(context.Background(), userID, serviceID)
+	service, err := h.getService(c.Request.Context(), userID, serviceID)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -136,9 +115,9 @@ func (h *Handler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	err := h.changePassword(context.Background(), userID, req)
+	err := h.changePassword(c.Request.Context(), userID, req)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 

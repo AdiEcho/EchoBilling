@@ -43,7 +43,7 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     if (!token) return
     try {
-      const data = await api<Order[]>('/admin/orders', { token })
+      const data = await api<Order[]>('/admin/orders')
       setOrders(data)
     } catch (error) {
       console.error('Failed to fetch orders:', error)
@@ -74,7 +74,6 @@ export default function AdminOrders() {
     try {
       await api(`/admin/orders/${orderId}`, {
         method: 'PATCH',
-        token,
         body: JSON.stringify({ status: newStatus }),
       })
       setOrders((prev) =>

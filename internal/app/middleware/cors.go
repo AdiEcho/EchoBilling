@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CORS(environment string) gin.HandlerFunc {
+func CORS(environment, frontendURL string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 		isDevEnv := environment == "dev" || environment == "development" || environment == "local"
@@ -14,6 +14,11 @@ func CORS(environment string) gin.HandlerFunc {
 			"http://localhost:3000": true,
 			"http://localhost:8080": true,
 			"http://localhost:5173": true,
+		}
+
+		// 生产环境从配置读取允许的源
+		if frontendURL != "" {
+			allowedOrigins[frontendURL] = true
 		}
 
 		if allowedOrigins[origin] || isDevEnv {

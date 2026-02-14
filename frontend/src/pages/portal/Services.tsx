@@ -28,7 +28,7 @@ export default function Services() {
       if (!token) return
 
       try {
-        const data = await api<{ services: Service[] }>('/portal/services', { token })
+        const data = await api<{ services: Service[] }>('/portal/services')
         setServices(data.services)
       } catch (err) {
         console.error('Failed to fetch services:', err)

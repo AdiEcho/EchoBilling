@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Claims struct {
+type claims struct {
 	UserID string `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
@@ -33,9 +34,13 @@ func AuthRequired(jwtSecret string) gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		// 解析和验证 JWT
-		claims := &Claims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		// 解析和验证 JWT（包含签名算法检查）
+		cl := &claims{}
+		token, err := jwt.ParseWithClaims(tokenString, cl, func(token *jwt.Token) (interface{}, error) {
+			// 验证签名算法，防止算法混淆攻击
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
 			return []byte(jwtSecret), nil
 		})
 
@@ -46,8 +51,8 @@ func AuthRequired(jwtSecret string) gin.HandlerFunc {
 		}
 
 		// 将用户信息存储到上下文
-		c.Set("user_id", claims.UserID)
-		c.Set("user_role", claims.Role)
+		c.Set("user_id", cl.UserID)
+		c.Set("user_role", cl.Role)
 
 		c.Next()
 	}

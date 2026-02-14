@@ -1,29 +1,30 @@
 package admin
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/adiecho/echobilling/internal/app"
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/stripe/stripe-go/v82"
 )
 
 type Handler struct {
-	pool      *pgxpool.Pool
-	stripeKey string
-	redisAddr string
+	pool        *pgxpool.Pool
+	stripeKey   string
+	redisAddr   string
+	asynqClient *asynq.Client
 }
 
-func NewHandler(pool *pgxpool.Pool, cfg *app.Config) *Handler {
-	stripe.Key = cfg.StripeSecretKey
+func NewHandler(pool *pgxpool.Pool, cfg *app.Config, asynqClient *asynq.Client) *Handler {
 	return &Handler{
-		pool:      pool,
-		stripeKey: cfg.StripeSecretKey,
-		redisAddr: cfg.RedisAddr,
+		pool:        pool,
+		stripeKey:   cfg.StripeSecretKey,
+		redisAddr:   cfg.RedisAddr,
+		asynqClient: asynqClient,
 	}
 }
 
@@ -122,27 +123,6 @@ type SystemJobsResponse struct {
 	Jobs     []ProvisioningJob `json:"jobs"`
 }
 
-type ServiceError struct {
-	StatusCode int
-	Message    string
-	Err        error
-}
-
-func newServiceError(statusCode int, message string, err error) *ServiceError {
-	return &ServiceError{
-		StatusCode: statusCode,
-		Message:    message,
-		Err:        err,
-	}
-}
-
-func writeServiceError(c *gin.Context, err *ServiceError) {
-	if err == nil {
-		return
-	}
-	c.JSON(err.StatusCode, gin.H{"error": err.Message})
-}
-
 func normalizePagination(c *gin.Context, maxLimit int) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -157,7 +137,7 @@ func normalizePagination(c *gin.Context, maxLimit int) (int, int) {
 
 // GetDashboardStats 获取仪表板统计数据
 func (h *Handler) GetDashboardStats(c *gin.Context) {
-	stats, err := h.getDashboardStats(context.Background())
+	stats, err := h.getDashboardStats(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch dashboard stats"})
 		return
@@ -167,13 +147,13 @@ func (h *Handler) GetDashboardStats(c *gin.Context) {
 
 // GetSystemInfo 获取系统状态摘要
 func (h *Handler) GetSystemInfo(c *gin.Context) {
-	c.JSON(http.StatusOK, h.getSystemInfo(context.Background()))
+	c.JSON(http.StatusOK, h.getSystemInfo(c.Request.Context()))
 }
 
 // ListCustomers 获取客户列表
 func (h *Handler) ListCustomers(c *gin.Context) {
 	page, limit := normalizePagination(c, 100)
-	customers, total, err := h.listCustomers(context.Background(), page, limit)
+	customers, total, err := h.listCustomers(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
@@ -188,7 +168,7 @@ func (h *Handler) ListCustomers(c *gin.Context) {
 // AdminListPayments 获取所有支付记录
 func (h *Handler) AdminListPayments(c *gin.Context) {
 	page, limit := normalizePagination(c, 100)
-	payments, total, err := h.listPayments(context.Background(), page, limit)
+	payments, total, err := h.listPayments(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
@@ -215,9 +195,9 @@ func (h *Handler) AdminCreateRefund(c *gin.Context) {
 		}
 	}
 
-	resp, err := h.createRefund(context.Background(), createdBy, req)
+	resp, err := h.createRefund(c.Request.Context(), createdBy, req)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -226,9 +206,9 @@ func (h *Handler) AdminCreateRefund(c *gin.Context) {
 
 // AdminProvisionService 手动开通服务
 func (h *Handler) AdminProvisionService(c *gin.Context) {
-	resp, err := h.provisionService(context.Background(), c.Param("id"))
+	resp, err := h.provisionService(c.Request.Context(), c.Param("id"))
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -242,9 +222,9 @@ func (h *Handler) AdminGetSystemJobs(c *gin.Context) {
 		limit = 20
 	}
 
-	resp, err := h.getSystemJobs(context.Background(), limit)
+	resp, err := h.getSystemJobs(c.Request.Context(), limit)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 

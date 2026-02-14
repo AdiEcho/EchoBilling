@@ -46,7 +46,7 @@ export default function InvoiceDetailPage() {
     const fetchInvoice = async () => {
       if (!token || !id) return
       try {
-        const data = await api<Invoice>(`/portal/invoices/${id}`, { token })
+        const data = await api<Invoice>(`/portal/invoices/${id}`)
         setInvoice(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : t('portal.invoiceDetail.failed'))

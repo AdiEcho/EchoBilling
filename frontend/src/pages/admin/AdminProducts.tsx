@@ -131,13 +131,11 @@ export default function AdminProducts() {
       if (editingProduct) {
         await api(`/admin/products/${editingProduct.id}`, {
           method: 'PUT',
-          token,
           body: JSON.stringify(formData),
         })
       } else {
         await api('/admin/products', {
           method: 'POST',
-          token,
           body: JSON.stringify(formData),
         })
       }
@@ -152,7 +150,7 @@ export default function AdminProducts() {
   const handleDeleteProduct = async (productId: string) => {
     if (!token || !confirm(t('admin.products.confirmDelete'))) return
     try {
-      await api(`/admin/products/${productId}`, { method: 'DELETE', token })
+      await api(`/admin/products/${productId}`, { method: 'DELETE' })
       setLoading(true)
       void fetchProducts()
     } catch (error) {
@@ -199,13 +197,11 @@ export default function AdminProducts() {
       if (editingPlan) {
         await api(`/admin/plans/${editingPlan.id}`, {
           method: 'PUT',
-          token,
           body: JSON.stringify(body),
         })
       } else {
         await api('/admin/plans', {
           method: 'POST',
-          token,
           body: JSON.stringify(body),
         })
       }
@@ -220,7 +216,7 @@ export default function AdminProducts() {
   const handleDeletePlan = async (planId: string) => {
     if (!token || !confirm(t('admin.products.confirmDeletePlan'))) return
     try {
-      await api(`/admin/plans/${planId}`, { method: 'DELETE', token })
+      await api(`/admin/plans/${planId}`, { method: 'DELETE' })
       if (expandedProductId) void fetchPlans(expandedProductId)
       void fetchProducts()
     } catch (error) {

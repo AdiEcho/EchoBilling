@@ -8,10 +8,10 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedis(addr string) (*redis.Client, error) {
+func NewRedis(addr, password string) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:         addr,
-		Password:     "",
+		Password:     password,
 		DB:           0,
 		DialTimeout:  5 * time.Second,
 		ReadTimeout:  3 * time.Second,

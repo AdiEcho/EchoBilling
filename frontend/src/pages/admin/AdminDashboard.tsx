@@ -23,7 +23,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       if (!token) return
       try {
-        const data = await api<DashboardStats>('/admin/dashboard', { token })
+        const data = await api<DashboardStats>('/admin/dashboard')
         setStats(data)
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error)

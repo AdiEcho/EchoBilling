@@ -1,4 +1,4 @@
-.PHONY: help dev build run migrate-up migrate-down sqlc test lint docker-up docker-down docker-db-up docker-db-down
+.PHONY: help dev build run migrate-up migrate-down sqlc test lint docker-up docker-down docker-build deploy-up deploy-down deploy-build clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -34,20 +34,24 @@ test: ## Run tests
 lint: ## Run linter
 	golangci-lint run ./...
 
-docker-up: ## Start all services with docker-compose
+# === 开发环境（仅基础设施，方便本地调试） ===
+
+docker-up: ## Start infrastructure (postgres + redis) for local development
 	docker compose up -d
 
-docker-down: ## Stop all services
+docker-down: ## Stop infrastructure services
 	docker compose down
 
-docker-db-up: ## Start only PostgreSQL service
-	docker compose up -d postgres redis
+# === 部署环境（完整服务栈，前端已打包进后端） ===
 
-docker-db-down: ## Stop only PostgreSQL service
-	docker compose stop postgres redis
+deploy-build: ## Build deployment docker images (includes frontend)
+	docker compose -f docker-compose.deploy.yml build
 
-docker-build: ## Build docker images
-	docker compose build
+deploy-up: ## Deploy full stack (api + worker + postgres + redis)
+	docker compose -f docker-compose.deploy.yml up -d
+
+deploy-down: ## Stop full stack deployment
+	docker compose -f docker-compose.deploy.yml down
 
 clean: ## Clean build artifacts
 	rm -rf bin/

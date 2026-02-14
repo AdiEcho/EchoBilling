@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/adiecho/echobilling/internal/auth"
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -101,7 +102,7 @@ func (h *Handler) listServices(ctx context.Context, userID string) ([]ServiceSum
 	return services, nil
 }
 
-func (h *Handler) getService(ctx context.Context, userID, serviceID string) (*ServiceSummary, *ServiceError) {
+func (h *Handler) getService(ctx context.Context, userID, serviceID string) (*ServiceSummary, *common.ServiceError) {
 	var service ServiceSummary
 	err := h.pool.QueryRow(ctx,
 		`SELECT s.id,
@@ -126,15 +127,15 @@ func (h *Handler) getService(ctx context.Context, userID, serviceID string) (*Se
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, newServiceError(http.StatusNotFound, "Service not found", err)
+			return nil, common.NewServiceError(http.StatusNotFound, "Service not found", err)
 		}
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to query service", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to query service", err)
 	}
 
 	return &service, nil
 }
 
-func (h *Handler) changePassword(ctx context.Context, userID string, req ChangePasswordRequest) *ServiceError {
+func (h *Handler) changePassword(ctx context.Context, userID string, req ChangePasswordRequest) *common.ServiceError {
 	var currentHash string
 	err := h.pool.QueryRow(ctx,
 		`SELECT password_hash
@@ -144,19 +145,19 @@ func (h *Handler) changePassword(ctx context.Context, userID string, req ChangeP
 	).Scan(&currentHash)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return newServiceError(http.StatusNotFound, "User not found", err)
+			return common.NewServiceError(http.StatusNotFound, "User not found", err)
 		}
-		return newServiceError(http.StatusInternalServerError, "Failed to query user", err)
+		return common.NewServiceError(http.StatusInternalServerError, "Failed to query user", err)
 	}
 
 	valid, err := auth.VerifyPassword(req.CurrentPassword, currentHash)
 	if err != nil || !valid {
-		return newServiceError(http.StatusUnauthorized, "Current password is incorrect", err)
+		return common.NewServiceError(http.StatusUnauthorized, "Current password is incorrect", err)
 	}
 
 	newHash, err := auth.HashPassword(req.NewPassword)
 	if err != nil {
-		return newServiceError(http.StatusInternalServerError, "Failed to hash new password", err)
+		return common.NewServiceError(http.StatusInternalServerError, "Failed to hash new password", err)
 	}
 
 	if _, err := h.pool.Exec(ctx,
@@ -165,7 +166,7 @@ func (h *Handler) changePassword(ctx context.Context, userID string, req ChangeP
 		 WHERE id = $1`,
 		userID, newHash, time.Now(),
 	); err != nil {
-		return newServiceError(http.StatusInternalServerError, "Failed to update password", err)
+		return common.NewServiceError(http.StatusInternalServerError, "Failed to update password", err)
 	}
 
 	return nil

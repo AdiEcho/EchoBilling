@@ -2,15 +2,13 @@ package auth
 
 import (
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/adiecho/echobilling/internal/app"
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
 // Handler 认证处理器
 type Handler struct {
@@ -71,7 +69,7 @@ func (h *Handler) Register(c *gin.Context) {
 	}
 
 	// 验证邮箱格式
-	if !emailRegex.MatchString(req.Email) {
+	if !common.ValidateEmail(req.Email) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
 		return
 	}
@@ -84,7 +82,7 @@ func (h *Handler) Register(c *gin.Context) {
 
 	authResp, err := h.registerUser(c.Request.Context(), req)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -101,7 +99,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 	authResp, err := h.loginUser(c.Request.Context(), req)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -119,7 +117,7 @@ func (h *Handler) Me(c *gin.Context) {
 
 	user, err := h.getUserByID(c.Request.Context(), userID.(string))
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
@@ -136,13 +134,9 @@ func (h *Handler) Refresh(c *gin.Context) {
 
 	authResp, err := h.refreshAuth(c.Request.Context(), req.RefreshToken)
 	if err != nil {
-		writeServiceError(c, err)
+		common.WriteServiceError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, authResp)
-}
-
-func writeServiceError(c *gin.Context, err *ServiceError) {
-	c.JSON(err.StatusCode, gin.H{"error": err.Message})
 }

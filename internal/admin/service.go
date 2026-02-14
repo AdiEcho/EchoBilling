@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/adiecho/echobilling/internal/provisioning"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
@@ -160,7 +161,7 @@ func (h *Handler) listPayments(ctx context.Context, page, limit int) ([]Payment,
 	return payments, total, nil
 }
 
-func (h *Handler) createRefund(ctx context.Context, createdBy string, req CreateRefundRequest) (*RefundResponse, *ServiceError) {
+func (h *Handler) createRefund(ctx context.Context, createdBy string, req CreateRefundRequest) (*RefundResponse, *common.ServiceError) {
 	var (
 		stripePaymentIntentID string
 		amountDecimal         string
@@ -176,18 +177,18 @@ func (h *Handler) createRefund(ctx context.Context, createdBy string, req Create
 	).Scan(&stripePaymentIntentID, &amountDecimal, &currency)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, newServiceError(http.StatusNotFound, "Payment not found", err)
+			return nil, common.NewServiceError(http.StatusNotFound, "Payment not found", err)
 		}
-		return nil, newServiceError(http.StatusInternalServerError, "Database error", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Database error", err)
 	}
 
 	if stripePaymentIntentID == "" {
-		return nil, newServiceError(http.StatusBadRequest, "Payment has no Stripe payment intent", nil)
+		return nil, common.NewServiceError(http.StatusBadRequest, "Payment has no Stripe payment intent", nil)
 	}
 
-	totalCents, err := decimalAmountToCents(amountDecimal)
+	totalCents, err := common.DecimalAmountToCents(amountDecimal)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Invalid payment amount", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Invalid payment amount", err)
 	}
 
 	refundAmountCents := req.Amount
@@ -195,7 +196,7 @@ func (h *Handler) createRefund(ctx context.Context, createdBy string, req Create
 		refundAmountCents = totalCents
 	}
 	if refundAmountCents <= 0 || refundAmountCents > totalCents {
-		return nil, newServiceError(http.StatusBadRequest, "Invalid refund amount", nil)
+		return nil, common.NewServiceError(http.StatusBadRequest, "Invalid refund amount", nil)
 	}
 
 	params := &stripe.RefundParams{
@@ -208,12 +209,12 @@ func (h *Handler) createRefund(ctx context.Context, createdBy string, req Create
 
 	stripeRefund, err := refund.New(params)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to create refund in Stripe", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to create refund in Stripe", err)
 	}
 
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Database error", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Database error", err)
 	}
 	defer tx.Rollback(ctx)
 
@@ -222,7 +223,7 @@ func (h *Handler) createRefund(ctx context.Context, createdBy string, req Create
 		`UPDATE payments SET status = 'refunded', updated_at = $2 WHERE id = $1`,
 		req.PaymentID, now,
 	); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to update payment", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to update payment", err)
 	}
 
 	var createdByValue interface{}
@@ -244,31 +245,31 @@ func (h *Handler) createRefund(ctx context.Context, createdBy string, req Create
 		refundID,
 		req.PaymentID,
 		stripeRefund.ID,
-		centsToDecimal(refundAmountCents),
+		common.CentsToDecimal(refundAmountCents),
 		req.Reason,
-		mapRefundStatus(string(stripeRefund.Status)),
+		common.MapRefundStatus(string(stripeRefund.Status)),
 		createdByValue,
 		now,
 	); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to create refund record", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to create refund record", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to commit transaction", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to commit transaction", err)
 	}
 
 	return &RefundResponse{
 		ID:             refundID,
 		PaymentID:      req.PaymentID,
 		StripeRefundID: stripeRefund.ID,
-		Amount:         centsToDecimal(refundAmountCents),
+		Amount:         common.CentsToDecimal(refundAmountCents),
 		Currency:       currency,
-		Status:         mapRefundStatus(string(stripeRefund.Status)),
+		Status:         common.MapRefundStatus(string(stripeRefund.Status)),
 		CreatedAt:      now,
 	}, nil
 }
 
-func (h *Handler) provisionService(ctx context.Context, serviceID string) (*ProvisioningResult, *ServiceError) {
+func (h *Handler) provisionService(ctx context.Context, serviceID string) (*ProvisioningResult, *common.ServiceError) {
 	var (
 		userID  string
 		orderID string
@@ -284,16 +285,16 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 	).Scan(&userID, &orderID, &planID, &status)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, newServiceError(http.StatusNotFound, "Service not found", err)
+			return nil, common.NewServiceError(http.StatusNotFound, "Service not found", err)
 		}
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to query service", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to query service", err)
 	}
 
 	if status == "active" || status == "provisioning" {
-		return nil, newServiceError(http.StatusConflict, "Service is already active or provisioning", nil)
+		return nil, common.NewServiceError(http.StatusConflict, "Service is already active or provisioning", nil)
 	}
 	if status == "terminated" || status == "cancelled" {
-		return nil, newServiceError(http.StatusBadRequest, "Service is not provisionable in current status", nil)
+		return nil, common.NewServiceError(http.StatusBadRequest, "Service is not provisionable in current status", nil)
 	}
 
 	now := time.Now()
@@ -301,7 +302,7 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to start transaction", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to start transaction", err)
 	}
 	defer tx.Rollback(ctx)
 
@@ -312,7 +313,7 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 		VALUES ($1, $2, 'provision_vps', 'pending', 0, 3, $3, $3)`,
 		jobID, serviceID, now,
 	); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to create provisioning job", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to create provisioning job", err)
 	}
 
 	if _, err := tx.Exec(ctx,
@@ -321,7 +322,7 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 		 WHERE id = $1`,
 		serviceID, now,
 	); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to update service status", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to update service status", err)
 	}
 
 	if _, err := tx.Exec(ctx,
@@ -330,11 +331,11 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 		 WHERE id = $1`,
 		orderID, now,
 	); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to update order status", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to update order status", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to commit transaction", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to commit transaction", err)
 	}
 
 	task, err := provisioning.NewProvisionVPSTask(provisioning.ProvisionVPSPayload{
@@ -344,11 +345,10 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 		UserID:    userID,
 	})
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to build provisioning task", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to build provisioning task", err)
 	}
 
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: h.redisAddr})
-	defer client.Close()
+	client := h.asynqClient
 
 	info, err := client.Enqueue(task, asynq.Queue("critical"), asynq.MaxRetry(5))
 	if err != nil {
@@ -367,7 +367,7 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 			`UPDATE orders SET status = 'paid', updated_at = $2 WHERE id = $1 AND status = 'provisioning'`,
 			orderID, failTime,
 		)
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to enqueue provisioning task", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to enqueue provisioning task", err)
 	}
 
 	return &ProvisioningResult{
@@ -381,7 +381,7 @@ func (h *Handler) provisionService(ctx context.Context, serviceID string) (*Prov
 	}, nil
 }
 
-func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResponse, *ServiceError) {
+func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResponse, *common.ServiceError) {
 	inspector := asynq.NewInspector(asynq.RedisClientOpt{Addr: h.redisAddr})
 	defer inspector.Close()
 
@@ -420,7 +420,7 @@ func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResp
 		limit,
 	)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to query provisioning jobs", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to query provisioning jobs", err)
 	}
 	defer rows.Close()
 
@@ -431,12 +431,12 @@ func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResp
 			&job.ID, &job.ServiceID, &job.JobType, &job.Status, &job.Attempts, &job.MaxAttempts,
 			&job.LastError, &job.StartedAt, &job.CompletedAt, &job.CreatedAt, &job.UpdatedAt,
 		); err != nil {
-			return nil, newServiceError(http.StatusInternalServerError, "Failed to read provisioning jobs", err)
+			return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to read provisioning jobs", err)
 		}
 		jobs = append(jobs, job)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to iterate provisioning jobs", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to iterate provisioning jobs", err)
 	}
 
 	statusCountRows, err := h.pool.Query(ctx,
@@ -445,7 +445,7 @@ func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResp
 		 GROUP BY status`,
 	)
 	if err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to query job stats", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to query job stats", err)
 	}
 	defer statusCountRows.Close()
 
@@ -459,12 +459,12 @@ func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResp
 		var status string
 		var count int64
 		if err := statusCountRows.Scan(&status, &count); err != nil {
-			return nil, newServiceError(http.StatusInternalServerError, "Failed to read job stats", err)
+			return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to read job stats", err)
 		}
 		jobStats[strings.ToLower(status)] = count
 	}
 	if err := statusCountRows.Err(); err != nil {
-		return nil, newServiceError(http.StatusInternalServerError, "Failed to iterate job stats", err)
+		return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to iterate job stats", err)
 	}
 
 	return &SystemJobsResponse{
@@ -472,29 +472,6 @@ func (h *Handler) getSystemJobs(ctx context.Context, limit int) (*SystemJobsResp
 		JobStats: jobStats,
 		Jobs:     jobs,
 	}, nil
-}
-
-func decimalAmountToCents(value string) (int64, error) {
-	parsed, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-	if err != nil {
-		return 0, err
-	}
-	return int64(parsed*100 + 0.5), nil
-}
-
-func centsToDecimal(cents int64) string {
-	return strconv.FormatFloat(float64(cents)/100.0, 'f', 2, 64)
-}
-
-func mapRefundStatus(status string) string {
-	switch status {
-	case "succeeded":
-		return "succeeded"
-	case "failed", "canceled":
-		return "failed"
-	default:
-		return "pending"
-	}
 }
 
 func mapAdminPaymentStatus(status string) string {

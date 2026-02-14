@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -31,7 +32,7 @@ func (h *Handler) HandleWebhook(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
 	var exists bool
 	err = h.pool.QueryRow(ctx,
@@ -148,7 +149,7 @@ func (h *Handler) handleCheckoutSessionCompleted(ctx context.Context, event stri
 
 	amount := totalAmount
 	if sess.AmountTotal > 0 {
-		amount = centsToDecimal(sess.AmountTotal)
+		amount = common.CentsToDecimal(sess.AmountTotal)
 	}
 
 	var paymentIntentID string
@@ -308,9 +309,9 @@ func (h *Handler) handleChargeRefunded(ctx context.Context, event stripe.Event) 
 			uuid.New().String(),
 			paymentID,
 			ref.ID,
-			centsToDecimal(ref.Amount),
+			common.CentsToDecimal(ref.Amount),
 			string(ref.Reason),
-			mapRefundStatus(string(ref.Status)),
+			common.MapRefundStatus(string(ref.Status)),
 			now,
 		)
 		if err != nil {
@@ -367,7 +368,7 @@ func (h *Handler) handleDisputeCreated(ctx context.Context, event stripe.Event) 
 		uuid.New().String(),
 		paymentID,
 		dispute.ID,
-		centsToDecimal(dispute.Amount),
+		common.CentsToDecimal(dispute.Amount),
 		dispute.Reason,
 		mapDisputeStatus(string(dispute.Status)),
 		evidenceDueBy,

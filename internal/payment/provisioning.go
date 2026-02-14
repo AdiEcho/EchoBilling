@@ -203,8 +203,7 @@ func (h *Handler) enqueueProvisioningTasks(ctx context.Context, tasks []provisio
 		return nil
 	}
 
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: h.redisAddr})
-	defer client.Close()
+	client := h.asynqClient
 
 	enqueueErrors := make([]string, 0)
 	for _, item := range tasks {

@@ -37,8 +37,8 @@ export default function Dashboard() {
 
       try {
         const [statsData, ordersData] = await Promise.all([
-          api<Stats>('/portal/stats', { token }),
-          api<{ orders: Order[] }>('/portal/orders?limit=5', { token }),
+          api<Stats>('/portal/stats'),
+          api<{ orders: Order[] }>('/portal/orders?limit=5'),
         ])
         setStats(statsData)
         setRecentOrders(ordersData.orders)

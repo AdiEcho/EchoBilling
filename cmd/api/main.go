@@ -11,6 +11,7 @@ import (
 
 	"github.com/adiecho/echobilling/internal/admin"
 	"github.com/adiecho/echobilling/internal/app"
+	"github.com/adiecho/echobilling/internal/app/middleware"
 	"github.com/adiecho/echobilling/internal/auth"
 	"github.com/adiecho/echobilling/internal/billing"
 	"github.com/adiecho/echobilling/internal/catalog"
@@ -18,6 +19,8 @@ import (
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
 	"github.com/adiecho/echobilling/internal/setup"
+	"github.com/hibiken/asynq"
+	"github.com/stripe/stripe-go/v82"
 )
 
 func main() {
@@ -39,12 +42,19 @@ func main() {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
-	rdb, err := app.NewRedis(cfg.RedisAddr)
+	rdb, err := app.NewRedis(cfg.RedisAddr, cfg.RedisPassword)
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 	defer rdb.Close()
 	log.Println("Connected to Redis")
+
+	// 统一设置 Stripe Key（全局只设置一次）
+	stripe.Key = cfg.StripeSecretKey
+
+	// 创建共享的 Asynq Client
+	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr, Password: cfg.RedisPassword})
+	defer asynqClient.Close()
 
 	router := app.NewServer(cfg, pool, rdb)
 	authMiddleware := auth.AuthMiddleware(cfg.JWTSecret)
@@ -57,9 +67,9 @@ func main() {
 	setupHandler := setup.NewHandler(pool, cfg.JWTSecret, cfg.JWTExpiry)
 	setup.RegisterRoutes(v1.Group("/setup"), setupHandler)
 
-	// 认证路由
+	// 认证路由（严格限流：5 req/s，burst 10，防止暴力破解）
 	authHandler := auth.NewHandler(pool, cfg)
-	auth.RegisterRoutes(v1.Group("/auth"), authHandler, authMiddleware)
+	auth.RegisterRoutes(v1.Group("/auth", middleware.RateLimit(5, 10)), authHandler, authMiddleware)
 
 	// 产品目录路由（公开）
 	catalogHandler := catalog.NewHandler(pool)
@@ -84,16 +94,19 @@ func main() {
 	billing.RegisterRoutes(portal, adminGroup, billingHandler)
 
 	// 支付路由
-	paymentHandler := payment.NewHandler(pool, cfg)
+	paymentHandler := payment.NewHandler(pool, cfg, asynqClient)
 	payment.RegisterRoutes(authed, v1.Group("/webhooks"), paymentHandler)
 	// 兼容旧路径
 	portal.POST("/checkout/session", paymentHandler.CreateCheckoutSession)
 
 	// 管理后台路由
-	adminHandler := admin.NewHandler(pool, cfg)
+	adminHandler := admin.NewHandler(pool, cfg, asynqClient)
 	admin.RegisterRoutes(adminGroup, adminHandler)
 
 	log.Println("All routes registered")
+
+	// 前端 SPA 静态文件服务（frontend/dist 存在时自动启用）
+	app.SetupSPA(router)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.ServerPort,

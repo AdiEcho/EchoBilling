@@ -35,8 +35,8 @@ export default function AdminSystem() {
       if (!token) return
       try {
         const [sysData, jobsData] = await Promise.all([
-          api<SystemInfo>('/admin/system', { token }),
-          api<Job[]>('/admin/system/jobs', { token }).catch(() => [] as Job[]),
+          api<SystemInfo>('/admin/system'),
+          api<Job[]>('/admin/system/jobs').catch(() => [] as Job[]),
         ])
         setSystemInfo(sysData)
         setJobs(jobsData)

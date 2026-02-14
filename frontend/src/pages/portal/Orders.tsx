@@ -36,8 +36,7 @@ export default function Orders() {
       setLoading(true)
       try {
         const data = await api<{ orders: Order[]; total: number }>(
-          `/portal/orders?page=${page}&limit=${limit}`,
-          { token }
+          `/portal/orders?page=${page}&limit=${limit}`
         )
         setOrders(data.orders)
         setTotalPages(Math.ceil(data.total / limit))

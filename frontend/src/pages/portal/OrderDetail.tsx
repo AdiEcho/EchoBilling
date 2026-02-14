@@ -42,7 +42,7 @@ export default function OrderDetailPage() {
     const fetchOrder = async () => {
       if (!token || !id) return
       try {
-        const data = await api<Order>(`/portal/orders/${id}`, { token })
+        const data = await api<Order>(`/portal/orders/${id}`)
         setOrder(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : t('portal.orderDetail.failed'))
@@ -69,7 +69,6 @@ export default function OrderDetailPage() {
     try {
       const data = await api<{ session_url: string }>('/checkout/session', {
         method: 'POST',
-        token,
         body: JSON.stringify({ order_id: order.id }),
       })
       window.location.href = data.session_url

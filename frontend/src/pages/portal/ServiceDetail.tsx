@@ -34,7 +34,7 @@ export default function ServiceDetailPage() {
     const fetchService = async () => {
       if (!token || !id) return
       try {
-        const data = await api<ServiceDetail>(`/portal/services/${id}`, { token })
+        const data = await api<ServiceDetail>(`/portal/services/${id}`)
         setService(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : t('portal.serviceDetail.failed'))

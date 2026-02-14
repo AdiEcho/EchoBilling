@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -31,7 +31,7 @@ func (h *Handler) CreateCheckoutSession(c *gin.Context) {
 	}
 	userID := userIDValue.(string)
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
@@ -89,7 +89,7 @@ func (h *Handler) CreateCheckoutSession(c *gin.Context) {
 			return
 		}
 
-		unitAmount, err := decimalAmountToCents(unitPriceDecimal)
+		unitAmount, err := common.DecimalAmountToCents(unitPriceDecimal)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid order item amount"})
 			return
@@ -238,34 +238,6 @@ func (h *Handler) createInvoice(
 	}
 
 	return invoiceID, nil
-}
-
-func decimalAmountToCents(value string) (int64, error) {
-	normalized := strings.TrimSpace(value)
-	if normalized == "" {
-		return 0, fmt.Errorf("empty amount")
-	}
-
-	parsed, err := strconv.ParseFloat(normalized, 64)
-	if err != nil {
-		return 0, err
-	}
-	return int64(parsed*100 + 0.5), nil
-}
-
-func centsToDecimal(cents int64) string {
-	return strconv.FormatFloat(float64(cents)/100.0, 'f', 2, 64)
-}
-
-func mapRefundStatus(stripeStatus string) string {
-	switch stripeStatus {
-	case "succeeded":
-		return "succeeded"
-	case "failed", "canceled":
-		return "failed"
-	default:
-		return "pending"
-	}
 }
 
 func mapDisputeStatus(stripeStatus string) string {

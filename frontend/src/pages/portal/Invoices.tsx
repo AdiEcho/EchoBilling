@@ -32,7 +32,7 @@ export default function Invoices() {
       if (!token) return
 
       try {
-        const data = await api<{ invoices: Invoice[] }>('/portal/invoices', { token })
+        const data = await api<{ invoices: Invoice[] }>('/portal/invoices')
         setInvoices(data.invoices)
       } catch (err) {
         console.error('Failed to fetch invoices:', err)

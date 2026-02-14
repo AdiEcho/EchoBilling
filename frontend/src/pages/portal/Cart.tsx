@@ -34,7 +34,7 @@ export default function Cart() {
   const fetchCart = async () => {
     if (!token) return
     try {
-      const data = await api<CartData>('/cart', { token })
+      const data = await api<CartData>('/cart')
       setCart(data)
     } catch (err) {
       console.error('Failed to fetch cart:', err)
@@ -50,7 +50,7 @@ export default function Cart() {
   const handleRemoveItem = async (itemId: string) => {
     if (!token) return
     try {
-      await api(`/cart/items/${itemId}`, { method: 'DELETE', token })
+      await api(`/cart/items/${itemId}`, { method: 'DELETE' })
       void fetchCart()
     } catch (err) {
       console.error('Failed to remove item:', err)
@@ -63,7 +63,6 @@ export default function Cart() {
     try {
       const data = await api<{ session_url: string }>('/checkout/session', {
         method: 'POST',
-        token,
         body: JSON.stringify({ order_id: cart.order_id }),
       })
       window.location.href = data.session_url

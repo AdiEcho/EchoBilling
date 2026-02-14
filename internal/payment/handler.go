@@ -2,8 +2,8 @@ package payment
 
 import (
 	"github.com/adiecho/echobilling/internal/app"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/stripe/stripe-go/v82"
 )
 
 type Handler struct {
@@ -11,17 +11,16 @@ type Handler struct {
 	stripeKey     string
 	webhookSecret string
 	frontendURL   string
-	redisAddr     string
+	asynqClient   *asynq.Client
 }
 
-func NewHandler(pool *pgxpool.Pool, cfg *app.Config) *Handler {
-	stripe.Key = cfg.StripeSecretKey
+func NewHandler(pool *pgxpool.Pool, cfg *app.Config, asynqClient *asynq.Client) *Handler {
 	return &Handler{
 		pool:          pool,
 		stripeKey:     cfg.StripeSecretKey,
 		webhookSecret: cfg.StripeWebhookSecret,
 		frontendURL:   cfg.FrontendURL,
-		redisAddr:     cfg.RedisAddr,
+		asynqClient:   asynqClient,
 	}
 }
 

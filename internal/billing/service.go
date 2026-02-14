@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/adiecho/echobilling/internal/common"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -49,9 +50,9 @@ func (h *Handler) listUserInvoices(ctx context.Context, userID string, page, lim
 			return nil, 0, err
 		}
 
-		inv.Subtotal = normalizeAmount(subtotal)
-		inv.Tax = normalizeAmount(tax)
-		inv.Total = normalizeAmount(totalAmount)
+		inv.Subtotal = common.NormalizeAmount(subtotal)
+		inv.Tax = common.NormalizeAmount(tax)
+		inv.Total = common.NormalizeAmount(totalAmount)
 		invoices = append(invoices, inv)
 	}
 
@@ -85,9 +86,9 @@ func (h *Handler) getUserInvoice(ctx context.Context, userID, invoiceID string) 
 		return nil, ErrInvoiceForbidden
 	}
 
-	inv.Subtotal = normalizeAmount(subtotal)
-	inv.Tax = normalizeAmount(tax)
-	inv.Total = normalizeAmount(totalAmount)
+	inv.Subtotal = common.NormalizeAmount(subtotal)
+	inv.Tax = common.NormalizeAmount(tax)
+	inv.Total = common.NormalizeAmount(totalAmount)
 
 	rows, err := h.pool.Query(ctx,
 		`SELECT id, description, quantity, unit_price, amount
@@ -109,8 +110,8 @@ func (h *Handler) getUserInvoice(ctx context.Context, userID, invoiceID string) 
 			return nil, err
 		}
 
-		item.UnitPrice = normalizeAmount(unitPrice)
-		item.Amount = normalizeAmount(amount)
+		item.UnitPrice = common.NormalizeAmount(unitPrice)
+		item.Amount = common.NormalizeAmount(amount)
 		items = append(items, item)
 	}
 
@@ -177,12 +178,4 @@ func (h *Handler) listAdminInvoices(ctx context.Context, page, limit int) ([]Adm
 	}
 
 	return invoices, total, nil
-}
-
-func normalizeAmount(amount string) string {
-	parsed, err := strconv.ParseFloat(amount, 64)
-	if err != nil {
-		return amount
-	}
-	return strconv.FormatFloat(parsed, 'f', 2, 64)
 }

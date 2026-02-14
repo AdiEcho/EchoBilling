@@ -1,51 +1,5 @@
+# 开发环境：仅启动基础设施服务，方便本地调试后端
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SERVER_PORT=8080
-      - ENVIRONMENT=development
-      - DATABASE_URL=postgres://echobilling:echobilling@postgres:5432/echobilling?sslmode=disable
-      - REDIS_ADDR=redis:6379
-      - JWT_SECRET=dev-secret-change-in-production
-      - JWT_EXPIRY=24h
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      - FRONTEND_URL=http://localhost:5173
-      - RENEWAL_WEBHOOK_URL=${RENEWAL_WEBHOOK_URL}
-      - RENEWAL_WEBHOOK_TOKEN=${RENEWAL_WEBHOOK_TOKEN}
-      - NOTIFICATION_TIMEOUT_SECONDS=${NOTIFICATION_TIMEOUT_SECONDS:-5}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["/bin/worker"]
-    environment:
-      - DATABASE_URL=postgres://echobilling:echobilling@postgres:5432/echobilling?sslmode=disable
-      - REDIS_ADDR=redis:6379
-      - JWT_SECRET=dev-secret-change-in-production
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - RENEWAL_WEBHOOK_URL=${RENEWAL_WEBHOOK_URL}
-      - RENEWAL_WEBHOOK_TOKEN=${RENEWAL_WEBHOOK_TOKEN}
-      - NOTIFICATION_TIMEOUT_SECONDS=${NOTIFICATION_TIMEOUT_SECONDS:-5}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
   postgres:
     image: postgres:16-alpine
     ports:
