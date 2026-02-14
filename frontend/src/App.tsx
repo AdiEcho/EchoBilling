@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuthStore } from './stores/auth'
+import { useSetupStore } from './stores/setup'
 import PublicLayout from './layouts/PublicLayout'
 import PortalLayout from './layouts/PortalLayout'
 import AdminLayout from './layouts/AdminLayout'
@@ -19,6 +20,8 @@ import CheckoutCancel from './pages/public/CheckoutCancel'
 
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
+
+import SetupAdmin from './pages/setup/SetupAdmin'
 
 import Dashboard from './pages/portal/Dashboard'
 import Orders from './pages/portal/Orders'
@@ -52,58 +55,88 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function SetupGuard({ children }: { children: React.ReactNode }) {
+  const { needsSetup, isChecking } = useSetupStore()
+  const location = useLocation()
+
+  // 还在检测中，显示空白避免闪烁
+  if (isChecking || needsSetup === null) return null
+
+  // 需要 setup 且当前不在 /setup 页面 → 强制跳转
+  if (needsSetup && location.pathname !== '/setup') {
+    return <Navigate to="/setup" replace />
+  }
+
+  // 不需要 setup 但访问了 /setup → 禁止访问
+  if (!needsSetup && location.pathname === '/setup') {
+    return <Navigate to="/" replace />
+  }
+
+  return <>{children}</>
+}
+
 export default function App() {
   const { loadUser, token } = useAuthStore()
+  const { checkSetupStatus } = useSetupStore()
+
+  useEffect(() => {
+    checkSetupStatus()
+  }, [checkSetupStatus])
 
   useEffect(() => {
     if (token) loadUser()
   }, [token, loadUser])
 
   return (
-    <Routes>
-      {/* Public pages */}
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/refund-policy" element={<RefundPolicy />} />
-        <Route path="/cancellation-policy" element={<CancellationPolicy />} />
-        <Route path="/vps/:slug" element={<ProductDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/checkout/success" element={<CheckoutSuccess />} />
-        <Route path="/checkout/cancel" element={<CheckoutCancel />} />
-      </Route>
+    <SetupGuard>
+      <Routes>
+        {/* Setup page */}
+        <Route path="/setup" element={<SetupAdmin />} />
 
-      {/* Portal (authenticated) */}
-      <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
-        <Route path="/portal/dashboard" element={<Dashboard />} />
-        <Route path="/portal/orders" element={<Orders />} />
-        <Route path="/portal/orders/:id" element={<OrderDetail />} />
-        <Route path="/portal/services" element={<Services />} />
-        <Route path="/portal/services/:id" element={<ServiceDetail />} />
-        <Route path="/portal/invoices" element={<Invoices />} />
-        <Route path="/portal/invoices/:id" element={<InvoiceDetail />} />
-        <Route path="/portal/billing" element={<BillingMethods />} />
-        <Route path="/portal/security" element={<Security />} />
-        <Route path="/portal/cart" element={<Cart />} />
-      </Route>
+        {/* Public pages */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+          <Route path="/vps/:slug" element={<ProductDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+        </Route>
 
-      {/* Admin */}
-      <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/invoices" element={<AdminInvoices />} />
-        <Route path="/admin/payments" element={<AdminPayments />} />
-        <Route path="/admin/customers" element={<AdminCustomers />} />
-        <Route path="/admin/system" element={<AdminSystem />} />
-      </Route>
+        {/* Portal (authenticated) */}
+        <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
+          <Route path="/portal/dashboard" element={<Dashboard />} />
+          <Route path="/portal/orders" element={<Orders />} />
+          <Route path="/portal/orders/:id" element={<OrderDetail />} />
+          <Route path="/portal/services" element={<Services />} />
+          <Route path="/portal/services/:id" element={<ServiceDetail />} />
+          <Route path="/portal/invoices" element={<Invoices />} />
+          <Route path="/portal/invoices/:id" element={<InvoiceDetail />} />
+          <Route path="/portal/billing" element={<BillingMethods />} />
+          <Route path="/portal/security" element={<Security />} />
+          <Route path="/portal/cart" element={<Cart />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Admin */}
+        <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/invoices" element={<AdminInvoices />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/customers" element={<AdminCustomers />} />
+          <Route path="/admin/system" element={<AdminSystem />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </SetupGuard>
   )
 }

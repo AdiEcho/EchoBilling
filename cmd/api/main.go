@@ -17,6 +17,7 @@ import (
 	"github.com/adiecho/echobilling/internal/customer"
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
+	"github.com/adiecho/echobilling/internal/setup"
 )
 
 func main() {
@@ -51,6 +52,10 @@ func main() {
 
 	// API v1 路由组
 	v1 := router.Group("/api/v1")
+
+	// 初始化设置路由（公开，无需认证）
+	setupHandler := setup.NewHandler(pool, cfg.JWTSecret, cfg.JWTExpiry)
+	setup.RegisterRoutes(v1.Group("/setup"), setupHandler)
 
 	// 认证路由
 	authHandler := auth.NewHandler(pool, cfg)
