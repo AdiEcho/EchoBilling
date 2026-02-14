@@ -34,6 +34,10 @@ func main() {
 	defer pool.Close()
 	log.Println("Connected to PostgreSQL")
 
+	if err := app.RunMigrations(cfg.DatabaseURL); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
 	rdb, err := app.NewRedis(cfg.RedisAddr)
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
