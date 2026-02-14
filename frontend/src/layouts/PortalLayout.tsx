@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeToggle from '../components/ThemeToggle'
 import { useTranslation } from 'react-i18next'
 
 export default function PortalLayout() {
@@ -80,6 +81,7 @@ export default function PortalLayout() {
         </nav>
 
         <div className="p-2 border-t border-border">
+          {!collapsed && <ThemeToggle className="mb-2 w-full justify-start" />}
           {!collapsed && <LanguageSwitcher className="mb-2 w-full justify-start" />}
           {!collapsed && user && (
             <div className="px-3 py-2 mb-2">

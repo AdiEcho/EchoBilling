@@ -11,6 +11,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeToggle from '../components/ThemeToggle'
 import { useTranslation } from 'react-i18next'
 
 export default function AdminLayout() {
@@ -65,6 +66,7 @@ export default function AdminLayout() {
         </nav>
 
         <div className="p-2 border-t border-border">
+          <ThemeToggle className="mb-2 w-full justify-start" />
           <LanguageSwitcher className="mb-2 w-full justify-start" />
           {user && (
             <div className="px-3 py-2 mb-2">

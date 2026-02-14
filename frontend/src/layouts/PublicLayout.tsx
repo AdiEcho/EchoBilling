@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/auth'
 import Button from '../components/ui/Button'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeToggle from '../components/ThemeToggle'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -44,6 +45,7 @@ export default function PublicLayout() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher />
             {user ? (
               <Link to="/portal/dashboard">
@@ -83,6 +85,7 @@ export default function PublicLayout() {
               </Link>
             ))}
             <div className="pt-3 border-t border-border flex gap-3 items-center">
+              <ThemeToggle />
               <LanguageSwitcher />
               {user ? (
                 <Link to="/portal/dashboard" onClick={() => setMobileOpen(false)}>

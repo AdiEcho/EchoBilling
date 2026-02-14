@@ -39,7 +39,7 @@ export default function Modal({ open, onClose, title, children, className }: Mod
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose()
       }}
@@ -48,7 +48,7 @@ export default function Modal({ open, onClose, title, children, className }: Mod
         ref={contentRef}
         tabIndex={-1}
         className={cn(
-          'rounded-xl border border-border bg-surface/80 backdrop-blur-sm p-6 w-full max-w-md max-h-[90vh] overflow-y-auto outline-none',
+          'rounded-2xl border border-border/50 bg-surface/90 backdrop-blur-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto outline-none',
           className
         )}
       >

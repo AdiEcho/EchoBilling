@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0F172A;
-  --color-surface: #1E293B;
-  --color-surface-hover: #334155;
-  --color-primary: #6366F1;
-  --color-primary-hover: #818CF8;
-  --color-cta: #22C55E;
-  --color-cta-hover: #16A34A;
-  --color-danger: #EF4444;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
-  --color-text: #F8FAFC;
-  --color-text-secondary: #94A3B8;
-  --color-text-muted: #64748B;
-  --color-border: #334155;
-  --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --color-bg: var(--theme-bg);
+  --color-surface: var(--theme-surface);
+  --color-surface-hover: var(--theme-surface-hover);
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+  --color-cta: var(--theme-cta);
+  --color-cta-hover: var(--theme-cta-hover);
+  --color-danger: var(--theme-danger);
+  --color-warning: var(--theme-warning);
+  --color-info: var(--theme-info);
+  --color-text: var(--theme-text);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+  --color-border: var(--theme-border);
+  --font-heading: 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 @layer base {
+  :root {
+    --theme-bg: #FFFFFF;
+    --theme-surface: #F5F5F7;
+    --theme-surface-hover: #E8E8ED;
+    --theme-primary: #007AFF;
+    --theme-primary-hover: #0056CC;
+    --theme-cta: #34C759;
+    --theme-cta-hover: #248A3D;
+    --theme-danger: #FF3B30;
+    --theme-warning: #FF9500;
+    --theme-info: #5AC8FA;
+    --theme-text: #1D1D1F;
+    --theme-text-secondary: #6E6E73;
+    --theme-text-muted: #AEAEB2;
+    --theme-border: #D2D2D7;
+  }
+
+  .dark {
+    --theme-bg: #000000;
+    --theme-surface: #1C1C1E;
+    --theme-surface-hover: #2C2C2E;
+    --theme-primary: #0A84FF;
+    --theme-primary-hover: #409CFF;
+    --theme-cta: #30D158;
+    --theme-cta-hover: #25A244;
+    --theme-danger: #FF453A;
+    --theme-warning: #FFD60A;
+    --theme-info: #64D2FF;
+    --theme-text: #F5F5F7;
+    --theme-text-secondary: #98989D;
+    --theme-text-muted: #636366;
+    --theme-border: #38383A;
+  }
+
   body {
     @apply bg-bg text-text font-body antialiased;
     margin: 0;

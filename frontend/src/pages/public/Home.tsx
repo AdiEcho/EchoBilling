@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden bg-gradient-to-b from-bg via-surface/20 to-bg py-20 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-bg to-bg py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-text mb-6">
             {t('home.hero.title')}{' '}
@@ -61,7 +61,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-gradient-to-b from-bg to-surface/20">
+      <section className="py-20 px-4 bg-gradient-to-b from-bg to-primary/5">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-text mb-6">
             {t('home.cta.title')}

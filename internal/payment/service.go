@@ -175,7 +175,7 @@ func (h *Handler) createInvoice(
 	if err == nil {
 		return existingInvoiceID, nil
 	}
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	if !errors.Is(err, pgx.ErrNoRows) {
 		return "", err
 	}
 
