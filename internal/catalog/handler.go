@@ -85,11 +85,11 @@ type CreatePlanRequest struct {
 	CPUCores       int             `json:"cpu_cores"`
 	MemoryMB       int             `json:"memory_mb"`
 	DiskGB         int             `json:"disk_gb"`
-	BandwidthTB    string          `json:"bandwidth_tb"`
-	PriceMonthly   string          `json:"price_monthly" binding:"required"`
-	PriceQuarterly string          `json:"price_quarterly"`
-	PriceAnnually  string          `json:"price_annually"`
-	SetupFee       string          `json:"setup_fee"`
+	BandwidthTB    float64         `json:"bandwidth_tb"`
+	PriceMonthly   float64         `json:"price_monthly" binding:"required"`
+	PriceQuarterly float64         `json:"price_quarterly"`
+	PriceAnnually  float64         `json:"price_annually"`
+	SetupFee       float64         `json:"setup_fee"`
 	IsActive       bool            `json:"is_active"`
 	SortOrder      int             `json:"sort_order"`
 	Features       json.RawMessage `json:"features"`
@@ -102,11 +102,11 @@ type UpdatePlanRequest struct {
 	CPUCores       *int            `json:"cpu_cores"`
 	MemoryMB       *int            `json:"memory_mb"`
 	DiskGB         *int            `json:"disk_gb"`
-	BandwidthTB    string          `json:"bandwidth_tb"`
-	PriceMonthly   string          `json:"price_monthly"`
-	PriceQuarterly string          `json:"price_quarterly"`
-	PriceAnnually  string          `json:"price_annually"`
-	SetupFee       string          `json:"setup_fee"`
+	BandwidthTB    *float64        `json:"bandwidth_tb"`
+	PriceMonthly   *float64        `json:"price_monthly"`
+	PriceQuarterly *float64        `json:"price_quarterly"`
+	PriceAnnually  *float64        `json:"price_annually"`
+	SetupFee       *float64        `json:"setup_fee"`
 	IsActive       *bool           `json:"is_active"`
 	SortOrder      *int            `json:"sort_order"`
 	Features       json.RawMessage `json:"features"`

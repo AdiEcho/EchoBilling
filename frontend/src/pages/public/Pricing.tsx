@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import Badge from '../../components/ui/Badge'
 import { SkeletonCard } from '../../components/ui/Skeleton'
 import { api } from '../../lib/utils'
 import { useAuthStore } from '../../stores/auth'
@@ -110,10 +109,10 @@ export default function Pricing() {
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge variant="info" className="px-3 py-1">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                      <span className="inline-flex items-center whitespace-nowrap rounded-full bg-gradient-to-r from-primary to-cta px-4 py-1 text-xs font-semibold text-white shadow-md shadow-primary/30">
                         {t('pricing.mostPopular')}
-                      </Badge>
+                      </span>
                     </div>
                   )}
 
