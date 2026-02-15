@@ -4,6 +4,7 @@ import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuthStore } from '../../stores/auth'
+import { useBrandingStore } from '../../stores/branding'
 import { LogIn, Shield, Mail, Key } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -27,6 +28,7 @@ export default function Login() {
   const clear2FAState = useAuthStore((state) => state.clear2FAState)
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const siteName = useBrandingStore((s) => s.siteName)
 
   // Email cooldown timer
   useEffect(() => {
@@ -188,7 +190,7 @@ export default function Login() {
             <LogIn className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-text">{t('auth.login.title')}</h1>
-          <p className="text-sm text-text-secondary mt-2">{t('auth.login.welcome')}</p>
+          <p className="text-sm text-text-secondary mt-2">{t('auth.login.welcome', { company: siteName })}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

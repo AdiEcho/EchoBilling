@@ -4,6 +4,7 @@ import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuthStore } from '../../stores/auth'
+import { useBrandingStore } from '../../stores/branding'
 import { UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -17,6 +18,7 @@ export default function Register() {
   const register = useAuthStore((state) => state.register)
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const siteName = useBrandingStore((s) => s.siteName)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -52,7 +54,7 @@ export default function Register() {
             <UserPlus className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-text">{t('auth.register.title')}</h1>
-          <p className="text-sm text-text-secondary mt-2">{t('auth.register.subtitle')}</p>
+          <p className="text-sm text-text-secondary mt-2">{t('auth.register.subtitle', { company: siteName })}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

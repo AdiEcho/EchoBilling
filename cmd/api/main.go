@@ -126,6 +126,7 @@ func main() {
 	settingsSvc := settings.NewService(pool)
 	settingsHandler := settings.NewHandler(settingsSvc, settingsStore)
 	settings.RegisterRoutes(adminGroup, settingsHandler)
+	settings.RegisterPublicRoutes(v1.Group("/settings"), settingsHandler)
 
 	log.Println("All routes registered")
 

@@ -2,6 +2,7 @@ import { Building2, Target, Users, Award } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import { useTranslation } from 'react-i18next'
 import { useFetch } from '../../hooks/useFetch'
+import { useBrandingStore } from '../../stores/branding'
 
 interface PageContent {
   page_key: string
@@ -11,6 +12,9 @@ interface PageContent {
 
 export default function About() {
   const { t, i18n } = useTranslation()
+  const siteName = useBrandingStore((s) => s.siteName)
+  const companyLegalName = useBrandingStore((s) => s.companyLegalName)
+  const brand = { company: siteName, companyLegal: companyLegalName }
   const { data } = useFetch<PageContent>(`/content/about?locale=${i18n.language}`, {
     deps: [i18n.language],
   })
@@ -28,9 +32,9 @@ export default function About() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="font-heading text-4xl md:text-5xl font-bold text-text mb-4">
-            {c('title', t('about.title'))}
+            {c('title', t('about.title', brand))}
           </h1>
-          <p className="text-xl text-text-secondary">{c('subtitle', t('about.subtitle'))}</p>
+          <p className="text-xl text-text-secondary">{c('subtitle', t('about.subtitle', brand))}</p>
         </div>
 
         <Card className="mb-12">
@@ -40,13 +44,13 @@ export default function About() {
             </div>
             <div>
               <h2 className="font-heading text-2xl font-bold text-text mb-3">
-                {c('company.title', t('about.company.title'))}
+                {c('company.title', t('about.company.title', brand))}
               </h2>
               <p className="text-text-secondary leading-relaxed mb-4">
-                {c('company.paragraph1', t('about.company.paragraph1'))}
+                {c('company.paragraph1', t('about.company.paragraph1', brand))}
               </p>
               <p className="text-text-secondary leading-relaxed">
-                {c('company.paragraph2', t('about.company.paragraph2'))}
+                {c('company.paragraph2', t('about.company.paragraph2', brand))}
               </p>
             </div>
           </div>
@@ -87,7 +91,7 @@ export default function About() {
               <span className="font-medium text-text">
                 {c('companyInfo.legalEntity', t('about.companyInfo.legalEntity'))}
               </span>{' '}
-              {c('company.title', t('about.company.title'))}
+              {c('company.title', t('about.company.title', brand))}
             </p>
             <p>
               <span className="font-medium text-text">
@@ -102,7 +106,7 @@ export default function About() {
               {c('companyInfo.foundedValue', t('about.companyInfo.foundedValue'))}
             </p>
             <p className="text-sm text-text-muted mt-4">
-              {c('companyInfo.note', t('about.companyInfo.note'))}
+              {c('companyInfo.note', t('about.companyInfo.note', brand))}
             </p>
           </div>
         </Card>

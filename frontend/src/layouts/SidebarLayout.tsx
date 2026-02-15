@@ -5,6 +5,7 @@ import { useState } from 'react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import ThemeToggle from '../components/ThemeToggle'
 import { useTranslation } from 'react-i18next'
+import { useBrandingStore } from '../stores/branding'
 import type { LucideIcon } from 'lucide-react'
 
 export interface SidebarLink {
@@ -34,6 +35,7 @@ export default function SidebarLayout({
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { t } = useTranslation()
+  const siteName = useBrandingStore((s) => s.siteName)
 
   const handleLogout = () => {
     logout()
@@ -45,7 +47,7 @@ export default function SidebarLayout({
       <nav className="flex-1 p-2 space-y-1">
         {links.map((link) => {
           const Icon = link.icon
-          const active = location.pathname.startsWith(link.to)
+          const active = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to)
           return (
             <Link
               key={link.to}
@@ -116,7 +118,7 @@ export default function SidebarLayout({
         <div className="flex items-center justify-between p-4 border-b border-border">
           {!collapsed && (
             <Link to={brandTo} className="text-lg font-bold font-heading text-text">
-              Echo<span className="text-primary">{brandLabel}</span>
+              {siteName}
             </Link>
           )}
           <button
@@ -152,7 +154,7 @@ export default function SidebarLayout({
             <Menu size={20} />
           </button>
           <span className="text-lg font-bold font-heading text-text">
-            Echo<span className="text-primary">{brandLabel}</span>
+            {siteName}
           </span>
         </header>
 

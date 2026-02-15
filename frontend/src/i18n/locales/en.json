@@ -73,7 +73,7 @@
     "refund": "Refund Policy",
     "cancellation": "Cancellation Policy",
     "helpCenter": "Help Center",
-    "copyright": "© {{year}} EchoBilling LLC. All rights reserved."
+    "copyright": "© {{year}} {{companyLegal}}. All rights reserved."
   },
   "publicLayout": {
     "toggleMenu": "Toggle menu"
@@ -87,7 +87,7 @@
   "auth": {
     "login": {
       "title": "Sign In",
-      "welcome": "Welcome back to EchoBilling",
+      "welcome": "Welcome back to {{company}}",
       "email": "Email",
       "password": "Password",
       "submit": "Sign In",
@@ -98,7 +98,7 @@
     },
     "register": {
       "title": "Register",
-      "subtitle": "Create your EchoBilling account",
+      "subtitle": "Create your {{company}} account",
       "name": "Name",
       "email": "Email",
       "password": "Password",
@@ -216,11 +216,11 @@
     }
   },
   "about": {
-    "title": "About EchoBilling",
+    "title": "About {{company}}",
     "subtitle": "Building the future of cloud infrastructure",
     "company": {
-      "title": "EchoBilling LLC",
-      "paragraph1": "EchoBilling is a leading provider of cloud infrastructure solutions, specializing in high-performance VPS hosting. Founded with a vision to democratize access to enterprise-grade infrastructure, we serve developers, startups, and businesses worldwide.",
+      "title": "{{companyLegal}}",
+      "paragraph1": "{{company}} is a leading provider of cloud infrastructure solutions, specializing in high-performance VPS hosting. Founded with a vision to democratize access to enterprise-grade infrastructure, we serve developers, startups, and businesses worldwide.",
       "paragraph2": "Our state-of-the-art data centers and cutting-edge technology ensure that your applications run smoothly, securely, and efficiently. We believe in transparent pricing, exceptional support, and empowering our customers to build amazing things."
     },
     "valuesTitle": "Our Values",
@@ -245,7 +245,7 @@
       "founded": "Founded:",
       "registrationValue": "Delaware, United States",
       "foundedValue": "2024",
-      "note": "EchoBilling LLC is a registered limited liability company operating in compliance with all applicable federal and state regulations."
+      "note": "{{companyLegal}} is a registered limited liability company operating in compliance with all applicable federal and state regulations."
     }
   },
   "contact": {

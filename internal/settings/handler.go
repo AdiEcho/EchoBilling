@@ -32,6 +32,29 @@ type settingResponse struct {
 	GroupName   string `json:"group_name"`
 }
 
+// GetPublicSettings handles GET /settings/public — returns non-secret branding settings.
+func (h *Handler) GetPublicSettings(c *gin.Context) {
+	settings, err := h.svc.GetAll(c.Request.Context(), "branding")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load settings"})
+		return
+	}
+
+	out := make(map[string]string, len(settings))
+	for _, s := range settings {
+		if s.IsSecret {
+			continue
+		}
+		val := s.Value
+		if val == "" {
+			val = h.store.Get(s.Key)
+		}
+		out[s.Key] = val
+	}
+
+	c.JSON(http.StatusOK, out)
+}
+
 // GetSettings handles GET /admin/settings?group=
 func (h *Handler) GetSettings(c *gin.Context) {
 	group := c.Query("group")
@@ -140,8 +163,12 @@ func (h *Handler) TestSMTP(c *gin.Context) {
 	}
 
 	// Send a simple test email.
-	subject := "EchoBilling - SMTP Test"
-	body := "This is a test email from EchoBilling admin settings. If you received this, SMTP is working correctly."
+	siteName := h.store.Get("site_name")
+	if siteName == "" {
+		siteName = "EchoBilling"
+	}
+	subject := siteName + " - SMTP Test"
+	body := "This is a test email from " + siteName + " admin settings. If you received this, SMTP is working correctly."
 	msg := fmt.Sprintf(
 		"From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n%s",
 		cfg.From, req.Email, subject, body,

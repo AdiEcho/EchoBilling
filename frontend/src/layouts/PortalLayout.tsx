@@ -6,6 +6,7 @@ import {
   CreditCard,
   Shield,
   Settings,
+  Home,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../stores/auth'
@@ -16,6 +17,7 @@ export default function PortalLayout() {
   const user = useAuthStore((state) => state.user)
 
   const links: SidebarLink[] = [
+    { to: '/', label: t('common.home'), icon: Home },
     { to: '/portal/dashboard', label: t('common.dashboard'), icon: LayoutDashboard },
     { to: '/portal/orders', label: t('common.orders'), icon: ShoppingCart },
     { to: '/portal/services', label: t('common.services'), icon: Server },

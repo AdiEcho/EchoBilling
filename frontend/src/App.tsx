@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import { useAuthStore } from './stores/auth'
 import { useSetupStore } from './stores/setup'
+import { useBrandingStore } from './stores/branding'
 import ToastContainer from './components/ui/Toast'
 import PageTransition from './components/PageTransition'
 
@@ -93,10 +94,12 @@ function SetupGuard({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { loadUser, token } = useAuthStore()
   const { checkSetupStatus } = useSetupStore()
+  const { fetchBranding } = useBrandingStore()
 
   useEffect(() => {
     checkSetupStatus()
-  }, [checkSetupStatus])
+    fetchBranding()
+  }, [checkSetupStatus, fetchBranding])
 
   useEffect(() => {
     if (token) loadUser()

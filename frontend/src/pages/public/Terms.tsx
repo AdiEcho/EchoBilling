@@ -1,5 +1,6 @@
 import Card from '../../components/ui/Card'
 import { useTranslation } from 'react-i18next'
+import { useBrandingStore } from '../../stores/branding'
 
 interface PolicySection {
   title: string
@@ -12,7 +13,10 @@ interface PolicySection {
 
 export default function Terms() {
   const { t } = useTranslation()
-  const sections = t('terms.sections', { returnObjects: true }) as PolicySection[]
+  const siteName = useBrandingStore((s) => s.siteName)
+  const companyLegalName = useBrandingStore((s) => s.companyLegalName)
+  const brand = { company: siteName, companyLegal: companyLegalName }
+  const sections = t('terms.sections', { returnObjects: true, ...brand }) as PolicySection[]
 
   return (
     <div className="min-h-screen py-20 px-4 bg-bg">

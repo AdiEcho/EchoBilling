@@ -73,7 +73,7 @@
     "refund": "退款政策",
     "cancellation": "取消政策",
     "helpCenter": "帮助中心",
-    "copyright": "© {{year}} EchoBilling LLC. 保留所有权利。"
+    "copyright": "© {{year}} {{companyLegal}}. 保留所有权利。"
   },
   "publicLayout": {
     "toggleMenu": "切换菜单"
@@ -87,7 +87,7 @@
   "auth": {
     "login": {
       "title": "登录",
-      "welcome": "欢迎回到 EchoBilling",
+      "welcome": "欢迎回到 {{company}}",
       "email": "邮箱",
       "password": "密码",
       "submit": "登录",
@@ -98,7 +98,7 @@
     },
     "register": {
       "title": "注册",
-      "subtitle": "创建您的 EchoBilling 账号",
+      "subtitle": "创建您的 {{company}} 账号",
       "name": "姓名",
       "email": "邮箱",
       "password": "密码",
@@ -216,11 +216,11 @@
     }
   },
   "about": {
-    "title": "关于 EchoBilling",
+    "title": "关于 {{company}}",
     "subtitle": "构建云基础设施的未来",
     "company": {
-      "title": "EchoBilling LLC",
-      "paragraph1": "EchoBilling 专注高性能 VPS 托管，是领先的云基础设施解决方案提供商。我们以让企业级基础设施更易获得为愿景，服务全球开发者、初创团队和企业客户。",
+      "title": "{{companyLegal}}",
+      "paragraph1": "{{company}} 专注高性能 VPS 托管，是领先的云基础设施解决方案提供商。我们以让企业级基础设施更易获得为愿景，服务全球开发者、初创团队和企业客户。",
       "paragraph2": "我们通过先进数据中心与前沿技术，确保应用稳定、安全、高效运行。我们坚持透明定价、卓越支持，并持续赋能客户打造优秀产品。"
     },
     "valuesTitle": "我们的价值观",
@@ -245,7 +245,7 @@
       "founded": "成立时间：",
       "registrationValue": "美国特拉华州",
       "foundedValue": "2024",
-      "note": "EchoBilling LLC 是一家依法注册的有限责任公司，遵守适用的联邦和州级法规。"
+      "note": "{{companyLegal}} 是一家依法注册的有限责任公司，遵守适用的联邦和州级法规。"
     }
   },
   "contact": {

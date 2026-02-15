@@ -5,14 +5,14 @@
       {
         "title": "1. Acceptance of Terms",
         "paragraphs": [
-          "By accessing and using EchoBilling's services, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.",
-          "EchoBilling LLC (\"Company\", \"we\", \"us\", or \"our\") reserves the right to modify these terms at any time. Your continued use of the service constitutes acceptance of those changes."
+          "By accessing and using {{company}}'s services, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service.",
+          "{{companyLegal}} (\"Company\", \"we\", \"us\", or \"our\") reserves the right to modify these terms at any time. Your continued use of the service constitutes acceptance of those changes."
         ]
       },
       {
         "title": "2. Description of Services",
         "paragraphs": [
-          "EchoBilling provides cloud infrastructure services including but not limited to Virtual Private Servers (VPS), hosting solutions, and related technical services. We reserve the right to modify, suspend, or discontinue any aspect of our services with reasonable notice.",
+          "{{company}} provides cloud infrastructure services including but not limited to Virtual Private Servers (VPS), hosting solutions, and related technical services. We reserve the right to modify, suspend, or discontinue any aspect of our services with reasonable notice.",
           "Service availability is subject to our Service Level Agreement (SLA). While we strive for maximum uptime, we cannot guarantee uninterrupted service due to maintenance, upgrades, and force majeure events."
         ]
       },
@@ -55,7 +55,7 @@
       {
         "title": "7. Limitation of Liability",
         "paragraphs": [
-          "To the maximum extent permitted by law, EchoBilling LLC shall not be liable for indirect, incidental, special, consequential, or punitive damages.",
+          "To the maximum extent permitted by law, {{companyLegal}} shall not be liable for indirect, incidental, special, consequential, or punitive damages.",
           "Our total liability shall not exceed the amount you paid us in the twelve months preceding the claim."
         ]
       },
@@ -295,7 +295,7 @@
       {
         "title": "5. Cancellation Fees",
         "paragraphs": [
-          "EchoBilling does not charge cancellation fees.",
+          "{{company}} does not charge cancellation fees.",
           "You are responsible for charges incurred up to the cancellation date."
         ]
       },

@@ -6,12 +6,15 @@ import ThemeToggle from '../components/ThemeToggle'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useBrandingStore } from '../stores/branding'
 
 export default function PublicLayout() {
   const { user } = useAuthStore()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { t } = useTranslation()
+  const siteName = useBrandingStore((s) => s.siteName)
+  const companyLegalName = useBrandingStore((s) => s.companyLegalName)
 
   const navLinks = [
     { to: '/', label: t('nav.home') },
@@ -25,7 +28,7 @@ export default function PublicLayout() {
       <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="text-xl font-bold font-heading text-text">
-            Echo<span className="text-primary">Billing</span>
+            {siteName}
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
@@ -162,7 +165,7 @@ export default function PublicLayout() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-text-muted">
-            {t('footer.copyright', { year: new Date().getFullYear() })}
+            {t('footer.copyright', { year: new Date().getFullYear(), companyLegal: companyLegalName })}
           </div>
         </div>
       </footer>
