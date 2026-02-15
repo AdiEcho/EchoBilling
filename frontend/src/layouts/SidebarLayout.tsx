@@ -16,7 +16,6 @@ export interface SidebarLink {
 
 interface SidebarLayoutProps {
   links: SidebarLink[]
-  brandLabel: string
   brandTo: string
   showUserEmail?: boolean
   roleLabel?: string
@@ -24,7 +23,6 @@ interface SidebarLayoutProps {
 
 export default function SidebarLayout({
   links,
-  brandLabel,
   brandTo,
   showUserEmail = true,
   roleLabel,

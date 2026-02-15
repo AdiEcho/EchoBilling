@@ -33,7 +33,6 @@ export default function PortalLayout() {
   return (
     <SidebarLayout
       links={links}
-      brandLabel="Billing"
       brandTo="/"
       showUserEmail
     />

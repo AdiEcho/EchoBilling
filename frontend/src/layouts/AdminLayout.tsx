@@ -34,7 +34,6 @@ export default function AdminLayout() {
   return (
     <SidebarLayout
       links={links}
-      brandLabel={t('adminLayout.admin')}
       brandTo="/admin/dashboard"
       roleLabel={t('adminLayout.admin')}
     />
