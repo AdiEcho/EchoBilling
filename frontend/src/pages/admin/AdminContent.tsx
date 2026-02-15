@@ -4,6 +4,7 @@ import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { api } from '../../lib/utils'
+import { useBrandingStore } from '../../stores/branding'
 import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 
@@ -81,7 +82,6 @@ const contactI18nMap: Record<string, string> = {
   'title': 'contact.title',
   'subtitle': 'contact.subtitle',
   'info.email': 'contact.info.email',
-  'info.emailValue': 'contact.info.emailValue',
   'info.businessHours': 'contact.info.businessHours',
   'info.support247': 'contact.info.support247',
   'info.responseTime': 'contact.info.responseTime',
@@ -96,6 +96,7 @@ type PageTab = 'about' | 'contact'
 
 export default function AdminContent() {
   const { t, i18n } = useTranslation()
+  const siteDomain = useBrandingStore((s) => s.siteDomain)
   const [activeTab, setActiveTab] = useState<PageTab>('about')
   const [locale, setLocale] = useState(i18n.language === 'zh' ? 'zh' : 'en')
   const [sections, setSections] = useState<Record<string, string>>({})
@@ -105,29 +106,27 @@ export default function AdminContent() {
   const fields = activeTab === 'about' ? aboutFields : contactFields
   const i18nMap = activeTab === 'about' ? aboutI18nMap : contactI18nMap
 
+  const buildDefaults = () => {
+    const defaults: Record<string, string> = {}
+    for (const field of fields) {
+      const i18nKey = i18nMap[field.key]
+      if (i18nKey) {
+        defaults[field.key] = t(i18nKey, { lng: locale })
+      }
+    }
+    if (activeTab === 'contact' && siteDomain) {
+      defaults['info.emailValue'] = `support@${siteDomain}`
+    }
+    return defaults
+  }
+
   const fetchContent = async () => {
     setLoading(true)
     try {
       const data = await api<PageContentResponse>(`/content/${activeTab}?locale=${locale}`)
-      // Pre-fill with i18n defaults, then overlay API data
-      const defaults: Record<string, string> = {}
-      for (const field of fields) {
-        const i18nKey = i18nMap[field.key]
-        if (i18nKey) {
-          defaults[field.key] = t(i18nKey, { lng: locale })
-        }
-      }
-      setSections({ ...defaults, ...data.sections })
+      setSections({ ...buildDefaults(), ...data.sections })
     } catch {
-      // On error, use i18n defaults
-      const defaults: Record<string, string> = {}
-      for (const field of fields) {
-        const i18nKey = i18nMap[field.key]
-        if (i18nKey) {
-          defaults[field.key] = t(i18nKey, { lng: locale })
-        }
-      }
-      setSections(defaults)
+      setSections(buildDefaults())
     } finally {
       setLoading(false)
     }
@@ -153,14 +152,7 @@ export default function AdminContent() {
   }
 
   const handleReset = () => {
-    const defaults: Record<string, string> = {}
-    for (const field of fields) {
-      const i18nKey = i18nMap[field.key]
-      if (i18nKey) {
-        defaults[field.key] = t(i18nKey, { lng: locale })
-      }
-    }
-    setSections(defaults)
+    setSections(buildDefaults())
   }
 
   const handleFieldChange = (key: string, value: string) => {
