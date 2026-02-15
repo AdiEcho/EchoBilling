@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -80,7 +81,7 @@ type UpdateProductRequest struct {
 type CreatePlanRequest struct {
 	ProductID      string          `json:"product_id" binding:"required"`
 	Name           string          `json:"name" binding:"required"`
-	Slug           string          `json:"slug" binding:"required"`
+	Slug           string          `json:"slug"`
 	Description    string          `json:"description"`
 	CPUCores       int             `json:"cpu_cores"`
 	MemoryMB       int             `json:"memory_mb"`
@@ -219,6 +220,10 @@ func (h *Handler) AdminCreatePlan(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if req.Slug == "" {
+		req.Slug = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(req.Name), " ", "-"))
 	}
 
 	id, err := h.createPlan(c.Request.Context(), req)

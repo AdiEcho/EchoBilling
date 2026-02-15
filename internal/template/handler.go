@@ -3,6 +3,7 @@ package template
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -139,6 +140,7 @@ func (h *Handler) UpdateTemplate(c *gin.Context) {
 
 	updated, err := h.updateTemplate(c.Request.Context(), c.Param("id"), req)
 	if err != nil {
+		log.Printf("Failed to update template %s: %v", c.Param("id"), err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update template"})
 		return
 	}

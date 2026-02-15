@@ -83,7 +83,7 @@ func (h *Handler) updateTemplate(ctx context.Context, id string, req UpdateTempl
 		SET name = COALESCE(NULLIF($2, ''), name),
 			slug = COALESCE(NULLIF($3, ''), slug),
 			description = COALESCE(NULLIF($4, ''), description),
-			category = COALESCE(NULLIF($5, ''), category),
+			category = COALESCE(NULLIF($5, '')::product_category, category),
 			plan_presets = COALESCE($6, plan_presets),
 			is_active = COALESCE($7, is_active),
 			sort_order = COALESCE($8, sort_order),
