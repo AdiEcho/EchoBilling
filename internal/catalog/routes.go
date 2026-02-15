@@ -5,7 +5,7 @@ import "github.com/gin-gonic/gin"
 func RegisterRoutes(public *gin.RouterGroup, admin *gin.RouterGroup, h *Handler) {
 	public.GET("", h.ListProducts)
 	public.GET("/:id/plans", h.ListPlansByProductID)
-	public.GET("/:slug", h.GetProductBySlug)
+	public.GET("/:id", h.GetProductBySlug)
 
 	adminProducts := admin.Group("/products")
 	adminProducts.POST("", h.AdminCreateProduct)

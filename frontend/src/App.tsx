@@ -48,6 +48,7 @@ const AdminInvoices = lazy(() => import('./pages/admin/AdminInvoices'))
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'))
 const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'))
 const AdminSystem = lazy(() => import('./pages/admin/AdminSystem'))
+const AdminContent = lazy(() => import('./pages/admin/AdminContent'))
 
 function PageLoader() {
   return (
@@ -147,6 +148,7 @@ export default function App() {
             <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/admin/customers" element={<AdminCustomers />} />
             <Route path="/admin/system" element={<AdminSystem />} />
+            <Route path="/admin/content" element={<AdminContent />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

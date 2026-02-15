@@ -15,6 +15,7 @@ import (
 	"github.com/adiecho/echobilling/internal/auth"
 	"github.com/adiecho/echobilling/internal/billing"
 	"github.com/adiecho/echobilling/internal/catalog"
+	"github.com/adiecho/echobilling/internal/content"
 	"github.com/adiecho/echobilling/internal/customer"
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
@@ -74,6 +75,10 @@ func main() {
 	// 产品目录路由（公开）
 	catalogHandler := catalog.NewHandler(pool)
 	catalog.RegisterRoutes(v1.Group("/products"), v1.Group("/admin", authMiddleware, adminMiddleware), catalogHandler)
+
+	// 页面内容管理路由（公开读取 + 管理员编辑）
+	contentHandler := content.NewHandler(pool)
+	content.RegisterRoutes(v1.Group("/content"), v1.Group("/admin/content", authMiddleware, adminMiddleware), contentHandler)
 
 	// 用户门户路由（需要认证）
 	portal := v1.Group("/portal", authMiddleware)

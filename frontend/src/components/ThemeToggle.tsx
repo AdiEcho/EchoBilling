@@ -1,11 +1,12 @@
-import { Sun, Moon, Monitor } from 'lucide-react'
+import { Sun, Moon } from 'lucide-react'
 import { useThemeStore } from '../stores/theme'
 
 export default function ThemeToggle({ className = '' }: { className?: string }) {
-  const { theme, toggleTheme } = useThemeStore()
+  const { theme, resolvedTheme, toggleTheme } = useThemeStore()
 
-  const Icon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor
-  const label = theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'System'
+  const displayTheme = theme === 'system' ? resolvedTheme : theme
+  const Icon = displayTheme === 'light' ? Sun : Moon
+  const label = displayTheme === 'light' ? 'Light' : 'Dark'
 
   return (
     <button

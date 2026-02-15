@@ -137,7 +137,7 @@ func (h *Handler) ListProducts(c *gin.Context) {
 
 // GetProductBySlug - GET /api/v1/products/:slug - get product with plans by slug
 func (h *Handler) GetProductBySlug(c *gin.Context) {
-	product, err := h.getActiveProductBySlug(c.Request.Context(), c.Param("slug"))
+	product, err := h.getActiveProductBySlug(c.Request.Context(), c.Param("id"))
 	if err != nil {
 		if errors.Is(err, ErrProductNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
