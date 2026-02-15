@@ -40,13 +40,19 @@ export default function Modal({ open, onClose, title, children, className }: Mod
 
     document.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
-    contentRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
     }
   }, [mounted, onClose])
+
+  // Focus the modal content only on initial mount, not on every re-render
+  useEffect(() => {
+    if (mounted) {
+      contentRef.current?.focus()
+    }
+  }, [mounted])
 
   if (!mounted) return null
 
