@@ -29,7 +29,7 @@ import Button from '../../components/ui/Button'
 import { useFetch } from '../../hooks/useFetch'
 import { useTranslation } from 'react-i18next'
 import { useBrandingStore } from '../../stores/branding'
-import type { Product } from '../../types/models'
+import type { ProductWithPlans } from '../../types/models'
 
 // ---- use case icons ----
 const useCaseIcons = [Terminal, Database, Gamepad2, ShoppingCart, Bot, Cloud] as const
@@ -67,7 +67,7 @@ export default function VpsHosting() {
   const siteName = useBrandingStore((s) => s.siteName)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
-  const { data: products } = useFetch<Product[]>('/products')
+  const { data: products } = useFetch<ProductWithPlans[]>('/products')
   const activeProducts = products?.filter((p) => p.is_active) ?? []
 
   return (
