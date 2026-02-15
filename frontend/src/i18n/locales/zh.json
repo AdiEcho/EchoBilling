@@ -19,6 +19,7 @@
     "customers": "客户",
     "system": "系统",
     "contentManagement": "内容管理",
+    "templates": "模板",
     "billingMethods": "支付方式",
     "security": "安全",
     "adminPanel": "管理后台",
@@ -587,6 +588,25 @@
       "urgentTitle": "紧急帮助标题",
       "urgentDescription": "紧急帮助描述",
       "urgentButton": "紧急帮助按钮"
+    },
+    "templates": {
+      "title": "模板管理",
+      "addTemplate": "新增模板",
+      "editTemplate": "编辑模板",
+      "noTemplates": "暂无模板",
+      "presetsCount": "套餐数",
+      "planPresets": "套餐预设",
+      "addPreset": "添加套餐",
+      "preset": "套餐",
+      "confirmDelete": "确定要删除此模板吗？",
+      "apply": "应用",
+      "applyTitle": "应用模板",
+      "applyDesc": "将根据此模板创建一个新产品，包含所有预设套餐。",
+      "productSlug": "产品 Slug（可选覆盖）",
+      "activateImmediately": "立即激活产品",
+      "applySuccess": "产品创建成功",
+      "applyFailed": "应用模板失败",
+      "fetchFailed": "加载模板失败"
     }
   },
   "status": {

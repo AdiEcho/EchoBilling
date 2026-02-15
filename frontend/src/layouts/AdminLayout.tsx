@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   FileEdit,
+  Layers,
   ArrowLeft,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +19,7 @@ export default function AdminLayout() {
   const links: SidebarLink[] = [
     { to: '/admin/dashboard', label: t('common.dashboard'), icon: LayoutDashboard },
     { to: '/admin/products', label: t('common.products', { defaultValue: 'Products' }), icon: Package },
+    { to: '/admin/templates', label: t('common.templates', { defaultValue: 'Templates' }), icon: Layers },
     { to: '/admin/content', label: t('common.contentManagement', { defaultValue: 'Content' }), icon: FileEdit },
     { to: '/admin/orders', label: t('common.orders'), icon: ShoppingCart },
     { to: '/admin/invoices', label: t('common.invoices'), icon: FileText },

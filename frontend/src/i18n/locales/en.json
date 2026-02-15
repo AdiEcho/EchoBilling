@@ -19,6 +19,7 @@
     "customers": "Customers",
     "system": "System",
     "contentManagement": "Content",
+    "templates": "Templates",
     "billingMethods": "Billing Methods",
     "security": "Security",
     "adminPanel": "Admin Panel",
@@ -587,6 +588,25 @@
       "urgentTitle": "Urgent Help Title",
       "urgentDescription": "Urgent Help Description",
       "urgentButton": "Urgent Help Button"
+    },
+    "templates": {
+      "title": "Template Management",
+      "addTemplate": "Add Template",
+      "editTemplate": "Edit Template",
+      "noTemplates": "No templates found",
+      "presetsCount": "Plans",
+      "planPresets": "Plan Presets",
+      "addPreset": "Add Preset",
+      "preset": "Preset",
+      "confirmDelete": "Are you sure you want to delete this template?",
+      "apply": "Apply",
+      "applyTitle": "Apply Template",
+      "applyDesc": "This will create a new product with all plan presets from this template.",
+      "productSlug": "Product Slug (optional override)",
+      "activateImmediately": "Activate product immediately",
+      "applySuccess": "Product created successfully",
+      "applyFailed": "Failed to apply template",
+      "fetchFailed": "Failed to load templates"
     }
   },
   "status": {

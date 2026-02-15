@@ -20,6 +20,7 @@ import (
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
 	"github.com/adiecho/echobilling/internal/setup"
+	"github.com/adiecho/echobilling/internal/template"
 	"github.com/hibiken/asynq"
 	"github.com/stripe/stripe-go/v82"
 )
@@ -79,6 +80,10 @@ func main() {
 	// 页面内容管理路由（公开读取 + 管理员编辑）
 	contentHandler := content.NewHandler(pool)
 	content.RegisterRoutes(v1.Group("/content"), v1.Group("/admin/content", authMiddleware, adminMiddleware), contentHandler)
+
+	// VPS 模板管理路由（管理员）
+	templateHandler := template.NewHandler(pool)
+	template.RegisterRoutes(v1.Group("/admin", authMiddleware, adminMiddleware), templateHandler)
 
 	// 用户门户路由（需要认证）
 	portal := v1.Group("/portal", authMiddleware)
