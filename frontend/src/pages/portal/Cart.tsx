@@ -11,19 +11,27 @@ import { toast } from '../../stores/toast'
 import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 
+interface PlanSnapshot {
+  name?: string
+  cpu_cores?: number
+  memory_mb?: number
+  disk_gb?: number
+  bandwidth_tb?: string
+}
+
 interface CartItem {
   id: string
-  plan_name: string
-  specs: string
+  plan_id: string
+  plan_snapshot: PlanSnapshot
   quantity: number
-  unit_price: number
+  unit_price: string
   billing_cycle: string
 }
 
 interface CartData {
-  order_id: string
+  id: string
   items: CartItem[]
-  total: number
+  total_amount: string
 }
 
 export default function Cart() {
@@ -66,7 +74,7 @@ export default function Cart() {
     try {
       const data = await api<{ session_url: string }>('/checkout/session', {
         method: 'POST',
-        body: JSON.stringify({ order_id: cart.order_id }),
+        body: JSON.stringify({ order_id: cart.id }),
       })
       window.location.href = data.session_url
     } catch (err) {
@@ -80,14 +88,22 @@ export default function Cart() {
   const columns = useMemo<ColumnDef<CartItem, unknown>[]>(
     () => [
       {
-        accessorKey: 'plan_name',
+        accessorKey: 'plan_snapshot',
         header: () => t('cart.plan'),
-        cell: ({ row }) => (
-          <div>
-            <div className="text-text font-medium">{row.original.plan_name}</div>
-            {row.original.specs && <div className="text-xs text-text-secondary">{row.original.specs}</div>}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const snapshot = row.original.plan_snapshot
+          const specs = [
+            snapshot?.cpu_cores && `${snapshot.cpu_cores} vCPU`,
+            snapshot?.memory_mb && `${snapshot.memory_mb} MB`,
+            snapshot?.disk_gb && `${snapshot.disk_gb} GB`,
+          ].filter(Boolean).join(' / ')
+          return (
+            <div>
+              <div className="text-text font-medium">{snapshot?.name ?? '-'}</div>
+              {specs && <div className="text-xs text-text-secondary">{specs}</div>}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'billing_cycle',
@@ -113,7 +129,7 @@ export default function Cart() {
         header: () => t('cart.subtotal'),
         cell: ({ row }) => (
           <span className="text-text font-medium">
-            {t('common.currency')}{(row.original.quantity * row.original.unit_price).toFixed(2)}
+            {t('common.currency')}{(row.original.quantity * parseFloat(row.original.unit_price)).toFixed(2)}
           </span>
         ),
       },
@@ -171,7 +187,7 @@ export default function Cart() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary">{t('cart.total')}</p>
-                <p className="text-3xl font-bold text-text">{t('common.currency')}{cart?.total}</p>
+                <p className="text-3xl font-bold text-text">{t('common.currency')}{cart?.total_amount}</p>
               </div>
               <Button variant="cta" size="lg" onClick={() => void handleCheckout()} disabled={checkingOut}>
                 <CreditCard className="w-5 h-5 mr-2" />
