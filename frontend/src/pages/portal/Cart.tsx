@@ -75,15 +75,6 @@ export default function Cart() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-text">{t('cart.title')}</h1>
-        <Card><SkeletonTable rows={3} cols={5} /></Card>
-      </div>
-    )
-  }
-
   const items = cart?.items ?? []
 
   const columns = useMemo<ColumnDef<CartItem, unknown>[]>(
@@ -141,6 +132,15 @@ export default function Cart() {
     ],
     [t],
   )
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-text">{t('cart.title')}</h1>
+        <Card><SkeletonTable rows={3} cols={5} /></Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

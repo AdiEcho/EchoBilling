@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { usePaginatedFetch } from '../../hooks/useFetch'
-import { getStatusVariant, formatId } from '../../lib/status'
+import { getStatusVariant } from '../../lib/status'
 import { toast } from '../../stores/toast'
 import type { Order } from '../../types/models'
 import Card from '../../components/ui/Card'
@@ -36,7 +36,7 @@ export default function Orders() {
         accessorKey: 'id',
         header: () => t('portal.orders.orderId'),
         cell: ({ row }) => (
-          <span className="text-text font-mono">{formatId(row.original.id)}...</span>
+          <span className="text-text font-mono truncate block max-w-[10rem]" title={row.original.id}>{row.original.id}</span>
         ),
       },
       {

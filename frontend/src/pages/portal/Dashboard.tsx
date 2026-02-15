@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useAuthStore } from '../../stores/auth'
 import { useFetch } from '../../hooks/useFetch'
-import { getStatusVariant, formatId } from '../../lib/status'
+import { getStatusVariant } from '../../lib/status'
 import type { PortalStats, Order } from '../../types/models'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
@@ -61,7 +61,7 @@ export default function Dashboard() {
         accessorKey: 'id',
         header: () => t('portal.dashboard.orderId'),
         cell: ({ row }) => (
-          <span className="text-text font-mono">{formatId(row.original.id)}...</span>
+          <span className="text-text font-mono truncate block max-w-[10rem]" title={row.original.id}>{row.original.id}</span>
         ),
       },
       {
