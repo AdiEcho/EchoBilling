@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/adiecho/echobilling/internal/app"
 	"github.com/adiecho/echobilling/internal/provisioning"
@@ -30,8 +31,19 @@ func main() {
 
 	log.Println("Connected to database")
 
+	// 初始化 SettingsStore
+	settingsStore := app.NewSettingsStore(pool, app.BuildEnvDefaults(cfg))
+	if err := settingsStore.Load(ctx); err != nil {
+		log.Fatalf("Failed to load settings store: %v", err)
+	}
+
+	// 启动定时热重载（每 30 秒）
+	reloadCtx, reloadCancel := context.WithCancel(ctx)
+	defer reloadCancel()
+	settingsStore.StartPeriodicReload(reloadCtx, 30*time.Second)
+
 	// 创建任务处理器
-	handler := provisioning.NewTaskHandler(pool, cfg)
+	handler := provisioning.NewTaskHandler(pool, cfg, settingsStore)
 
 	// 创建 Asynq 服务器
 	srv := asynq.NewServer(

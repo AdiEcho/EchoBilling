@@ -8,6 +8,7 @@ import {
   Settings,
   FileEdit,
   Layers,
+  Wrench,
   ArrowLeft,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +27,7 @@ export default function AdminLayout() {
     { to: '/admin/payments', label: t('common.payments'), icon: CreditCard },
     { to: '/admin/customers', label: t('common.customers'), icon: Users },
     { to: '/admin/system', label: t('common.system'), icon: Settings },
+    { to: '/admin/settings', label: t('common.settings'), icon: Wrench },
     { to: '/portal/dashboard', label: t('common.backToPortal'), icon: ArrowLeft },
   ]
 

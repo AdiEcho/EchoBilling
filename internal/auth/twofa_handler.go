@@ -173,7 +173,8 @@ func (h *Handler) Send2FAEmail(c *gin.Context) {
 		return
 	}
 
-	if err := SendEmailCode(h.smtpCfg, email, code); err != nil {
+	smtpCfg := h.smtpConfig()
+	if err := SendEmailCode(smtpCfg, email, code); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email"})
 		return
 	}
@@ -236,7 +237,8 @@ func (h *Handler) SetupEmail(c *gin.Context) {
 		return
 	}
 
-	if err := SendEmailCode(h.smtpCfg, email, code); err != nil {
+	smtpCfg2 := h.smtpConfig()
+	if err := SendEmailCode(smtpCfg2, email, code); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email"})
 		return
 	}

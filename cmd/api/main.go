@@ -19,6 +19,7 @@ import (
 	"github.com/adiecho/echobilling/internal/customer"
 	"github.com/adiecho/echobilling/internal/order"
 	"github.com/adiecho/echobilling/internal/payment"
+	"github.com/adiecho/echobilling/internal/settings"
 	"github.com/adiecho/echobilling/internal/setup"
 	"github.com/adiecho/echobilling/internal/template"
 	"github.com/hibiken/asynq"
@@ -52,7 +53,12 @@ func main() {
 	log.Println("Connected to Redis")
 
 	// 统一设置 Stripe Key（全局只设置一次）
-	stripe.Key = cfg.StripeSecretKey
+	// 初始化 SettingsStore
+	settingsStore := app.NewSettingsStore(pool, app.BuildEnvDefaults(cfg))
+	if err := settingsStore.Load(ctx); err != nil {
+		log.Fatalf("Failed to load settings store: %v", err)
+	}
+	stripe.Key = settingsStore.StripeSecretKey()
 
 	// 创建共享的 Asynq Client
 	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr, Password: cfg.RedisPassword})
@@ -70,7 +76,7 @@ func main() {
 	setup.RegisterRoutes(v1.Group("/setup"), setupHandler)
 
 	// 认证路由（严格限流：5 req/s，burst 10，防止暴力破解）
-	authHandler := auth.NewHandler(pool, rdb, cfg)
+	authHandler := auth.NewHandler(pool, rdb, cfg, settingsStore)
 	auth.RegisterRoutes(v1.Group("/auth", middleware.RateLimit(5, 10)), authHandler, authMiddleware)
 
 	// 产品目录路由（公开）
@@ -107,7 +113,7 @@ func main() {
 	billing.RegisterRoutes(portal, adminGroup, billingHandler)
 
 	// 支付路由
-	paymentHandler := payment.NewHandler(pool, cfg, asynqClient)
+	paymentHandler := payment.NewHandler(pool, cfg, asynqClient, settingsStore)
 	payment.RegisterRoutes(authed, v1.Group("/webhooks"), paymentHandler)
 	// 兼容旧路径
 	portal.POST("/checkout/session", paymentHandler.CreateCheckoutSession)
@@ -115,6 +121,11 @@ func main() {
 	// 管理后台路由
 	adminHandler := admin.NewHandler(pool, cfg, asynqClient)
 	admin.RegisterRoutes(adminGroup, adminHandler)
+
+	// 系统设置路由
+	settingsSvc := settings.NewService(pool)
+	settingsHandler := settings.NewHandler(settingsSvc, settingsStore)
+	settings.RegisterRoutes(adminGroup, settingsHandler)
 
 	log.Println("All routes registered")
 

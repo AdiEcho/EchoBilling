@@ -19,23 +19,21 @@ import (
 )
 
 type TaskHandler struct {
-	pool                *pgxpool.Pool
-	renewalWebhookURL   string
-	renewalWebhookToken string
-	notifyHTTPClient    *http.Client
+	pool             *pgxpool.Pool
+	store            *app.SettingsStore
+	notifyHTTPClient *http.Client
 }
 
-func NewTaskHandler(pool *pgxpool.Pool, cfg *app.Config) *TaskHandler {
+func NewTaskHandler(pool *pgxpool.Pool, cfg *app.Config, store *app.SettingsStore) *TaskHandler {
 	timeout := cfg.NotificationTimeout
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
 
 	return &TaskHandler{
-		pool:                pool,
-		renewalWebhookURL:   cfg.RenewalWebhookURL,
-		renewalWebhookToken: cfg.RenewalWebhookToken,
-		notifyHTTPClient:    &http.Client{Timeout: timeout},
+		pool:             pool,
+		store:            store,
+		notifyHTTPClient: &http.Client{Timeout: timeout},
 	}
 }
 
@@ -318,7 +316,8 @@ func (h *TaskHandler) sendSingleRenewalReminder(ctx context.Context, payload Ren
 }
 
 func (h *TaskHandler) sendRenewalWebhook(ctx context.Context, payload RenewalReminderPayload) (bool, string, error) {
-	if h.renewalWebhookURL == "" {
+	webhookURL := h.store.Get("renewal_webhook_url")
+	if webhookURL == "" {
 		return false, "audit_log_only", nil
 	}
 
@@ -333,14 +332,19 @@ func (h *TaskHandler) sendRenewalWebhook(ctx context.Context, payload RenewalRem
 		return false, "external_webhook", err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, h.renewalWebhookURL, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, webhookURL, bytes.NewReader(body))
 	if err != nil {
 		return false, "external_webhook", err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if h.renewalWebhookToken != "" {
-		req.Header.Set("Authorization", "Bearer "+h.renewalWebhookToken)
+	webhookToken := h.store.Get("renewal_webhook_token")
+	if webhookToken != "" {
+		req.Header.Set("Authorization", "Bearer "+webhookToken)
 	}
+
+	// Apply dynamic timeout from settings.
+	timeout := h.store.GetDuration("notification_timeout_secs", 5*time.Second)
+	h.notifyHTTPClient.Timeout = timeout
 
 	resp, err := h.notifyHTTPClient.Do(req)
 	if err != nil {

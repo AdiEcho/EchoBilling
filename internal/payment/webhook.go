@@ -27,7 +27,7 @@ func (h *Handler) HandleWebhook(c *gin.Context) {
 		return
 	}
 
-	event, err := webhook.ConstructEvent(body, c.GetHeader("Stripe-Signature"), h.webhookSecret)
+	event, err := webhook.ConstructEvent(body, c.GetHeader("Stripe-Signature"), h.store.StripeWebhookSecret())
 	if err != nil {
 		log.Printf("[webhook] signature verification failed: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})

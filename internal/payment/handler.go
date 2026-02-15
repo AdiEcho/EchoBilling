@@ -7,20 +7,18 @@ import (
 )
 
 type Handler struct {
-	pool          *pgxpool.Pool
-	stripeKey     string
-	webhookSecret string
-	frontendURL   string
-	asynqClient   *asynq.Client
+	pool        *pgxpool.Pool
+	store       *app.SettingsStore
+	frontendURL string
+	asynqClient *asynq.Client
 }
 
-func NewHandler(pool *pgxpool.Pool, cfg *app.Config, asynqClient *asynq.Client) *Handler {
+func NewHandler(pool *pgxpool.Pool, cfg *app.Config, asynqClient *asynq.Client, store *app.SettingsStore) *Handler {
 	return &Handler{
-		pool:          pool,
-		stripeKey:     cfg.StripeSecretKey,
-		webhookSecret: cfg.StripeWebhookSecret,
-		frontendURL:   cfg.FrontendURL,
-		asynqClient:   asynqClient,
+		pool:        pool,
+		store:       store,
+		frontendURL: cfg.FrontendURL,
+		asynqClient: asynqClient,
 	}
 }
 

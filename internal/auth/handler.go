@@ -17,27 +17,17 @@ type Handler struct {
 	rdb       *redis.Client
 	jwtSecret string
 	jwtExpiry time.Duration
-	smtpCfg   *SMTPConfig
+	store     *app.SettingsStore
 }
 
 // NewHandler 创建新的认证处理器
-func NewHandler(pool *pgxpool.Pool, rdb *redis.Client, cfg *app.Config) *Handler {
-	var smtpCfg *SMTPConfig
-	if cfg.SMTPHost != "" {
-		smtpCfg = &SMTPConfig{
-			Host:     cfg.SMTPHost,
-			Port:     cfg.SMTPPort,
-			Username: cfg.SMTPUsername,
-			Password: cfg.SMTPPassword,
-			From:     cfg.SMTPFrom,
-		}
-	}
+func NewHandler(pool *pgxpool.Pool, rdb *redis.Client, cfg *app.Config, store *app.SettingsStore) *Handler {
 	return &Handler{
 		pool:      pool,
 		rdb:       rdb,
 		jwtSecret: cfg.JWTSecret,
 		jwtExpiry: cfg.JWTExpiry,
-		smtpCfg:   smtpCfg,
+		store:     store,
 	}
 }
 
@@ -160,4 +150,19 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, authResp)
+}
+
+// smtpConfig converts the SettingsStore snapshot into auth.SMTPConfig.
+func (h *Handler) smtpConfig() *SMTPConfig {
+	ss := h.store.SMTPConfig()
+	if ss == nil {
+		return nil
+	}
+	return &SMTPConfig{
+		Host:     ss.Host,
+		Port:     ss.Port,
+		Username: ss.Username,
+		Password: ss.Password,
+		From:     ss.From,
+	}
 }
