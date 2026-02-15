@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, Mail, CreditCard, Webhook, Send } from 'lucide-react'
+import { Save, Mail, CreditCard, Webhook, Send, Building2 } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -15,9 +15,10 @@ interface SettingItem {
   group_name: string
 }
 
-type TabGroup = 'smtp' | 'stripe' | 'webhook'
+type TabGroup = 'branding' | 'smtp' | 'stripe' | 'webhook'
 
 const tabs: { group: TabGroup; icon: typeof Mail; labelKey: string }[] = [
+  { group: 'branding', icon: Building2, labelKey: 'admin.settings.brandingTab' },
   { group: 'smtp', icon: Mail, labelKey: 'admin.settings.smtpTab' },
   { group: 'stripe', icon: CreditCard, labelKey: 'admin.settings.stripeTab' },
   { group: 'webhook', icon: Webhook, labelKey: 'admin.settings.webhookTab' },
@@ -25,7 +26,7 @@ const tabs: { group: TabGroup; icon: typeof Mail; labelKey: string }[] = [
 
 export default function AdminSettings() {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<TabGroup>('smtp')
+  const [activeTab, setActiveTab] = useState<TabGroup>('branding')
   const [settings, setSettings] = useState<SettingItem[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

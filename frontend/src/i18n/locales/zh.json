@@ -595,6 +595,7 @@
       "smtpTab": "SMTP",
       "stripeTab": "Stripe",
       "webhookTab": "Webhook",
+      "brandingTab": "品牌",
       "save": "保存",
       "saving": "保存中...",
       "saved": "设置保存成功",
@@ -607,6 +608,8 @@
       "testSent": "测试邮件已发送",
       "testFailed": "测试邮件发送失败",
       "fields": {
+        "site_name": "站点名称",
+        "company_legal_name": "公司法律名称",
         "smtp_host": "SMTP 主机",
         "smtp_port": "SMTP 端口",
         "smtp_username": "SMTP 用户名",
