@@ -11,7 +11,7 @@ EchoBilling 是一个面向托管/VPS 类产品的全栈计费平台。
 ## 当前状态
 
 仓库目前处于积极开发中。
-已包含核心认证、商品目录、订单、支付（Stripe）、计费与续费、系统初始化设置等后端模块，以及公开页、用户门户和管理后台前端页面。前端支持深色模式与国际化（i18n）。
+已包含核心认证（含双因素认证）、商品目录、订单、支付（Stripe）、计费与续费、系统初始化设置、动态系统配置管理、VPS 模板管理、内容管理等后端模块，以及公开页、用户门户和管理后台前端页面。前端支持深色模式与国际化（i18n）。
 
 ## 技术栈
 
@@ -19,7 +19,7 @@ EchoBilling 是一个面向托管/VPS 类产品的全栈计费平台。
 - 数据库：PostgreSQL
 - 缓存/队列：Redis
 - 前端：React 19、TypeScript、Vite、Tailwind CSS、React Router、Zustand、React Hook Form、i18next
-- 工具链：goose、sqlc、golangci-lint、Docker Compose
+- 工具链：sqlc、golangci-lint、Docker Compose
 
 ## 仓库结构
 
@@ -28,25 +28,30 @@ EchoBilling 是一个面向托管/VPS 类产品的全栈计费平台。
 ├── cmd/
 │   ├── api/                      # 后端服务入口
 │   └── worker/                   # Asynq Worker 入口
+├── configs/                      # 配置文件（config.yaml）
 ├── internal/                     # 后端业务模块
 │   ├── admin/                    # 管理后台
 │   ├── app/                      # 应用初始化（配置、数据库、Redis）
-│   ├── auth/                     # 认证与授权
+│   ├── auth/                     # 认证与授权（含双因素认证）
 │   ├── billing/                  # 计费
 │   ├── catalog/                  # 商品目录
 │   ├── common/                   # 通用工具与常量
+│   ├── content/                  # 内容管理
 │   ├── customer/                 # 客户管理
 │   ├── db/                       # 数据库连接与 SQLC 生成代码
 │   ├── order/                    # 订单管理
 │   ├── payment/                  # 支付处理（Stripe）
 │   ├── provisioning/             # 产品配置与部署
-│   └── setup/                    # 系统初始化设置
+│   ├── settings/                 # 动态系统配置管理
+│   ├── setup/                    # 系统初始化设置
+│   └── template/                 # VPS 模板管理
 ├── frontend/                     # React 单页应用
 ├── migrations/                   # Goose SQL 迁移文件
 ├── queries/                      # SQLC 查询文件
 ├── docker-compose.yml            # 开发环境（Postgres + Redis）
 ├── docker-compose.deploy.yml     # 部署环境（完整服务栈）
 ├── Dockerfile                    # 多阶段构建（前端 + 后端）
+├── sqlc.yaml                     # SQLC 配置
 └── Makefile
 ```
 
@@ -55,12 +60,6 @@ EchoBilling 是一个面向托管/VPS 类产品的全栈计费平台。
 - Go `1.24+`
 - Node.js `20+` 与 npm
 - Docker + Docker Compose（推荐用于本地启动 Postgres/Redis）
-
-可选的本地 CLI 工具：
-
-- `goose`：数据库迁移
-- `sqlc`：代码生成
-- `golangci-lint`：代码检查
 
 ## 环境变量
 
@@ -80,6 +79,7 @@ cp .env.example .env
 - `FRONTEND_URL`：结账跳转使用的前端地址
 - `ENVIRONMENT`：本地开发请使用 `development`
 - `RENEWAL_WEBHOOK_URL`、`RENEWAL_WEBHOOK_TOKEN`：Worker 续费通知 Webhook 配置
+- `NOTIFICATION_TIMEOUT_SECONDS`：通知超时时间（默认 `5`）
 
 ## 快速开始（本地开发）
 
@@ -89,27 +89,9 @@ cp .env.example .env
 make docker-up
 ```
 
-### 2) 执行数据库迁移
+### 2) 启动后端服务
 
-先在 shell 中设置 `DATABASE_URL`（需与 `.env` 一致）：
-
-```bash
-export DATABASE_URL="postgres://echobilling:echobilling@localhost:5432/echobilling?sslmode=disable"
-```
-
-可直接使用 goose 执行迁移：
-
-```bash
-go run github.com/pressly/goose/v3/cmd/goose@latest -dir migrations postgres "$DATABASE_URL" up
-```
-
-或者（本地已安装 goose 时）：
-
-```bash
-make migrate-up
-```
-
-### 3) 启动后端服务
+数据库迁移已集成在 API 启动流程中，服务启动时会自动执行所有待处理的迁移。
 
 在两个终端中分别运行：
 
@@ -121,7 +103,7 @@ make run-api
 make run-worker
 ```
 
-### 4) 启动前端
+### 3) 启动前端
 
 ```bash
 cd frontend
@@ -129,7 +111,7 @@ npm install
 npm run dev
 ```
 
-### 5) 健康检查
+### 4) 健康检查
 
 ```bash
 curl http://localhost:8080/health
@@ -149,7 +131,7 @@ make deploy-build
 make deploy-up
 ```
 
-随后在宿主机执行迁移（命令同上）。
+服务启动时会自动执行数据库迁移，无需手动操作。
 
 停止服务：
 
@@ -184,10 +166,6 @@ docker compose exec -T postgres psql -U echobilling -d echobilling \
 - `make test`：执行 `go test ./...`
 - `make lint`：运行 golangci-lint 代码检查
 - `make sqlc`：重新生成 SQLC 代码
-- `make migrate-up`：执行数据库迁移
-- `make migrate-down`：回滚一步迁移
-- `make migrate-status`：查看迁移状态
-- `make migrate-create NAME=create_xxx`：创建新迁移
 - `make docker-up` / `docker-down`：启动/停止开发基础设施
 - `make deploy-build`：构建部署镜像
 - `make deploy-up` / `deploy-down`：启动/停止完整部署栈
