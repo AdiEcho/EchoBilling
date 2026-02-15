@@ -1,4 +1,4 @@
--- +migrate Up
+-- +goose Up
 CREATE TABLE IF NOT EXISTS system_settings (
     key         TEXT PRIMARY KEY,
     value       TEXT NOT NULL DEFAULT '',
@@ -32,5 +32,5 @@ INSERT INTO system_settings (key, value, is_secret, description, group_name) VAL
     ('renewal_webhook_token',     '', TRUE,  'Renewal webhook bearer token',           'webhook'),
     ('notification_timeout_secs', '', FALSE, 'HTTP timeout for webhook calls (seconds)', 'webhook');
 
--- +migrate Down
+-- +goose Down
 DROP TABLE IF EXISTS system_settings;
