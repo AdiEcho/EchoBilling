@@ -610,6 +610,7 @@
       "fields": {
         "site_name": "Site Name",
         "company_legal_name": "Company Legal Name",
+        "site_domain": "Site Domain",
         "smtp_host": "SMTP Host",
         "smtp_port": "SMTP Port",
         "smtp_username": "SMTP Username",

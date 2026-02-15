@@ -71,7 +71,7 @@
         "paragraphs": [
           "For questions about these Terms of Service, please contact us at:"
         ],
-        "email": "legal@echobilling.com"
+        "email": "legal@{{domain}}"
       }
     ]
   },
@@ -139,7 +139,7 @@
           "Request data portability",
           "Opt out of marketing communications"
         ],
-        "afterList": "To exercise these rights, contact privacy@echobilling.com."
+        "afterList": "To exercise these rights, contact privacy@{{domain}}."
       },
       {
         "title": "7. Data Retention",
@@ -172,7 +172,7 @@
         "paragraphs": [
           "If you have questions about this Privacy Policy, please contact us at:"
         ],
-        "email": "privacy@echobilling.com"
+        "email": "privacy@{{domain}}"
       }
     ]
   },
@@ -217,7 +217,7 @@
           "Provide an optional reason",
           "Submit and wait for email confirmation"
         ],
-        "afterList": "You can also contact billing@echobilling.com directly."
+        "afterList": "You can also contact billing@{{domain}} directly."
       },
       {
         "title": "4. Refund Processing Time",
@@ -248,7 +248,7 @@
     "questions": {
       "title": "Questions About Refunds?",
       "description": "If you need help with refund requests, contact us anytime.",
-      "email": "billing@echobilling.com"
+      "email": "billing@{{domain}}"
     }
   },
   "cancellationPolicy": {
@@ -269,7 +269,7 @@
           "Select the service to cancel",
           "Submit cancellation request"
         ],
-        "afterList": "You can also email support@echobilling.com with account and service details."
+        "afterList": "You can also email support@{{domain}} with account and service details."
       },
       {
         "title": "2. Cancellation Effective Time",
@@ -316,7 +316,7 @@
     "help": {
       "title": "Need Help Before Cancelling?",
       "description": "Contact support first. We may resolve your issue or offer alternatives.",
-      "email": "support@echobilling.com",
+      "email": "support@{{domain}}",
       "availability": "Available 24/7"
     }
   }

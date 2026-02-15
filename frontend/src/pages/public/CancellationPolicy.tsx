@@ -15,7 +15,8 @@ export default function CancellationPolicy() {
   const { t } = useTranslation()
   const siteName = useBrandingStore((s) => s.siteName)
   const companyLegalName = useBrandingStore((s) => s.companyLegalName)
-  const brand = { company: siteName, companyLegal: companyLegalName }
+  const siteDomain = useBrandingStore((s) => s.siteDomain)
+  const brand = { company: siteName, companyLegal: companyLegalName, domain: siteDomain }
   const sections = t('cancellationPolicy.sections', { returnObjects: true, ...brand }) as PolicySection[]
 
   return (
@@ -83,7 +84,7 @@ export default function CancellationPolicy() {
                   </h3>
                   <p className="text-text-secondary mb-3">{t('cancellationPolicy.help.description')}</p>
                   <p className="text-text-secondary">
-                    <span className="text-primary">{t('cancellationPolicy.help.email')}</span>
+                    <span className="text-primary">{t('cancellationPolicy.help.email', brand)}</span>
                     <br />
                     {t('cancellationPolicy.help.availability')}
                   </p>

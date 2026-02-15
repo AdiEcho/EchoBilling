@@ -15,7 +15,8 @@ export default function Terms() {
   const { t } = useTranslation()
   const siteName = useBrandingStore((s) => s.siteName)
   const companyLegalName = useBrandingStore((s) => s.companyLegalName)
-  const brand = { company: siteName, companyLegal: companyLegalName }
+  const siteDomain = useBrandingStore((s) => s.siteDomain)
+  const brand = { company: siteName, companyLegal: companyLegalName, domain: siteDomain }
   const sections = t('terms.sections', { returnObjects: true, ...brand }) as PolicySection[]
 
   return (

@@ -610,6 +610,7 @@
       "fields": {
         "site_name": "站点名称",
         "company_legal_name": "公司法律名称",
+        "site_domain": "网站域名",
         "smtp_host": "SMTP 主机",
         "smtp_port": "SMTP 端口",
         "smtp_username": "SMTP 用户名",

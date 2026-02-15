@@ -71,7 +71,7 @@
         "paragraphs": [
           "如对本服务条款有任何疑问，请联系："
         ],
-        "email": "legal@echobilling.com"
+        "email": "legal@{{domain}}"
       }
     ]
   },
@@ -139,7 +139,7 @@
           "请求数据可携带",
           "选择退出营销信息"
         ],
-        "afterList": "如需行使上述权利，请联系 privacy@echobilling.com。"
+        "afterList": "如需行使上述权利，请联系 privacy@{{domain}}。"
       },
       {
         "title": "7. 数据保留",
@@ -172,7 +172,7 @@
         "paragraphs": [
           "如对本隐私政策有疑问，请联系："
         ],
-        "email": "privacy@echobilling.com"
+        "email": "privacy@{{domain}}"
       }
     ]
   },
@@ -217,7 +217,7 @@
           "可选填写退款原因",
           "提交后等待邮件确认"
         ],
-        "afterList": "您也可以直接联系 billing@echobilling.com。"
+        "afterList": "您也可以直接联系 billing@{{domain}}。"
       },
       {
         "title": "4. 退款处理时间",
@@ -248,7 +248,7 @@
     "questions": {
       "title": "关于退款有疑问？",
       "description": "如需协助处理退款申请，请随时联系我们。",
-      "email": "billing@echobilling.com"
+      "email": "billing@{{domain}}"
     }
   },
   "cancellationPolicy": {
@@ -269,7 +269,7 @@
           "选择要取消的服务",
           "提交取消请求"
         ],
-        "afterList": "也可发送邮件至 support@echobilling.com 并提供账户与服务信息。"
+        "afterList": "也可发送邮件至 support@{{domain}} 并提供账户与服务信息。"
       },
       {
         "title": "2. 生效时间",
@@ -316,7 +316,7 @@
     "help": {
       "title": "取消前需要帮助？",
       "description": "建议先联系支持团队，我们可能帮您解决问题或提供替代方案。",
-      "email": "support@echobilling.com",
+      "email": "support@{{domain}}",
       "availability": "7x24 可用"
     }
   }

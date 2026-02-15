@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useTranslation } from 'react-i18next'
 import { useFetch } from '../../hooks/useFetch'
+import { useBrandingStore } from '../../stores/branding'
 
 interface PageContent {
   page_key: string
@@ -21,6 +22,7 @@ export default function Contact() {
   })
   const [submitted, setSubmitted] = useState(false)
   const { t, i18n } = useTranslation()
+  const siteDomain = useBrandingStore((s) => s.siteDomain)
   const { data } = useFetch<PageContent>(`/content/contact?locale=${i18n.language}`, {
     deps: [i18n.language],
   })
@@ -41,7 +43,7 @@ export default function Contact() {
     })
   }
 
-  const emailValue = c('info.emailValue', 'support@echobilling.com')
+  const emailValue = c('info.emailValue', siteDomain ? `support@${siteDomain}` : 'support@echobilling.com')
 
   return (
     <div className="min-h-screen py-20 px-4 bg-bg">

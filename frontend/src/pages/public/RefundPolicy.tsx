@@ -15,7 +15,8 @@ export default function RefundPolicy() {
   const { t } = useTranslation()
   const siteName = useBrandingStore((s) => s.siteName)
   const companyLegalName = useBrandingStore((s) => s.companyLegalName)
-  const brand = { company: siteName, companyLegal: companyLegalName }
+  const siteDomain = useBrandingStore((s) => s.siteDomain)
+  const brand = { company: siteName, companyLegal: companyLegalName, domain: siteDomain }
   const sections = t('refundPolicy.sections', { returnObjects: true, ...brand }) as PolicySection[]
 
   return (
@@ -83,7 +84,7 @@ export default function RefundPolicy() {
                   </h3>
                   <p className="text-text-secondary mb-3">{t('refundPolicy.questions.description')}</p>
                   <p className="text-text-secondary">
-                    <span className="text-primary">{t('refundPolicy.questions.email')}</span>
+                    <span className="text-primary">{t('refundPolicy.questions.email', brand)}</span>
                   </p>
                 </div>
               </div>
