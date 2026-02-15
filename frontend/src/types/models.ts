@@ -106,3 +106,34 @@ export interface StatCardItem {
   iconColor: string
   iconBg: string
 }
+
+// ---- Product Catalog ----
+export interface ProductPlan {
+  id: string
+  product_id: string
+  name: string
+  slug: string
+  description: string
+  cpu_cores: number
+  memory_mb: number
+  disk_gb: number
+  bandwidth_tb: string
+  price_monthly: string
+  price_quarterly: string
+  price_annually: string
+  setup_fee: string
+  is_active: boolean
+  sort_order: number
+  features: string[]
+}
+
+export interface ProductWithPlans {
+  id: string
+  name: string
+  slug: string
+  description: string
+  category: string
+  is_active: boolean
+  sort_order: number
+  plans: ProductPlan[]
+}

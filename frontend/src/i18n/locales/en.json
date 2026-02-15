@@ -299,6 +299,94 @@
     "detailedComparison": "Detailed Comparison",
     "monthlyPrice": "Monthly Price"
   },
+  "vpsLanding": {
+    "hero": {
+      "badge": "High-Performance Cloud Servers",
+      "cta": "View Plans & Pricing"
+    },
+    "features": {
+      "title": "Why Choose Our VPS",
+      "performance": {
+        "title": "Blazing Performance",
+        "description": "High-frequency vCPUs with DDR5 memory to handle demanding workloads with ease"
+      },
+      "storage": {
+        "title": "NVMe SSD Storage",
+        "description": "Enterprise-grade NVMe SSDs delivering read/write speeds far beyond traditional disks"
+      },
+      "security": {
+        "title": "Comprehensive Security",
+        "description": "Built-in DDoS protection and firewall, safeguarding your business 24/7"
+      },
+      "uptime": {
+        "title": "99.99% Uptime",
+        "description": "Redundant architecture with automatic failover to keep your services online"
+      },
+      "network": {
+        "title": "Global High-Speed Network",
+        "description": "Multi-node BGP connectivity for lower latency worldwide"
+      },
+      "support": {
+        "title": "Expert Technical Support",
+        "description": "24/7 engineers online with average ticket response time under 15 minutes"
+      }
+    },
+    "pricing": {
+      "title": "Choose the Right Plan",
+      "subtitle": "Flexible billing cycles — save more with longer commitments",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annually": "Annually",
+      "mostPopular": "Most Popular",
+      "orderNow": "Order Now",
+      "cores": "{{count}} vCPU Cores",
+      "setupFee": "Setup Fee",
+      "free": "Free"
+    },
+    "comparison": {
+      "title": "Detailed Plan Comparison",
+      "cpu": "CPU",
+      "memory": "Memory",
+      "disk": "Disk",
+      "bandwidth": "Bandwidth",
+      "monthlyPrice": "Monthly Price",
+      "quarterlyPrice": "Quarterly Price",
+      "annuallyPrice": "Annual Price",
+      "setupFee": "Setup Fee",
+      "free": "Free"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "whatIsVps": {
+        "question": "What is a VPS? How is it different from shared hosting?",
+        "answer": "A VPS (Virtual Private Server) provides dedicated CPU, memory, and storage resources that are not affected by other users. Compared to shared hosting, VPS offers higher performance, better security, and full root access."
+      },
+      "migration": {
+        "question": "Can I migrate from another provider?",
+        "answer": "Absolutely. We offer free migration assistance — our technical team will help you seamlessly migrate your websites, databases, and applications to our platform."
+      },
+      "uptime": {
+        "question": "What is your uptime guarantee?",
+        "answer": "We guarantee 99.99% network uptime SLA. Our infrastructure features redundant power, networking, and storage with automatic failover mechanisms."
+      },
+      "billing": {
+        "question": "What billing options are available?",
+        "answer": "We support monthly, quarterly, and annual billing cycles. Longer commitments come with greater discounts. We accept credit cards, Alipay, WeChat Pay, and more."
+      },
+      "support": {
+        "question": "How can I get help if I have issues?",
+        "answer": "We provide 24/7 technical support. You can reach us via the ticket system or email, and our engineering team responds in under 15 minutes on average."
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Choose a plan and deploy your server in minutes. All plans come with a 30-day money-back guarantee.",
+      "button": "Sign Up Now"
+    },
+    "error": {
+      "browsePlans": "Browse All Plans"
+    }
+  },
   "portal": {
     "dashboard": {
       "welcome": "Welcome back, {{name}}",

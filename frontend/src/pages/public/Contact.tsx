@@ -23,11 +23,20 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
   const { t, i18n } = useTranslation()
   const siteDomain = useBrandingStore((s) => s.siteDomain)
+  const siteName = useBrandingStore((s) => s.siteName)
+  const companyLegalName = useBrandingStore((s) => s.companyLegalName)
+  const brand: Record<string, string> = { company: siteName, companyLegal: companyLegalName, domain: siteDomain }
   const { data } = useFetch<PageContent>(`/content/contact?locale=${i18n.language}`, {
     deps: [i18n.language],
   })
 
-  const c = (key: string, fallback: string) => data?.sections?.[key] || fallback
+  const interpolate = (text: string) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_, key) => brand[key] ?? _)
+
+  const c = (key: string, fallback: string) => {
+    const raw = data?.sections?.[key]
+    return raw ? interpolate(raw) : fallback
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

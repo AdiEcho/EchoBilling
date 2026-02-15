@@ -299,6 +299,94 @@
     "detailedComparison": "详细对比",
     "monthlyPrice": "月付价格"
   },
+  "vpsLanding": {
+    "hero": {
+      "badge": "高性能云服务器",
+      "cta": "查看套餐与定价"
+    },
+    "features": {
+      "title": "为什么选择我们的 VPS",
+      "performance": {
+        "title": "极致性能",
+        "description": "高主频 vCPU 搭配 DDR5 内存，轻松应对高并发工作负载"
+      },
+      "storage": {
+        "title": "NVMe SSD 存储",
+        "description": "企业级 NVMe 固态硬盘，读写速度远超传统磁盘"
+      },
+      "security": {
+        "title": "全方位安全",
+        "description": "内置 DDoS 防护与防火墙，7x24 小时守护您的业务"
+      },
+      "uptime": {
+        "title": "99.99% 可用性",
+        "description": "冗余架构与自动故障转移，保障服务持续在线"
+      },
+      "network": {
+        "title": "全球高速网络",
+        "description": "多节点 BGP 线路接入，全球访问延迟更低"
+      },
+      "support": {
+        "title": "专业技术支持",
+        "description": "7x24 小时工程师在线，工单平均响应时间 < 15 分钟"
+      }
+    },
+    "pricing": {
+      "title": "选择适合您的套餐",
+      "subtitle": "灵活计费周期，长期订阅更优惠",
+      "monthly": "月付",
+      "quarterly": "季付",
+      "annually": "年付",
+      "mostPopular": "最受欢迎",
+      "orderNow": "立即订购",
+      "cores": "{{count}} 核 vCPU",
+      "setupFee": "开通费",
+      "free": "免费"
+    },
+    "comparison": {
+      "title": "套餐详细对比",
+      "cpu": "CPU",
+      "memory": "内存",
+      "disk": "磁盘",
+      "bandwidth": "带宽",
+      "monthlyPrice": "月付价格",
+      "quarterlyPrice": "季付价格",
+      "annuallyPrice": "年付价格",
+      "setupFee": "开通费",
+      "free": "免费"
+    },
+    "faq": {
+      "title": "常见问题",
+      "whatIsVps": {
+        "question": "什么是 VPS？与共享主机有什么区别？",
+        "answer": "VPS（虚拟专用服务器）提供独立的 CPU、内存和存储资源，不受其他用户影响。相比共享主机，VPS 拥有更高的性能、更好的安全性和完整的 Root 权限。"
+      },
+      "migration": {
+        "question": "可以从其他服务商迁移过来吗？",
+        "answer": "当然可以。我们提供免费迁移协助，技术团队会帮助您将网站、数据库和应用无缝迁移到我们的平台。"
+      },
+      "uptime": {
+        "question": "你们的可用性保障是怎样的？",
+        "answer": "我们承诺 99.99% 的网络可用性 SLA。我们的基础设施采用冗余电源、网络和存储，并提供自动故障转移机制。"
+      },
+      "billing": {
+        "question": "支持哪些计费方式？",
+        "answer": "我们支持月付、季付和年付三种计费周期。选择更长的计费周期可享受更大的折扣优惠。支持信用卡、支付宝、微信支付等多种支付方式。"
+      },
+      "support": {
+        "question": "遇到问题如何获得帮助？",
+        "answer": "我们提供 7x24 小时全天候技术支持。您可以通过工单系统或邮件联系我们，工程师团队平均响应时间不超过 15 分钟。"
+      }
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "description": "立即选择套餐，几分钟内部署您的服务器。所有套餐均享 30 天无理由退款保证。",
+      "button": "立即注册"
+    },
+    "error": {
+      "browsePlans": "浏览所有套餐"
+    }
+  },
   "portal": {
     "dashboard": {
       "welcome": "欢迎回来，{{name}}",

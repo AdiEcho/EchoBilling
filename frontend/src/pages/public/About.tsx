@@ -19,7 +19,13 @@ export default function About() {
     deps: [i18n.language],
   })
 
-  const c = (key: string, fallback: string) => data?.sections?.[key] || fallback
+  const interpolate = (text: string) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (brand as Record<string, string>)[key] ?? _)
+
+  const c = (key: string, fallback: string) => {
+    const raw = data?.sections?.[key]
+    return raw ? interpolate(raw) : fallback
+  }
 
   const values = [
     { icon: Target, key: 'mission' },
