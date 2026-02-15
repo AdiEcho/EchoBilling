@@ -46,7 +46,7 @@
     "all": "全部",
     "pageInfo": "第 {{page}} 页，共 {{total}} 页",
     "lastUpdated": "最后更新：2026 年 2 月 13 日",
-    "currency": "¥"
+    "currency": "$"
   },
   "languageSwitcher": {
     "ariaLabel": "切换语言",
@@ -55,6 +55,7 @@
   },
   "nav": {
     "home": "首页",
+    "vps": "VPS 主机",
     "pricing": "定价",
     "about": "关于",
     "contact": "联系"
@@ -385,6 +386,221 @@
     },
     "error": {
       "browsePlans": "浏览所有套餐"
+    }
+  },
+  "vpsPage": {
+    "hero": {
+      "badge": "高性能云计算",
+      "title": "超快、安全、可扩展的",
+      "highlight": "云服务器",
+      "description": "{{siteName}} 提供企业级 VPS 主机服务，搭载最新硬件、全球节点部署，助您在数秒内启动云服务器。",
+      "cta": "立即部署",
+      "viewPlans": "查看套餐"
+    },
+    "stats": {
+      "datacenters": { "value": "10+", "label": "全球数据中心" },
+      "uptime": { "value": "99.99%", "label": "网络可用性" },
+      "customers": { "value": "1000+", "label": "服务客户" },
+      "deployed": { "value": "5000+", "label": "已部署实例" }
+    },
+    "products": {
+      "title": "选择适合您的云计算方案",
+      "subtitle": "从入门到企业级，我们提供多种 VPS 产品线，满足不同业务场景的需求。",
+      "viewPlans": "查看套餐与定价",
+      "tiers": {
+        "regular": {
+          "name": "标准性能",
+          "description": "适用于个人项目、开发环境和轻量级应用的高性价比方案。",
+          "startingPrice": "起步 $2.50/月"
+        },
+        "highPerf": {
+          "name": "高性能",
+          "description": "搭载专属 vCPU 与 NVMe 存储，适用于生产环境和高流量应用。",
+          "startingPrice": "起步 $6.00/月"
+        },
+        "highFreq": {
+          "name": "高频计算",
+          "description": "配备 3.8GHz+ 高频处理器，专为计算密集型工作负载设计。",
+          "startingPrice": "起步 $6.00/月"
+        }
+      }
+    },
+    "features": {
+      "title": "为什么选择我们的 VPS",
+      "subtitle": "从硬件到软件、从安全到支持，我们在每个环节都追求卓越。",
+      "items": {
+        "performance": {
+          "title": "极致性能",
+          "description": "高主频 vCPU 搭配 DDR5 内存，轻松应对高并发工作负载。"
+        },
+        "storage": {
+          "title": "NVMe SSD 存储",
+          "description": "企业级 NVMe 固态硬盘，随机读写性能远超传统 SSD。"
+        },
+        "security": {
+          "title": "全方位安全",
+          "description": "内置 DDoS 防护与防火墙规则，全天候守护您的业务。"
+        },
+        "uptime": {
+          "title": "99.99% 可用性",
+          "description": "冗余架构与自动故障转移，保障服务持续在线。"
+        },
+        "global": {
+          "title": "全球节点部署",
+          "description": "覆盖北美、欧洲、亚太等多个区域，就近为用户提供服务。"
+        },
+        "network": {
+          "title": "高速网络",
+          "description": "多线 BGP 接入，10Gbps 端口带宽，全球访问延迟更低。"
+        },
+        "isolation": {
+          "title": "完全隔离",
+          "description": "独立 CPU、内存和存储资源，不受邻居影响，性能稳定可预测。"
+        },
+        "support": {
+          "title": "7×24 技术支持",
+          "description": "专业工程师全天在线，工单平均响应时间不超过 15 分钟。"
+        }
+      }
+    },
+    "useCases": {
+      "title": "适用场景",
+      "subtitle": "无论是个人博客还是企业级应用，VPS 都能提供灵活可靠的计算资源。",
+      "items": {
+        "webHosting": {
+          "title": "网站与应用托管",
+          "description": "部署 WordPress、Next.js、Django 等各类 Web 应用，享受完整的 Root 权限和自定义配置。"
+        },
+        "database": {
+          "title": "数据库服务器",
+          "description": "运行 MySQL、PostgreSQL、MongoDB 等数据库，NVMe 存储提供极低查询延迟。"
+        },
+        "gameServer": {
+          "title": "游戏服务器",
+          "description": "搭建 Minecraft、CS2 等游戏服务器，高频 CPU 和低延迟网络带来流畅体验。"
+        },
+        "ecommerce": {
+          "title": "电商平台",
+          "description": "运营在线商店，DDoS 防护和高可用架构确保交易不中断。"
+        },
+        "aiDev": {
+          "title": "开发与测试",
+          "description": "搭建 CI/CD 流水线、Docker 容器环境或远程开发工作站。"
+        },
+        "saas": {
+          "title": "SaaS 应用",
+          "description": "托管 SaaS 产品后端，弹性扩展满足业务增长需求。"
+        }
+      }
+    },
+    "deploy": {
+      "title": "强大的部署能力",
+      "subtitle": "从服务器创建到日常管理，我们提供全面的自动化工具。",
+      "items": {
+        "instant": {
+          "title": "秒级部署",
+          "description": "选择配置、选择区域，一键部署，服务器在 60 秒内上线。"
+        },
+        "os": {
+          "title": "多系统支持",
+          "description": "支持 Ubuntu、Debian、CentOS、Windows 等 12+ 操作系统。"
+        },
+        "snapshot": {
+          "title": "快照",
+          "description": "一键创建服务器快照，随时回滚或克隆到新实例。"
+        },
+        "backup": {
+          "title": "自动备份",
+          "description": "开启自动备份，每日增量备份保护您的数据安全。"
+        },
+        "scaling": {
+          "title": "灵活扩展",
+          "description": "一键升级 CPU、内存和存储，无需迁移数据或重新部署。"
+        },
+        "api": {
+          "title": "API 管理",
+          "description": "完整的 RESTful API，支持自动化脚本和第三方集成。"
+        }
+      }
+    },
+    "os": {
+      "title": "支持的操作系统",
+      "subtitle": "从主流 Linux 发行版到 Windows Server，选择您熟悉的操作系统。",
+      "list": {
+        "ubuntu": "Ubuntu",
+        "debian": "Debian",
+        "centos": "CentOS",
+        "rocky": "Rocky Linux",
+        "alma": "AlmaLinux",
+        "fedora": "Fedora",
+        "arch": "Arch Linux",
+        "freebsd": "FreeBSD",
+        "windows": "Windows",
+        "opensuse": "openSUSE",
+        "alpine": "Alpine",
+        "custom": "自定义 ISO"
+      }
+    },
+    "network": {
+      "title": "全球数据中心网络",
+      "subtitle": "在全球多个区域部署服务器，为您的用户提供低延迟的访问体验。",
+      "regions": {
+        "americas": {
+          "name": "美洲",
+          "locations": "纽约、洛杉矶、达拉斯、圣保罗、多伦多"
+        },
+        "europe": {
+          "name": "欧洲",
+          "locations": "伦敦、法兰克福、阿姆斯特丹、巴黎"
+        },
+        "asiaPacific": {
+          "name": "亚太",
+          "locations": "东京、新加坡、悉尼、首尔、香港"
+        }
+      }
+    },
+    "faq": {
+      "title": "常见问题",
+      "items": {
+        "whatIsVps": {
+          "question": "什么是 VPS 云服务器？",
+          "answer": "VPS（虚拟专用服务器）是一种通过虚拟化技术从物理服务器中划分出的独立计算环境。每台 VPS 拥有独立的 CPU、内存、存储和带宽资源，提供类似独立服务器的性能和控制权，同时价格更加亲民。"
+        },
+        "vsShared": {
+          "question": "VPS 和共享主机有什么区别？",
+          "answer": "共享主机上的多个用户共享同一台服务器的资源，一个用户的高负载可能影响其他用户。VPS 则提供隔离的专用资源，保证稳定的性能。此外，VPS 提供完整的 Root 权限，可以安装任意软件和自定义系统配置。"
+        },
+        "chooseSpec": {
+          "question": "如何选择合适的 VPS 配置？",
+          "answer": "对于个人博客或轻量应用，1 vCPU + 1GB 内存即可满足需求。中型网站或应用建议选择 2-4 vCPU + 4-8GB 内存。高流量网站或数据库服务器建议 4+ vCPU + 8GB+ 内存。您可以随时升级配置，无需重新部署。"
+        },
+        "migration": {
+          "question": "可以从其他服务商迁移过来吗？",
+          "answer": "当然可以。我们提供免费迁移协助，技术团队会帮助您将网站、数据库和应用无缝迁移到我们的平台。整个过程通常在几小时内完成，最大限度减少停机时间。"
+        },
+        "uptime": {
+          "question": "可用性保障是怎样的？",
+          "answer": "我们承诺 99.99% 的网络可用性 SLA。基础设施采用冗余电源、网络和存储架构，并配备自动故障转移机制。如果未达到 SLA 承诺，我们将按比例提供服务信用补偿。"
+        },
+        "billing": {
+          "question": "支持哪些计费方式？",
+          "answer": "我们支持月付、季付和年付三种计费周期。选择更长的计费周期可享受更大的折扣优惠。支持信用卡、PayPal、支付宝、微信支付等多种支付方式。所有套餐均享 30 天无理由退款保证。"
+        },
+        "support": {
+          "question": "遇到问题如何获得帮助？",
+          "answer": "我们提供 7×24 小时全天候技术支持。您可以通过工单系统或邮件联系我们，工程师团队平均响应时间不超过 15 分钟。同时我们提供详细的文档中心和知识库供您参考。"
+        },
+        "refund": {
+          "question": "退款政策是怎样的？",
+          "answer": "所有新购套餐均享 30 天无理由退款保证。如果您在购买后 30 天内对服务不满意，可以申请全额退款，无需任何理由。"
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "description": "立即注册，几分钟内部署您的云服务器。所有套餐均享 30 天无理由退款保证。",
+      "button": "免费注册",
+      "viewPricing": "查看定价"
     }
   },
   "portal": {

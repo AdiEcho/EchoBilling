@@ -18,6 +18,7 @@ export default function PublicLayout() {
 
   const navLinks = [
     { to: '/', label: t('nav.home') },
+    { to: '/vps', label: t('nav.vps') },
     { to: '/pricing', label: t('nav.pricing') },
     { to: '/about', label: t('nav.about') },
     { to: '/contact', label: t('nav.contact') },
@@ -119,11 +120,11 @@ export default function PublicLayout() {
             <div>
               <h3 className="text-sm font-semibold text-text mb-3">{t('footer.product')}</h3>
               <div className="space-y-2">
+                <Link to="/vps" className="block text-sm text-text-muted hover:text-text-secondary">
+                  {t('footer.vpsHosting')}
+                </Link>
                 <Link to="/pricing" className="block text-sm text-text-muted hover:text-text-secondary">
                   {t('footer.pricing')}
-                </Link>
-                <Link to="/vps/standard" className="block text-sm text-text-muted hover:text-text-secondary">
-                  {t('footer.vpsHosting')}
                 </Link>
               </div>
             </div>

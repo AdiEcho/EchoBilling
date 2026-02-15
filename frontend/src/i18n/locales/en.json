@@ -55,6 +55,7 @@
   },
   "nav": {
     "home": "Home",
+    "vps": "VPS Hosting",
     "pricing": "Pricing",
     "about": "About",
     "contact": "Contact"
@@ -385,6 +386,221 @@
     },
     "error": {
       "browsePlans": "Browse All Plans"
+    }
+  },
+  "vpsPage": {
+    "hero": {
+      "badge": "High-Performance Cloud Compute",
+      "title": "Ultra-Fast, Secure & Scalable",
+      "highlight": "Cloud Servers",
+      "description": "{{siteName}} delivers enterprise-grade VPS hosting powered by the latest hardware across global data centers. Deploy your cloud server in seconds.",
+      "cta": "Deploy Now",
+      "viewPlans": "View Plans"
+    },
+    "stats": {
+      "datacenters": { "value": "10+", "label": "Global Data Centers" },
+      "uptime": { "value": "99.99%", "label": "Network Uptime" },
+      "customers": { "value": "1,000+", "label": "Customers Served" },
+      "deployed": { "value": "5,000+", "label": "Instances Deployed" }
+    },
+    "products": {
+      "title": "Choose Your Cloud Compute Solution",
+      "subtitle": "From starter to enterprise, we offer multiple VPS product lines to meet the demands of any workload.",
+      "viewPlans": "View Plans & Pricing",
+      "tiers": {
+        "regular": {
+          "name": "Regular Performance",
+          "description": "Cost-effective solution for personal projects, dev environments, and lightweight applications.",
+          "startingPrice": "Starting at $2.50/mo"
+        },
+        "highPerf": {
+          "name": "High Performance",
+          "description": "Dedicated vCPUs and NVMe storage for production workloads and high-traffic applications.",
+          "startingPrice": "Starting at $6.00/mo"
+        },
+        "highFreq": {
+          "name": "High Frequency",
+          "description": "3.8GHz+ high-frequency processors designed for compute-intensive workloads.",
+          "startingPrice": "Starting at $6.00/mo"
+        }
+      }
+    },
+    "features": {
+      "title": "Why Choose Our VPS",
+      "subtitle": "From hardware to software, security to support, we pursue excellence at every level.",
+      "items": {
+        "performance": {
+          "title": "Blazing Performance",
+          "description": "High-frequency vCPUs paired with DDR5 memory to handle demanding workloads with ease."
+        },
+        "storage": {
+          "title": "NVMe SSD Storage",
+          "description": "Enterprise-grade NVMe SSDs with random I/O performance far exceeding traditional SSDs."
+        },
+        "security": {
+          "title": "Comprehensive Security",
+          "description": "Built-in DDoS protection and firewall rules safeguarding your business around the clock."
+        },
+        "uptime": {
+          "title": "99.99% Uptime",
+          "description": "Redundant architecture with automatic failover to keep your services consistently online."
+        },
+        "global": {
+          "title": "Global Deployment",
+          "description": "Data centers across North America, Europe, and Asia-Pacific for low-latency access worldwide."
+        },
+        "network": {
+          "title": "High-Speed Network",
+          "description": "Multi-homed BGP connectivity with 10Gbps ports for lower latency globally."
+        },
+        "isolation": {
+          "title": "Full Isolation",
+          "description": "Dedicated CPU, memory, and storage resources — no noisy neighbors, predictable performance."
+        },
+        "support": {
+          "title": "24/7 Expert Support",
+          "description": "Professional engineers online around the clock with average ticket response under 15 minutes."
+        }
+      }
+    },
+    "useCases": {
+      "title": "Use Cases",
+      "subtitle": "From personal blogs to enterprise applications, VPS provides flexible and reliable compute resources.",
+      "items": {
+        "webHosting": {
+          "title": "Web & App Hosting",
+          "description": "Deploy WordPress, Next.js, Django, and more with full root access and custom configuration."
+        },
+        "database": {
+          "title": "Database Servers",
+          "description": "Run MySQL, PostgreSQL, MongoDB with NVMe storage delivering ultra-low query latency."
+        },
+        "gameServer": {
+          "title": "Game Servers",
+          "description": "Host Minecraft, CS2, and more — high-frequency CPUs and low-latency network for smooth gameplay."
+        },
+        "ecommerce": {
+          "title": "E-Commerce",
+          "description": "Run your online store with DDoS protection and high availability ensuring uninterrupted transactions."
+        },
+        "aiDev": {
+          "title": "Development & Testing",
+          "description": "Build CI/CD pipelines, Docker environments, or remote development workstations."
+        },
+        "saas": {
+          "title": "SaaS Applications",
+          "description": "Host your SaaS product backend with elastic scaling to meet growing business demands."
+        }
+      }
+    },
+    "deploy": {
+      "title": "Powerful Deployment Capabilities",
+      "subtitle": "From server provisioning to daily management, we provide comprehensive automation tools.",
+      "items": {
+        "instant": {
+          "title": "Instant Deployment",
+          "description": "Pick your config, choose a region, click deploy — your server is online within 60 seconds."
+        },
+        "os": {
+          "title": "Multiple OS Support",
+          "description": "Choose from 12+ operating systems including Ubuntu, Debian, CentOS, and Windows."
+        },
+        "snapshot": {
+          "title": "Snapshots",
+          "description": "Create server snapshots with one click, roll back or clone to a new instance anytime."
+        },
+        "backup": {
+          "title": "Automatic Backups",
+          "description": "Enable automatic backups with daily incremental backups to protect your data."
+        },
+        "scaling": {
+          "title": "Flexible Scaling",
+          "description": "Upgrade CPU, memory, and storage with one click — no migration or redeployment needed."
+        },
+        "api": {
+          "title": "API Management",
+          "description": "Full RESTful API for automation scripts and third-party integrations."
+        }
+      }
+    },
+    "os": {
+      "title": "Supported Operating Systems",
+      "subtitle": "From popular Linux distributions to Windows Server, choose the OS you're comfortable with.",
+      "list": {
+        "ubuntu": "Ubuntu",
+        "debian": "Debian",
+        "centos": "CentOS",
+        "rocky": "Rocky Linux",
+        "alma": "AlmaLinux",
+        "fedora": "Fedora",
+        "arch": "Arch Linux",
+        "freebsd": "FreeBSD",
+        "windows": "Windows",
+        "opensuse": "openSUSE",
+        "alpine": "Alpine",
+        "custom": "Custom ISO"
+      }
+    },
+    "network": {
+      "title": "Global Data Center Network",
+      "subtitle": "Deploy servers across multiple regions to deliver low-latency experiences to your users worldwide.",
+      "regions": {
+        "americas": {
+          "name": "Americas",
+          "locations": "New York, Los Angeles, Dallas, São Paulo, Toronto"
+        },
+        "europe": {
+          "name": "Europe",
+          "locations": "London, Frankfurt, Amsterdam, Paris"
+        },
+        "asiaPacific": {
+          "name": "Asia Pacific",
+          "locations": "Tokyo, Singapore, Sydney, Seoul, Hong Kong"
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": {
+        "whatIsVps": {
+          "question": "What is a VPS cloud server?",
+          "answer": "A VPS (Virtual Private Server) is an isolated computing environment created from a physical server using virtualization technology. Each VPS has dedicated CPU, memory, storage, and bandwidth resources, offering performance and control similar to a dedicated server at a more affordable price."
+        },
+        "vsShared": {
+          "question": "How is VPS different from shared hosting?",
+          "answer": "With shared hosting, multiple users share the same server resources, and one user's high load can affect others. VPS provides isolated dedicated resources guaranteeing stable performance. Additionally, VPS offers full root access, allowing you to install any software and customize system configurations."
+        },
+        "chooseSpec": {
+          "question": "How do I choose the right VPS configuration?",
+          "answer": "For personal blogs or lightweight apps, 1 vCPU + 1GB RAM is sufficient. Medium websites or applications should consider 2-4 vCPU + 4-8GB RAM. High-traffic websites or database servers need 4+ vCPU + 8GB+ RAM. You can upgrade your configuration at any time without redeployment."
+        },
+        "migration": {
+          "question": "Can I migrate from another provider?",
+          "answer": "Absolutely. We offer free migration assistance — our technical team will help seamlessly migrate your websites, databases, and applications to our platform. The entire process typically completes within hours, minimizing downtime."
+        },
+        "uptime": {
+          "question": "What is your uptime guarantee?",
+          "answer": "We guarantee 99.99% network uptime SLA. Our infrastructure features redundant power, networking, and storage with automatic failover. If we fail to meet our SLA commitment, we provide proportional service credit compensation."
+        },
+        "billing": {
+          "question": "What billing options are available?",
+          "answer": "We support monthly, quarterly, and annual billing cycles. Longer commitments come with greater discounts. We accept credit cards, PayPal, Alipay, WeChat Pay, and more. All plans include a 30-day money-back guarantee."
+        },
+        "support": {
+          "question": "How can I get help if I have issues?",
+          "answer": "We provide 24/7 technical support. Reach us via the ticket system or email — our engineering team responds in under 15 minutes on average. We also maintain a comprehensive documentation center and knowledge base."
+        },
+        "refund": {
+          "question": "What is your refund policy?",
+          "answer": "All new plans include a 30-day money-back guarantee. If you're unsatisfied with the service within 30 days of purchase, you can request a full refund — no questions asked."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Sign up now and deploy your cloud server in minutes. All plans include a 30-day money-back guarantee.",
+      "button": "Sign Up Free",
+      "viewPricing": "View Pricing"
     }
   },
   "portal": {

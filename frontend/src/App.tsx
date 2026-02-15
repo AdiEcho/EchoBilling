@@ -24,6 +24,7 @@ const Privacy = lazy(() => import('./pages/public/Privacy'))
 const RefundPolicy = lazy(() => import('./pages/public/RefundPolicy'))
 const CancellationPolicy = lazy(() => import('./pages/public/CancellationPolicy'))
 const ProductDetail = lazy(() => import('./pages/public/ProductDetail'))
+const VpsHosting = lazy(() => import('./pages/public/VpsHosting'))
 const CheckoutSuccess = lazy(() => import('./pages/public/CheckoutSuccess'))
 const CheckoutCancel = lazy(() => import('./pages/public/CheckoutCancel'))
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -123,6 +124,7 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+            <Route path="/vps" element={<VpsHosting />} />
             <Route path="/vps/:slug" element={<ProductDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
