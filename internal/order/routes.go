@@ -29,5 +29,7 @@ func RegisterCartRoutes(authenticated *gin.RouterGroup, h *Handler) {
 	{
 		cart.POST("/items", h.AddCartItem)
 		cart.GET("", h.GetCart)
+		cart.PUT("/items/:id", h.UpdateCartItem)
+		cart.DELETE("/items/:id", h.RemoveCartItem)
 	}
 }

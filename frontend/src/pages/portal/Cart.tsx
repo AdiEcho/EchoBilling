@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, Trash2, CreditCard } from 'lucide-react'
+import { ShoppingCart, Trash2, CreditCard, Minus, Plus } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import DataTable from '../../components/ui/DataTable'
@@ -68,6 +68,19 @@ export default function Cart() {
     }
   }
 
+  const handleUpdateQuantity = async (itemId: string, quantity: number) => {
+    if (!token || quantity < 1) return
+    try {
+      const data = await api<CartData>(`/cart/items/${itemId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ quantity }),
+      })
+      setCart(data)
+    } catch (err) {
+      toast.error(t('common.fetchError'))
+    }
+  }
+
   const handleCheckout = async () => {
     if (!token || !cart) return
     setCheckingOut(true)
@@ -117,7 +130,24 @@ export default function Cart() {
       {
         accessorKey: 'quantity',
         header: () => t('cart.quantity'),
-        cell: ({ row }) => <span className="text-text">{row.original.quantity}</span>,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded-md border border-border hover:bg-surface-hover text-text disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => void handleUpdateQuantity(row.original.id, row.original.quantity - 1)}
+              disabled={row.original.quantity <= 1}
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-text w-8 text-center">{row.original.quantity}</span>
+            <button
+              className="w-7 h-7 flex items-center justify-center rounded-md border border-border hover:bg-surface-hover text-text"
+              onClick={() => void handleUpdateQuantity(row.original.id, row.original.quantity + 1)}
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ),
       },
       {
         accessorKey: 'unit_price',

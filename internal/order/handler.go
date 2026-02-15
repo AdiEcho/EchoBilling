@@ -118,6 +118,11 @@ type AddCartItemRequest struct {
 	Quantity     int    `json:"quantity" binding:"required,min=1"`
 }
 
+// UpdateCartItemRequest 更新购物车项数量请求
+type UpdateCartItemRequest struct {
+	Quantity int `json:"quantity" binding:"required,min=1"`
+}
+
 // UpdateOrderStatusRequest 更新订单状态请求
 type UpdateOrderStatusRequest struct {
 	Status string `json:"status" binding:"required"`
@@ -263,6 +268,160 @@ func (h *Handler) AddCartItem(c *gin.Context) {
 		 SET total_amount = $2, updated_at = $3
 		 WHERE id = $1`,
 		orderID, totalAmount, now,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cart total"})
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	cart, err := h.getDraftCart(ctx, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load cart"})
+		return
+	}
+	if cart == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":       "draft",
+			"currency":     "USD",
+			"total_amount": "0.00",
+			"items":        []OrderItem{},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, cart)
+}
+
+// RemoveCartItem 删除购物车项
+func (h *Handler) RemoveCartItem(c *gin.Context) {
+	itemID := c.Param("id")
+
+	userID, ok := common.GetUserID(c)
+	if !ok {
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	// 验证该 item 属于当前用户的 draft 订单
+	var orderID string
+	err = tx.QueryRow(ctx,
+		`SELECT oi.order_id
+		 FROM order_items oi
+		 JOIN orders o ON o.id = oi.order_id
+		 WHERE oi.id = $1 AND o.user_id = $2 AND o.status = 'draft'`,
+		itemID, userID,
+	).Scan(&orderID)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Cart item not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query cart item"})
+		return
+	}
+
+	_, err = tx.Exec(ctx, `DELETE FROM order_items WHERE id = $1`, itemID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete cart item"})
+		return
+	}
+
+	// 重新计算订单总额
+	now := time.Now()
+	_, err = tx.Exec(ctx,
+		`UPDATE orders
+		 SET total_amount = (SELECT COALESCE(SUM(quantity * unit_price), 0) FROM order_items WHERE order_id = $1),
+		     updated_at = $2
+		 WHERE id = $1`,
+		orderID, now,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cart total"})
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Item removed"})
+}
+
+// UpdateCartItem 更新购物车项数量
+func (h *Handler) UpdateCartItem(c *gin.Context) {
+	itemID := c.Param("id")
+
+	var req UpdateCartItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	userID, ok := common.GetUserID(c)
+	if !ok {
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	// 验证该 item 属于当前用户的 draft 订单
+	var orderID string
+	err = tx.QueryRow(ctx,
+		`SELECT oi.order_id
+		 FROM order_items oi
+		 JOIN orders o ON o.id = oi.order_id
+		 WHERE oi.id = $1 AND o.user_id = $2 AND o.status = 'draft'`,
+		itemID, userID,
+	).Scan(&orderID)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Cart item not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query cart item"})
+		return
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE order_items SET quantity = $2 WHERE id = $1`,
+		itemID, req.Quantity,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cart item"})
+		return
+	}
+
+	// 重新计算订单总额
+	now := time.Now()
+	_, err = tx.Exec(ctx,
+		`UPDATE orders
+		 SET total_amount = (SELECT COALESCE(SUM(quantity * unit_price), 0) FROM order_items WHERE order_id = $1),
+		     updated_at = $2
+		 WHERE id = $1`,
+		orderID, now,
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cart total"})
