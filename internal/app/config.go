@@ -24,6 +24,11 @@ type Config struct {
 	RenewalWebhookURL    string
 	RenewalWebhookToken  string
 	NotificationTimeout  time.Duration
+	SMTPHost             string
+	SMTPPort             string
+	SMTPUsername         string
+	SMTPPassword         string
+	SMTPFrom             string
 }
 
 func LoadConfig() (*Config, error) {
@@ -43,6 +48,11 @@ func LoadConfig() (*Config, error) {
 		Environment:          getEnv("ENVIRONMENT", "dev"),
 		RenewalWebhookURL:    getEnv("RENEWAL_WEBHOOK_URL", ""),
 		RenewalWebhookToken:  getEnv("RENEWAL_WEBHOOK_TOKEN", ""),
+		SMTPHost:             getEnv("SMTP_HOST", ""),
+		SMTPPort:             getEnv("SMTP_PORT", "587"),
+		SMTPUsername:         getEnv("SMTP_USERNAME", ""),
+		SMTPPassword:         getEnv("SMTP_PASSWORD", ""),
+		SMTPFrom:             getEnv("SMTP_FROM", ""),
 	}
 
 	// 解析 JWT 过期时间（优先 JWT_EXPIRY_HOURS，其次 JWT_EXPIRY，默认 24h）

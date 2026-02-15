@@ -8,21 +8,36 @@ import (
 	"github.com/adiecho/echobilling/internal/common"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 // Handler 认证处理器
 type Handler struct {
 	pool      *pgxpool.Pool
+	rdb       *redis.Client
 	jwtSecret string
 	jwtExpiry time.Duration
+	smtpCfg   *SMTPConfig
 }
 
 // NewHandler 创建新的认证处理器
-func NewHandler(pool *pgxpool.Pool, cfg *app.Config) *Handler {
+func NewHandler(pool *pgxpool.Pool, rdb *redis.Client, cfg *app.Config) *Handler {
+	var smtpCfg *SMTPConfig
+	if cfg.SMTPHost != "" {
+		smtpCfg = &SMTPConfig{
+			Host:     cfg.SMTPHost,
+			Port:     cfg.SMTPPort,
+			Username: cfg.SMTPUsername,
+			Password: cfg.SMTPPassword,
+			From:     cfg.SMTPFrom,
+		}
+	}
 	return &Handler{
 		pool:      pool,
+		rdb:       rdb,
 		jwtSecret: cfg.JWTSecret,
 		jwtExpiry: cfg.JWTExpiry,
+		smtpCfg:   smtpCfg,
 	}
 }
 
@@ -46,18 +61,21 @@ type RefreshRequest struct {
 
 // AuthResponse 认证响应
 type AuthResponse struct {
-	AccessToken  string   `json:"access_token"`
-	RefreshToken string   `json:"refresh_token"`
-	User         UserInfo `json:"user"`
+	AccessToken    string    `json:"access_token,omitempty"`
+	RefreshToken   string    `json:"refresh_token,omitempty"`
+	User           *UserInfo `json:"user,omitempty"`
+	Requires2FA    bool      `json:"requires_2fa,omitempty"`
+	TwoFactorToken string    `json:"two_factor_token,omitempty"`
 }
 
 // UserInfo 用户信息
 type UserInfo struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
+	ID               string    `json:"id"`
+	Email            string    `json:"email"`
+	Name             string    `json:"name"`
+	Role             string    `json:"role"`
+	TwoFactorEnabled bool      `json:"two_factor_enabled"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 // Register 用户注册
@@ -100,6 +118,11 @@ func (h *Handler) Login(c *gin.Context) {
 	authResp, err := h.loginUser(c.Request.Context(), req)
 	if err != nil {
 		common.WriteServiceError(c, err)
+		return
+	}
+
+	if authResp.Requires2FA {
+		c.JSON(http.StatusOK, authResp)
 		return
 	}
 

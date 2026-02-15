@@ -41,7 +41,7 @@ export default function SetupAdmin() {
 
       // 保存 token 并更新 auth store
       localStorage.setItem('token', data.access_token)
-      useAuthStore.setState({ token: data.access_token, user: data.user })
+      useAuthStore.setState({ token: data.access_token, user: { ...data.user, two_factor_enabled: false } })
 
       // 标记 setup 完成
       useSetupStore.setState({ needsSetup: false })

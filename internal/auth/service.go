@@ -3,12 +3,14 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/adiecho/echobilling/internal/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/redis/go-redis/v9"
 )
 
 func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthResponse, *common.ServiceError) {
@@ -49,12 +51,13 @@ func (h *Handler) registerUser(ctx context.Context, req RegisterRequest) (*AuthR
 func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthResponse, *common.ServiceError) {
 	var user UserInfo
 	var passwordHash string
+	var twoFactorEnabled bool
 	err := h.pool.QueryRow(ctx,
-		`SELECT id, email, name, role, password_hash, created_at
+		`SELECT id, email, name, role, password_hash, two_factor_enabled, created_at
 		 FROM users
 		 WHERE email = $1`,
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &passwordHash, &user.CreatedAt)
+	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &passwordHash, &twoFactorEnabled, &user.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, common.NewServiceError(http.StatusUnauthorized, "Invalid email or password", err)
@@ -67,6 +70,25 @@ func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthRespons
 		return nil, common.NewServiceError(http.StatusUnauthorized, "Invalid email or password", err)
 	}
 
+	user.TwoFactorEnabled = twoFactorEnabled
+
+	// 用户已启用 2FA，返回临时 token
+	if twoFactorEnabled {
+		token, err := generate2FAToken()
+		if err != nil {
+			return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to generate 2FA token", err)
+		}
+		// 存入 Redis，TTL 5 分钟，绑定 userID
+		key := fmt.Sprintf("2fa:token:%s", token)
+		if err := h.rdb.Set(ctx, key, user.ID, 5*time.Minute).Err(); err != nil {
+			return nil, common.NewServiceError(http.StatusInternalServerError, "Failed to store 2FA token", err)
+		}
+		return &AuthResponse{
+			Requires2FA:    true,
+			TwoFactorToken: token,
+		}, nil
+	}
+
 	authResp, serviceErr := h.issueTokens(user)
 	if serviceErr != nil {
 		return nil, serviceErr
@@ -77,11 +99,11 @@ func (h *Handler) loginUser(ctx context.Context, req LoginRequest) (*AuthRespons
 func (h *Handler) getUserByID(ctx context.Context, userID string) (*UserInfo, *common.ServiceError) {
 	var user UserInfo
 	err := h.pool.QueryRow(ctx,
-		`SELECT id, email, name, role, created_at
+		`SELECT id, email, name, role, two_factor_enabled, created_at
 		 FROM users
 		 WHERE id = $1`,
 		userID,
-	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.CreatedAt)
+	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.TwoFactorEnabled, &user.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, common.NewServiceError(http.StatusNotFound, "User not found", err)
@@ -128,6 +150,30 @@ func (h *Handler) issueTokens(user UserInfo) (*AuthResponse, *common.ServiceErro
 	return &AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		User:         user,
+		User:         &user,
 	}, nil
+}
+
+// generate2FAToken 生成安全随机 2FA 临时 token
+func generate2FAToken() (string, error) {
+	return uuid.New().String(), nil
+}
+
+// validate2FAToken 验证 2FA 临时 token 并返回 userID
+func (h *Handler) validate2FAToken(ctx context.Context, token string) (string, error) {
+	key := fmt.Sprintf("2fa:token:%s", token)
+	userID, err := h.rdb.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return "", fmt.Errorf("invalid or expired 2FA token")
+	}
+	if err != nil {
+		return "", fmt.Errorf("check 2FA token: %w", err)
+	}
+	return userID, nil
+}
+
+// consume2FAToken 消费 2FA 临时 token
+func (h *Handler) consume2FAToken(ctx context.Context, token string) {
+	key := fmt.Sprintf("2fa:token:%s", token)
+	h.rdb.Del(ctx, key)
 }

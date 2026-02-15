@@ -69,7 +69,7 @@ func main() {
 	setup.RegisterRoutes(v1.Group("/setup"), setupHandler)
 
 	// 认证路由（严格限流：5 req/s，burst 10，防止暴力破解）
-	authHandler := auth.NewHandler(pool, cfg)
+	authHandler := auth.NewHandler(pool, rdb, cfg)
 	auth.RegisterRoutes(v1.Group("/auth", middleware.RateLimit(5, 10)), authHandler, authMiddleware)
 
 	// 产品目录路由（公开）
@@ -83,6 +83,9 @@ func main() {
 	// 用户门户路由（需要认证）
 	portal := v1.Group("/portal", authMiddleware)
 	authed := v1.Group("", authMiddleware)
+
+	// 2FA 设置路由（需要认证）
+	auth.Register2FARoutes(portal, authHandler)
 
 	// 用户门户附加路由
 	customerHandler := customer.NewHandler(pool)
