@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   FileEdit,
+  ArrowLeft,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import SidebarLayout, { type SidebarLink } from './SidebarLayout'
@@ -23,6 +24,7 @@ export default function AdminLayout() {
     { to: '/admin/payments', label: t('common.payments'), icon: CreditCard },
     { to: '/admin/customers', label: t('common.customers'), icon: Users },
     { to: '/admin/system', label: t('common.system'), icon: Settings },
+    { to: '/portal/dashboard', label: t('common.backToPortal'), icon: ArrowLeft },
   ]
 
   return (
