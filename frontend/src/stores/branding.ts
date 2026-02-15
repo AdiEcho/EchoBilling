@@ -9,21 +9,18 @@ interface BrandingState {
 }
 
 export const useBrandingStore = create<BrandingState>((set, get) => ({
-  siteName: 'EchoBilling',
-  companyLegalName: 'EchoBilling LLC',
+  siteName: '',
+  companyLegalName: '',
   loaded: false,
 
   fetchBranding: async () => {
     if (get().loaded) return
     try {
       const data = await api<Record<string, string>>('/settings/public')
-      const siteName = data.site_name || 'EchoBilling'
-      set({
-        siteName,
-        companyLegalName: data.company_legal_name || 'EchoBilling LLC',
-        loaded: true,
-      })
-      document.title = siteName
+      const siteName = data.site_name || ''
+      const companyLegalName = data.company_legal_name || ''
+      set({ siteName, companyLegalName, loaded: true })
+      if (siteName) document.title = siteName
     } catch {
       set({ loaded: true })
     }
